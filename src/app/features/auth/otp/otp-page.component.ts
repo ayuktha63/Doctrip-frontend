@@ -10,8 +10,14 @@ const RESEND_COOLDOWN_SECONDS = 30;
 
 /**
  * OTP verification screen — mirrors the reference mockup's `isOtp` block in PatientPanel.dc.html
- * (6-box code entry, resend countdown), wired to real backend verify/resend calls instead of the
- * mockup's "any six digits verify" placeholder logic.
+ * (6-box code entry, resend countdown, Back link), wired to real backend verify/resend calls
+ * instead of the mockup's "any six digits verify" placeholder logic.
+ *
+ * The browser's own Back/Forward buttons are blocked while this screen is active (the patient
+ * must use the in-app "Back" link or complete verification instead) via a history-API trap: a
+ * dummy history entry is pushed on entry, and any popstate this screen sees while alive just gets
+ * pushed right back — this only intercepts actual browser back/forward, not Angular Router
+ * navigation from clicking a link, so the mockup's own "Back" button keeps working normally.
  */
 @Component({
   selector: 'app-otp-page',
@@ -55,11 +61,23 @@ export class OtpPageComponent implements OnInit, OnDestroy {
     this.tick = setInterval(() => {
       this.resendSeconds.update((s) => Math.max(s - 1, 0));
     }, 1000);
+
+    // Trap browser Back/Forward: push a dummy entry now, then re-push it on every popstate seen
+    // while this screen is alive, so the URL never actually changes from a back/forward press.
+    // In-app navigation (e.g. clicking the "Back" link below) uses pushState via the Router, not
+    // popstate, so it's untouched by this and keeps working normally.
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', this.blockPopState);
   }
 
   ngOnDestroy(): void {
     if (this.tick) clearInterval(this.tick);
+    window.removeEventListener('popstate', this.blockPopState);
   }
+
+  private blockPopState = (): void => {
+    history.pushState(null, '', location.href);
+  };
 
   onOtpInput(event: Event): void {
     const raw = (event.target as HTMLInputElement).value;
