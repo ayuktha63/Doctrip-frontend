@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,6 +9,33 @@ import { ApiError } from '../../core/models/auth.model';
 import { mobileNumberValidator, passwordStrengthScore, strongPasswordValidator } from '../../shared/validators';
 
 type AuthTab = 'signin' | 'signup';
+
+export interface CountryCode {
+  iso: string;
+  name: string;
+  dial: string;
+}
+
+/**
+ * The mockup's mobile field shows a "+91" box with a dropdown chevron that isn't wired to
+ * anything. Kept short and relevant to DocTrip's actual patient base — Kerala hospitals treating
+ * international (mostly Gulf/UK/US) patients — rather than an exhaustive ISO list.
+ *
+ * Note: Doctrip-backend's RegisterRequest.mobile still only validates a bare 10-digit number
+ * (see mobileNumberValidator) regardless of which country is selected here — this dropdown is
+ * currently cosmetic beyond India; full international phone validation is a follow-up.
+ */
+export const COUNTRY_CODES: CountryCode[] = [
+  { iso: 'IN', name: 'India', dial: '+91' },
+  { iso: 'AE', name: 'United Arab Emirates', dial: '+971' },
+  { iso: 'SA', name: 'Saudi Arabia', dial: '+966' },
+  { iso: 'QA', name: 'Qatar', dial: '+974' },
+  { iso: 'KW', name: 'Kuwait', dial: '+965' },
+  { iso: 'OM', name: 'Oman', dial: '+968' },
+  { iso: 'GB', name: 'United Kingdom', dial: '+44' },
+  { iso: 'US', name: 'United States', dial: '+1' },
+  { iso: 'AU', name: 'Australia', dial: '+61' },
+];
 
 /**
  * Sign in / sign up screen — mirrors the reference mockup's `isAuth` block in PatientPanel.dc.html
@@ -48,6 +75,25 @@ export class AuthPageComponent {
 
   protected readonly googleAuthUrl = `${environment.apiBaseUrl}/oauth2/authorization/google`;
   protected readonly appleAuthUrl = `${environment.apiBaseUrl}/oauth2/authorization/apple`;
+
+  protected readonly countryCodes = COUNTRY_CODES;
+  protected readonly selectedCountry = signal<CountryCode>(COUNTRY_CODES[0]);
+  protected readonly countryDropdownOpen = signal(false);
+
+  toggleCountryDropdown(): void {
+    this.countryDropdownOpen.update((v) => !v);
+  }
+
+  selectCountry(country: CountryCode): void {
+    this.selectedCountry.set(country);
+    this.countryDropdownOpen.set(false);
+  }
+
+  /** Closes the dropdown on any click outside it; the toggle/option buttons stop propagation so they don't immediately re-trigger this. */
+  @HostListener('document:click')
+  closeCountryDropdown(): void {
+    this.countryDropdownOpen.set(false);
+  }
 
   pickTab(tab: AuthTab): void {
     this.tab.set(tab);
