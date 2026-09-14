@@ -1,0 +1,37 @@
+.login-placeholder {
+  padding: 24px 16px;
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+  color: #1f2a37;
+
+  &__detail {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 8px;
+  }
+
+  &__error {
+    font-size: 13px;
+    color: #b3261e;
+    margin-top: 12px;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+
+    button {
+      height: 42px;
+      border: 1px solid #e3e9f2;
+      border-radius: 12px;
+      background: #f4f7fc;
+      font-size: 13px;
+      font-weight: 600;
+      color: #0b1526;
+      cursor: pointer;
+    }
+  }
+}

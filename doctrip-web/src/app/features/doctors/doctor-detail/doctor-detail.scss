@@ -1,0 +1,73 @@
+.doctor-detail {
+  padding: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+
+  &__state {
+    padding: 24px 16px;
+    color: #6b7280;
+    font-size: 14px;
+
+    &--error {
+      color: #b3261e;
+    }
+  }
+
+  &__error-detail {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__image {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #eef2f8;
+  }
+
+  &__name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #0b1526;
+    margin: 8px 0 0;
+  }
+
+  &__meta {
+    font-size: 13px;
+    color: #5b6472;
+    margin: 0;
+  }
+
+  &__experience {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  &__rating {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2a37;
+    margin: 0;
+  }
+
+  &__description {
+    font-size: 14px;
+    line-height: 20px;
+    color: #1f2a37;
+    margin-top: 12px;
+
+    &--missing {
+      color: #6b7280;
+      font-style: italic;
+    }
+  }
+}

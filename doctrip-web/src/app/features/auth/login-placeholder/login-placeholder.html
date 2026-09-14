@@ -1,0 +1,18 @@
+<section class="login-placeholder" aria-label="Login or Sign Up">
+  <p>Login / Sign Up is not implemented yet.</p>
+  <p class="login-placeholder__detail">
+    You were redirected here because booking requires an authenticated patient account.
+  </p>
+
+  @if (hasFailed()) {
+    <p class="login-placeholder__error" role="alert">
+      Authentication failed. Please try again.
+    </p>
+  }
+
+  <div class="login-placeholder__actions">
+    <button type="button" (click)="simulateSuccessfulSignIn()">Simulate successful sign-in</button>
+    <button type="button" (click)="simulateAuthenticationFailure()">Simulate authentication failure</button>
+    <button type="button" (click)="cancel()">Cancel</button>
+  </div>
+</section>

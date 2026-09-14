@@ -1,0 +1,55 @@
+<section class="hospital-detail" aria-label="Hospital profile">
+  @if (isLoading()) {
+    <div class="hospital-detail__state" role="status" aria-live="polite">
+      Loading hospital profile…
+    </div>
+  } @else if (hasError()) {
+    <div class="hospital-detail__state hospital-detail__state--error" role="alert">
+      <p>We couldn't load this hospital's profile right now.</p>
+      <p class="hospital-detail__error-detail">{{ currentError() }}</p>
+      <button type="button" (click)="load()">Retry</button>
+    </div>
+  } @else if (isUnavailable()) {
+    <div class="hospital-detail__state" role="status">
+      This hospital profile is currently unavailable.
+    </div>
+  } @else if (isLoaded() && profile(); as hospital) {
+    <article class="hospital-detail__content">
+      @if (hospital.imageUrl) {
+        <img class="hospital-detail__image" [src]="hospital.imageUrl" alt="" />
+      }
+
+      <h1 class="hospital-detail__name">{{ hospital.name }}</h1>
+
+      @if (hospital.type || hospital.city) {
+        <p class="hospital-detail__meta">
+          {{ hospital.type }}@if (hospital.type && hospital.city) { · }{{ hospital.city }}
+        </p>
+      }
+
+      @if (hospital.rating) {
+        <p class="hospital-detail__rating">
+          {{ hospital.rating }}
+          @if (hospital.reviewsCount) {
+            <span class="hospital-detail__reviews">({{ hospital.reviewsCount }})</span>
+          }
+        </p>
+      }
+
+      @if (hospital.priceFrom) {
+        <p class="hospital-detail__price">
+          <span class="hospital-detail__price-label">from</span>
+          {{ hospital.priceFrom }}
+        </p>
+      }
+
+      @if (hospital.description) {
+        <p class="hospital-detail__description">{{ hospital.description }}</p>
+      } @else {
+        <p class="hospital-detail__description hospital-detail__description--missing">
+          Detailed information for this hospital is not available yet.
+        </p>
+      }
+    </article>
+  }
+</section>

@@ -1,0 +1,47 @@
+<section class="treatment-discovery" aria-label="Treatment packages">
+  <h1 class="treatment-discovery__title">Treatment packages</h1>
+
+  @if (isLoading()) {
+    <div class="treatment-discovery__state" role="status" aria-live="polite">
+      Loading treatment packages…
+    </div>
+  } @else if (hasError()) {
+    <div class="treatment-discovery__state treatment-discovery__state--error" role="alert">
+      <p>We couldn't load treatment packages right now.</p>
+      <p class="treatment-discovery__error-detail">{{ currentError() }}</p>
+      <button type="button" (click)="load()">Retry</button>
+    </div>
+  } @else if (isEmpty()) {
+    <div class="treatment-discovery__state" role="status">
+      No treatment packages are available right now.
+    </div>
+  } @else {
+    <ul class="treatment-discovery__list">
+      @for (pkg of visiblePackages(); track pkg.id) {
+        <li>
+          <button
+            type="button"
+            class="treatment-card"
+            (click)="selectPackage(pkg)"
+          >
+            @if (pkg.imageUrl) {
+              <img class="treatment-card__image" [src]="pkg.imageUrl" alt="" />
+            }
+            <span class="treatment-card__name">{{ pkg.name }}</span>
+            @if (pkg.department || pkg.stayDuration) {
+              <span class="treatment-card__meta">
+                {{ pkg.department }}@if (pkg.department && pkg.stayDuration) { · }{{ pkg.stayDuration }}
+              </span>
+            }
+            @if (pkg.priceFrom) {
+              <span class="treatment-card__price">
+                <span class="treatment-card__price-label">from</span>
+                {{ pkg.priceFrom }}
+              </span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</section>

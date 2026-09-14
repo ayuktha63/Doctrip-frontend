@@ -1,0 +1,72 @@
+<section class="hospital-discovery" aria-label="Hospitals">
+  <h1 class="hospital-discovery__title">Hospitals</h1>
+
+  <div class="hospital-discovery__search">
+    <input
+      type="search"
+      class="hospital-discovery__search-input"
+      placeholder="Search hospitals"
+      aria-label="Search hospitals"
+      [value]="query()"
+      (input)="onSearchInput($any($event.target).value)"
+    />
+  </div>
+
+  @if (isLoading()) {
+    <div class="hospital-discovery__state" role="status" aria-live="polite">
+      Loading hospitals…
+    </div>
+  } @else if (hasError()) {
+    <div class="hospital-discovery__state hospital-discovery__state--error" role="alert">
+      <p>We couldn't load hospitals right now.</p>
+      <p class="hospital-discovery__error-detail">{{ currentError() }}</p>
+      <button type="button" (click)="load()">Retry</button>
+    </div>
+  } @else if (isEmpty()) {
+    <div class="hospital-discovery__state" role="status">
+      @if (isSearchActive()) {
+        No hospitals match "{{ query() }}".
+      } @else {
+        No hospitals are available right now.
+      }
+    </div>
+  } @else {
+    <ul class="hospital-discovery__list">
+      @for (hospital of visibleHospitals(); track hospital.id) {
+        <li>
+          <button
+            type="button"
+            class="hospital-card"
+            (click)="selectHospital(hospital)"
+          >
+            @if (hospital.imageUrl) {
+              <img class="hospital-card__image" [src]="hospital.imageUrl" alt="" />
+            }
+            <span class="hospital-card__body">
+              <span class="hospital-card__name">{{ hospital.name }}</span>
+              @if (hospital.type || hospital.city) {
+                <span class="hospital-card__meta">
+                  {{ hospital.type }}@if (hospital.type && hospital.city) { · }{{ hospital.city }}
+                </span>
+              }
+              @if (hospital.rating) {
+                <span class="hospital-card__rating">
+                  {{ hospital.rating }}
+                  @if (hospital.reviewsCount) {
+                    <span class="hospital-card__reviews">({{ hospital.reviewsCount }})</span>
+                  }
+                </span>
+              }
+            </span>
+            @if (hospital.priceFrom) {
+              <span class="hospital-card__price">
+                <span class="hospital-card__price-label">from</span>
+                {{ hospital.priceFrom }}
+              </span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</section>

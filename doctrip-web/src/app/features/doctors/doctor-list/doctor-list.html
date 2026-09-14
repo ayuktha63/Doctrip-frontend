@@ -1,0 +1,64 @@
+<section class="doctor-discovery" aria-label="Doctors">
+  <h1 class="doctor-discovery__title">Doctors</h1>
+
+  <div class="doctor-discovery__search">
+    <input
+      type="search"
+      class="doctor-discovery__search-input"
+      placeholder="Search doctors"
+      aria-label="Search doctors"
+      [value]="query()"
+      (input)="onSearchInput($any($event.target).value)"
+    />
+  </div>
+
+  @if (isLoading()) {
+    <div class="doctor-discovery__state" role="status" aria-live="polite">
+      Loading doctors…
+    </div>
+  } @else if (hasError()) {
+    <div class="doctor-discovery__state doctor-discovery__state--error" role="alert">
+      <p>We couldn't load doctors right now.</p>
+      <p class="doctor-discovery__error-detail">{{ currentError() }}</p>
+      <button type="button" (click)="load()">Retry</button>
+    </div>
+  } @else if (isEmpty()) {
+    <div class="doctor-discovery__state" role="status">
+      @if (isSearchActive()) {
+        No doctors match "{{ query() }}".
+      } @else {
+        No doctors are available right now.
+      }
+    </div>
+  } @else {
+    <ul class="doctor-discovery__list">
+      @for (doctor of visibleDoctors(); track doctor.id) {
+        <li>
+          <button
+            type="button"
+            class="doctor-card"
+            (click)="selectDoctor(doctor)"
+          >
+            @if (doctor.imageUrl) {
+              <img class="doctor-card__image" [src]="doctor.imageUrl" alt="" />
+            }
+            <span class="doctor-card__body">
+              <span class="doctor-card__name">{{ doctor.name }}</span>
+              @if (doctor.role || doctor.department) {
+                <span class="doctor-card__meta">
+                  {{ doctor.role }}@if (doctor.role && doctor.department) { · }{{ doctor.department }}
+                </span>
+              }
+              @if (doctor.experience) {
+                <span class="doctor-card__experience">{{ doctor.experience }}</span>
+              }
+            </span>
+            @if (doctor.rating) {
+              <span class="doctor-card__rating">{{ doctor.rating }}</span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</section>
