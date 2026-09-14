@@ -29,5 +29,44 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    // Story 3 — DocTrip Admin console. Separate top-level route tree from the patient app (its own
+    // shell), not nested under the patient AppShellComponent. The reference mockup (Main.dc.html)
+    // starts pre-authenticated with no login screen, so this story ships no admin auth — see
+    // backend CLAUDE.md.
+    path: 'admin',
+    loadComponent: () =>
+      import('./shared/components/admin-shell/admin-shell.component').then((m) => m.AdminShellComponent),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./features/admin/dashboard/admin-dashboard.component').then((m) => m.AdminDashboardComponent),
+      },
+      {
+        path: 'hospitals',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./features/admin/hospitals/hospital-list.component').then((m) => m.HospitalListComponent),
+      },
+      {
+        path: 'hospitals/new',
+        loadComponent: () =>
+          import('./features/admin/hospitals/hospital-form.component').then((m) => m.HospitalFormComponent),
+      },
+      {
+        path: 'hospitals/:id',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./features/admin/hospitals/hospital-detail.component').then((m) => m.HospitalDetailComponent),
+      },
+      {
+        path: 'hospitals/:id/edit',
+        loadComponent: () =>
+          import('./features/admin/hospitals/hospital-form.component').then((m) => m.HospitalFormComponent),
+      },
+    ],
+  },
   { path: '**', redirectTo: 'home' },
 ];

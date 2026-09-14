@@ -131,6 +131,45 @@ npm run build
 npm test
 ```
 
+## Story 3 — DocTrip Admin & hospital management
+
+A second route tree lives alongside the patient app in this same Angular project — not a separate
+app, per an explicit decision to keep one frontend project with `/admin` as its own top-level
+route:
+
+```
+src/app/
+  core/
+    services/        HospitalService, ConfirmDialogService (alongside AuthService, ToastService)
+    models/          hospital.model.ts (Hospital, HospitalRequest, HospitalSummary) — reuses
+                      auth.model.ts's ApiError rather than duplicating it
+  shared/
+    components/      admin-shell (sidebar + header, its own route tree), confirm-dialog
+  features/
+    admin/
+      dashboard/     stat cards + "recently added" table (top 5 by createdAt desc)
+      hospitals/     HospitalListComponent, HospitalDetailComponent, HospitalFormComponent
+                      (shared by add + edit)
+```
+
+- **No admin authentication.** The reference mockup (`Main.dc.html` artboard inside
+  `doctrip-web-panels 2.html`, labelled "Story 3 · Hospital management") has no login screen and
+  starts pre-authenticated — see `Doctrip-backend`'s `CLAUDE.md` for why admin auth is deliberately
+  out of scope here. `AdminShellComponent`'s profile chip is a static "DocTrip Admin" label, not a
+  real session. `/admin` is reachable directly, no guard.
+- **Route tree is top-level, not nested under the patient `AppShellComponent`.** `/admin` (with its
+  own `AdminShellComponent` sidebar shell) is a sibling of the patient `''` route in
+  `app.routes.ts`. The patient `authInterceptor`/`AuthService` are untouched by this story — admin
+  calls carry no auth header at all, matching the backend's open `/api/admin/hospitals/**`.
+- **`ConfirmDialogService`** is a small signal-based single-dialog service (`open({title, body,
+  actionLabel, accent, tint, onConfirm})` / `confirm()` / `close()`) used for the activate/
+  deactivate confirmation, matching the mockup's confirm-modal styling (green accent for activate,
+  amber for deactivate).
+- **Non-goals for this persona, don't build here**: department management, doctor management/
+  assignment, availability management, appointment coordination, doctor acknowledgement, patient
+  booking. DocTrip Admin only creates/views/edits/activates/deactivates hospital master records —
+  see `Doctrip-backend`'s `CLAUDE.md` for the full rationale.
+
 ## Constraints / things not to reintroduce
 
 - No "Continue as guest" button or flow — explicitly removed from product scope.
