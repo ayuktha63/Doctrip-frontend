@@ -19,6 +19,21 @@ Auth UI matching `Doctrip-backend`'s FR-01..FR-10 backend, built against the ref
 
 See `CLAUDE.md` for architecture, conventions, and the frontend/backend contract mapping.
 
+## Story 3 — DocTrip Admin: Hospital Master Records
+
+Same Angular project as Story 1, with `/admin` as its own top-level route tree — built against the
+reference design's `Main.dc.html` artboard (labelled "Story 3 · Hospital management"), which
+starts pre-authenticated with no login screen, so this story ships no admin login UI either.
+
+- [x] Dashboard (`/admin`) — hospital counts, recently added table
+- [x] Hospital list (`/admin/hospitals`) — search, All/Active/Inactive filter
+- [x] Add / edit hospital (`/admin/hospitals/new`, `/admin/hospitals/:id/edit`) — sectioned form
+- [x] Hospital detail (`/admin/hospitals/:id`) — master info, contact desk, platform status, record
+- [x] Activate / deactivate with confirm dialog
+- [ ] Admin login — explicitly out of scope; no such screen exists in the reference mockup
+- [ ] Department management, doctor management/assignment, availability, appointment
+      coordination, doctor acknowledgement, patient booking — not DocTrip Admin's responsibility
+
 ## Running
 
 ```bash
