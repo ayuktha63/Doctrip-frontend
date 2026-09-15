@@ -94,7 +94,7 @@ export class TreatmentDetail {
 
     this.verifyingBooking.set(true);
 
-    this.treatmentsService.getTreatmentPackageById(current.id).subscribe({
+    this.treatmentsService.getTreatmentPackageById(String(current.id)).subscribe({
       next: (result) => {
         this.verifyingBooking.set(false);
         this.pkg.set(result);
@@ -104,8 +104,8 @@ export class TreatmentDetail {
           return;
         }
 
-        this.bookingHandoff.proceed(['/booking', 'treatment', result.id], {
-          treatmentPackageId: result.id,
+        this.bookingHandoff.proceed(['/booking', 'treatment', String(result.id)], {
+          treatmentPackageId: String(result.id),
         });
       },
       error: (err: Error) => {

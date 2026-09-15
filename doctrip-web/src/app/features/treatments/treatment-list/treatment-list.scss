@@ -1,20 +1,81 @@
+// Visual reference: docs/"Doctrip Prototype (1) 2.html" — Find Treatment
+// screen (isTreatments block): #F4F7FC page background, Newsreader
+// heading, Schibsted Grotesk body text, white rounded cards with
+// #E6EBF2 borders, #1A6DF0 blue accent.
+:host {
+  display: block;
+  background: #f4f7fc;
+  font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 .treatment-discovery {
-  padding: 16px;
-  max-width: 960px;
+  padding: 24px 16px 40px;
+  max-width: 720px;
   margin: 0 auto;
 
-  &__title {
-    font-size: 20px;
+  &__header {
+    margin-bottom: 8px;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #1a6df0;
+  }
+
+  &__heading {
+    margin: 6px 0 0;
+    font-family: 'Newsreader', serif;
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    color: #0b1526;
+  }
+
+  &__subheading {
+    margin: 8px 0 0;
+    font-size: 14.5px;
+    line-height: 1.45;
+    color: #5b6472;
+    max-width: 46ch;
+  }
+
+  &__visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  &__section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 26px 0 12px;
+  }
+
+  &__section-title {
+    margin: 0;
+    font-size: 16px;
     font-weight: 600;
     letter-spacing: -0.1px;
     color: #0b1526;
-    margin: 0 0 12px;
   }
 
   &__state {
     padding: 24px 16px;
     color: #6b7280;
     font-size: 14px;
+    background: #fff;
+    border: 1px solid #e6ebf2;
+    border-radius: 16px;
+    margin-top: 20px;
 
     &--error {
       color: #b3261e;
@@ -27,6 +88,53 @@
     margin-top: 4px;
   }
 
+  &__retry {
+    margin-top: 10px;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #e6ebf2;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a6df0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  &__empty {
+    margin-top: 20px;
+    padding: 28px 22px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #e6ebf2;
+    border-radius: 16px;
+    color: #5b6472;
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+
+  &__empty-icon {
+    width: 26px;
+    height: 26px;
+    color: #d6dfec;
+    margin-bottom: 8px;
+  }
+
+  &__skeleton {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__skeleton-row {
+    height: 100px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, #eef2f8 25%, #f7f9fc 37%, #eef2f8 63%);
+    background-size: 400% 100%;
+    animation: treatment-shimmer 1.3s ease infinite;
+  }
+
   &__list {
     list-style: none;
     margin: 0;
@@ -37,33 +145,77 @@
   }
 }
 
+@keyframes treatment-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
 .treatment-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 13px;
   width: 100%;
   padding: 12px;
-  border: 1px solid #e3e9f2;
+  border: 1px solid #e6ebf2;
   border-radius: 16px;
   background: #fff;
   cursor: pointer;
   text-align: left;
   font: inherit;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    border-color: #bfd3f6;
+    box-shadow: 0 8px 20px -14px rgba(16, 42, 84, 0.35);
+    transform: translateY(-1px);
+  }
 
   &__image {
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
-    object-fit: cover;
+    width: 76px;
+    height: 76px;
     flex: none;
+    border-radius: 12px;
+    overflow: hidden;
     background: #eef2f8;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   &__name {
-    flex: 1;
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 600;
     color: #0b1526;
+  }
+
+  &__description {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #5b6472;
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   &__meta {
@@ -72,7 +224,10 @@
   }
 
   &__price {
-    text-align: right;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-top: 4px;
     font-size: 14px;
     font-weight: 700;
     color: #0b1526;
@@ -82,6 +237,33 @@
     font-size: 11px;
     font-weight: 400;
     color: #6b7280;
-    margin-right: 4px;
+  }
+
+  &__arrow {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border-radius: 15px;
+    background: #f4f7fc;
+    color: #1a6df0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 15px;
+      height: 15px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .treatment-discovery__heading {
+    font-size: 25px;
+  }
+
+  .treatment-card__image {
+    width: 64px;
+    height: 64px;
   }
 }

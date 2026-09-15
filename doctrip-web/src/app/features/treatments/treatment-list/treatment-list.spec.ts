@@ -27,7 +27,7 @@ describe('TreatmentList', () => {
     expect(fixture.componentInstance.isLoading()).toBe(true);
   });
 
-  it('shows the empty state when there are no approved packages', () => {
+  it('shows the empty state when there are no packages', () => {
     const fixture = setup({ getTreatmentPackages: () => of([]) });
     fixture.detectChanges();
     const component = fixture.componentInstance;
@@ -35,16 +35,19 @@ describe('TreatmentList', () => {
     expect(component.visiblePackages().length).toBe(0);
   });
 
-  it('shows only approved packages and filters out inactive ones', () => {
+  it('displays every package returned by the confirmed public endpoint (no client-side status filter)', () => {
+    // Confirmed contract: GET /api/public/treatment-packages already
+    // scopes results to approved records server-side and does not
+    // return a `status` field at all, e.g.
+    // [{"id":4,"name":"Test Knee Replacement Package","description":"..."}]
     const packages: TreatmentPackage[] = [
-      { id: '1', name: 'Approved Package', status: 'approved' },
-      { id: '2', name: 'Inactive Package', status: 'inactive' },
+      { id: 4, name: 'Test Knee Replacement Package', description: 'End-to-end test package' } as TreatmentPackage,
     ];
     const fixture = setup({ getTreatmentPackages: () => of(packages) });
     fixture.detectChanges();
     const component = fixture.componentInstance;
     expect(component.visiblePackages().length).toBe(1);
-    expect(component.visiblePackages()[0].id).toBe('1');
+    expect(component.visiblePackages()[0].id).toBe(4);
   });
 
   it('shows the error state when discovery data cannot be loaded', () => {
@@ -58,7 +61,7 @@ describe('TreatmentList', () => {
   });
 
   it('navigates toward the selected package on selection', () => {
-    const packages: TreatmentPackage[] = [{ id: '42', name: 'Package', status: 'approved' }];
+    const packages: TreatmentPackage[] = [{ id: 42, name: 'Package', status: 'approved' }];
     const fixture = setup({ getTreatmentPackages: () => of(packages) });
     fixture.detectChanges();
     const router = TestBed.inject(Router);
@@ -67,7 +70,7 @@ describe('TreatmentList', () => {
   });
 
   it('loads without requiring authentication (public discovery, FE-WEB-2.13)', () => {
-    const fixture = setup({ getTreatmentPackages: () => of([{ id: '1', name: 'Package', status: 'approved' }]) });
+    const fixture = setup({ getTreatmentPackages: () => of([{ id: 1, name: 'Package', status: 'approved' }]) });
     fixture.detectChanges();
     // No AuthService provider is registered for this test at all — the
     // component still constructs and loads successfully, confirming

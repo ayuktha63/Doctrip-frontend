@@ -38,7 +38,7 @@ describe('TreatmentDetail', () => {
   });
 
   it('displays approved package details', () => {
-    const pkg: TreatmentPackage = { id: '1', name: 'Knee Surgery', status: 'approved', description: 'Full knee replacement.' };
+    const pkg: TreatmentPackage = { id: 1, name: 'Knee Surgery', status: 'approved', description: 'Full knee replacement.' };
     const fixture = setup({ getTreatmentPackageById: () => of(pkg) });
     fixture.detectChanges();
     const component = fixture.componentInstance;
@@ -47,7 +47,7 @@ describe('TreatmentDetail', () => {
   });
 
   it('treats an inactive/unapproved package as unavailable', () => {
-    const pkg: TreatmentPackage = { id: '1', name: 'Old Package', status: 'inactive' };
+    const pkg: TreatmentPackage = { id: 1, name: 'Old Package', status: 'inactive' };
     const fixture = setup({ getTreatmentPackageById: () => of(pkg) });
     fixture.detectChanges();
     expect(fixture.componentInstance.isUnavailable()).toBe(true);
@@ -70,7 +70,7 @@ describe('TreatmentDetail', () => {
   });
 
   it('handles missing description without breaking the loaded state', () => {
-    const pkg: TreatmentPackage = { id: '1', name: 'No Description Package', status: 'approved' };
+    const pkg: TreatmentPackage = { id: 1, name: 'No Description Package', status: 'approved' };
     const fixture = setup({ getTreatmentPackageById: () => of(pkg) });
     fixture.detectChanges();
     expect(fixture.componentInstance.isLoaded()).toBe(true);
@@ -78,7 +78,7 @@ describe('TreatmentDetail', () => {
   });
 
   it('loads and displays details without requiring authentication (public discovery, FE-WEB-2.13)', () => {
-    const pkg: TreatmentPackage = { id: '1', name: 'Knee Surgery', status: 'approved' };
+    const pkg: TreatmentPackage = { id: 1, name: 'Knee Surgery', status: 'approved' };
     const fixture = setup({ getTreatmentPackageById: () => of(pkg) });
     fixture.detectChanges();
     // No AuthService provider is registered for this test — viewing the
@@ -90,7 +90,7 @@ describe('TreatmentDetail', () => {
   describe('FE-WEB-2.9 — Book Appointment Authentication Handoff', () => {
     it('delegates the proceed-to-booking decision to BookingHandoffService', () => {
       const proceed = vi.fn();
-      const pkg: TreatmentPackage = { id: '1', name: 'Knee Surgery', status: 'approved' };
+      const pkg: TreatmentPackage = { id: 1, name: 'Knee Surgery', status: 'approved' };
       const fixture = setup({ getTreatmentPackageById: () => of(pkg) }, '1', { proceed });
       fixture.detectChanges();
 
@@ -116,7 +116,7 @@ describe('TreatmentDetail', () => {
   describe('FE-WEB-2.11 — Preserve Discovery Context During Authentication', () => {
     it('passes the selected treatment package as discovery context', () => {
       const proceed = vi.fn();
-      const pkg: TreatmentPackage = { id: '1', name: 'Knee Surgery', status: 'approved' };
+      const pkg: TreatmentPackage = { id: 1, name: 'Knee Surgery', status: 'approved' };
       const fixture = setup({ getTreatmentPackageById: () => of(pkg) }, '1', { proceed });
       fixture.detectChanges();
 
@@ -132,7 +132,7 @@ describe('TreatmentDetail', () => {
     it('re-verifies availability and proceeds to booking when still approved', () => {
       const proceed = vi.fn();
       const getTreatmentPackageById = vi.fn(() =>
-        of<TreatmentPackage>({ id: '1', name: 'Knee Surgery', status: 'approved' }),
+        of<TreatmentPackage>({ id: 1, name: 'Knee Surgery', status: 'approved' }),
       );
       const fixture = setup({ getTreatmentPackageById }, '1', { proceed });
       fixture.detectChanges();
@@ -151,7 +151,7 @@ describe('TreatmentDetail', () => {
       const getTreatmentPackageById = vi.fn(() => {
         callCount += 1;
         const status = callCount === 1 ? 'approved' : 'inactive';
-        return of<TreatmentPackage>({ id: '1', name: 'Knee Surgery', status });
+        return of<TreatmentPackage>({ id: 1, name: 'Knee Surgery', status });
       });
       const fixture = setup({ getTreatmentPackageById }, '1', { proceed });
       fixture.detectChanges();
@@ -169,7 +169,7 @@ describe('TreatmentDetail', () => {
       const getTreatmentPackageById = vi.fn(() => {
         callCount += 1;
         if (callCount === 1) {
-          return of<TreatmentPackage>({ id: '1', name: 'Knee Surgery', status: 'approved' });
+          return of<TreatmentPackage>({ id: 1, name: 'Knee Surgery', status: 'approved' });
         }
         return throwError(() => new Error('backend unavailable'));
       });
@@ -188,7 +188,7 @@ describe('TreatmentDetail', () => {
       const pending = new Subject<TreatmentPackage>();
       const getTreatmentPackageById = vi
         .fn()
-        .mockReturnValueOnce(of<TreatmentPackage>({ id: '1', name: 'Knee Surgery', status: 'approved' }))
+        .mockReturnValueOnce(of<TreatmentPackage>({ id: 1, name: 'Knee Surgery', status: 'approved' }))
         .mockReturnValueOnce(pending.asObservable());
       const fixture = setup({ getTreatmentPackageById }, '1', { proceed });
       fixture.detectChanges();
@@ -214,7 +214,7 @@ describe('TreatmentDetail', () => {
           { provide: Router, useValue: { navigate } },
           {
             provide: ActivatedRoute,
-            useValue: { snapshot: { paramMap: convertToParamMap({ id: pkg.id }) } },
+            useValue: { snapshot: { paramMap: convertToParamMap({ id: String(pkg.id) }) } },
           },
         ],
       });
@@ -224,7 +224,7 @@ describe('TreatmentDetail', () => {
     }
 
     it('allows an authenticated user to proceed toward booking', () => {
-      const pkg: TreatmentPackage = { id: '1', name: 'Knee Surgery', status: 'approved' };
+      const pkg: TreatmentPackage = { id: 1, name: 'Knee Surgery', status: 'approved' };
       const { fixture, navigate } = setupWithRealBookingHandoff(true, pkg);
 
       fixture.componentInstance.proceedToBooking();
@@ -233,7 +233,7 @@ describe('TreatmentDetail', () => {
     });
 
     it('redirects an unauthenticated user to Login/Sign Up instead of proceeding to booking', () => {
-      const pkg: TreatmentPackage = { id: '1', name: 'Knee Surgery', status: 'approved' };
+      const pkg: TreatmentPackage = { id: 1, name: 'Knee Surgery', status: 'approved' };
       const { fixture, navigate } = setupWithRealBookingHandoff(false, pkg);
 
       fixture.componentInstance.proceedToBooking();
@@ -245,7 +245,7 @@ describe('TreatmentDetail', () => {
     });
 
     it('lets an unauthenticated visitor view discovery details before ever reaching the booking check', () => {
-      const pkg: TreatmentPackage = { id: '1', name: 'Knee Surgery', status: 'approved' };
+      const pkg: TreatmentPackage = { id: 1, name: 'Knee Surgery', status: 'approved' };
       const { fixture, navigate } = setupWithRealBookingHandoff(false, pkg);
 
       // Viewing the page (fixture already loaded via detectChanges in

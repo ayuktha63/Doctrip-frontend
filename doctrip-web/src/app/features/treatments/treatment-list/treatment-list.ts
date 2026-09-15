@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TreatmentsService } from '../treatments.service';
-import { TreatmentPackage, isPubliclyVisible } from '../treatment-package.model';
+import { TreatmentPackage } from '../treatment-package.model';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -31,16 +31,22 @@ export class TreatmentList {
   readonly hasError = computed(() => this.state() === 'error');
 
   // Business rule (story_2.md): only approved/published records are shown.
-  // Inactive/unapproved records are filtered out here as a discovery-side
-  // safeguard; the authoritative filtering is expected server-side once
-  // the backend contract exists.
-  readonly visiblePackages = computed(() => this.packages().filter(isPubliclyVisible));
+  // Confirmed contract: GET /api/public/treatment-packages already scopes
+  // results to approved records server-side (findByApprovedTrue()) and
+  // does not return a `status` field, so no client-side filtering is
+  // applied here — filtering on a field the backend never sends would
+  // incorrectly discard every real result.
+  readonly visiblePackages = computed(() => this.packages());
 
   readonly isEmpty = computed(
     () => this.state() === 'loaded' && this.visiblePackages().length === 0,
   );
 
   readonly currentError = this.errorMessage.asReadonly();
+
+  // Purely structural — a fixed count of skeleton placeholder rows shown
+  // while loading (visual only, not treatment data).
+  readonly skeletonRows = [0, 1, 2];
 
   constructor() {
     this.load();
@@ -67,6 +73,6 @@ export class TreatmentList {
   // here, but the destination view itself is out of scope for FE-WEB-2.1
   // and is implemented in FE-WEB-2.2.
   selectPackage(pkg: TreatmentPackage): void {
-    this.router.navigate(['/treatments', pkg.id]);
+    this.router.navigate(['/treatments', String(pkg.id)]);
   }
 }

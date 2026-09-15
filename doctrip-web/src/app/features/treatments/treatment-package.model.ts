@@ -19,9 +19,16 @@
  * list-card summary. It is not confirmed by any backend contract; if
  * missing, the details view must handle that gracefully (story_2.md —
  * "Missing profile information" edge case).
+ *
+ * `id` is `number` to match the confirmed GET
+ * /api/public/treatment-packages response, which returns a numeric id
+ * (e.g. `{"id":4,...}`). That endpoint does not include `status` at all
+ * — the backend already scopes it to approved records server-side
+ * (findByApprovedTrue()) — so `status`/`isPubliclyVisible` only apply to
+ * the still-unconfirmed single-package detail contract, not this list.
  */
 export interface TreatmentPackage {
-  id: string;
+  id: number;
   name: string;
   status: 'approved' | string;
   department?: string;
