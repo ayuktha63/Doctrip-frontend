@@ -1,0 +1,57 @@
+/* Global styles copied 1:1 from the reference mockup's own <style> block
+   (doctrip-web-panels 2.html -> PatientPanel.dc.html) so the visual design matches exactly. */
+
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Schibsted Grotesk', system-ui, sans-serif;
+  color: #0b1526;
+  -webkit-font-smoothing: antialiased;
+  background: #f4f7fc;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  color: #1a6df0;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #0e56c9;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #1a6df0;
+  box-shadow: 0 0 0 3px rgba(26, 109, 240, 0.12);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6dfec;
+  border-radius: 6px;
+  border: 3px solid #f4f7fc;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
