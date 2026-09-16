@@ -1,12 +1,25 @@
+// Visual reference: docs/"Doctrip Prototype (1) 2.html" — doctor card
+// visual language (availableDoctors block), scaled up into a profile
+// card: circular avatar, name, role · dept, experience, star rating.
+:host {
+  display: block;
+  background: #f4f7fc;
+  font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100%;
+}
+
 .doctor-detail {
-  padding: 16px;
-  max-width: 720px;
+  padding: 24px 16px 40px;
+  max-width: 560px;
   margin: 0 auto;
 
   &__state {
     padding: 24px 16px;
     color: #6b7280;
     font-size: 14px;
+    background: #fff;
+    border: 1px solid #e6ebf2;
+    border-radius: 16px;
 
     &--error {
       color: #b3261e;
@@ -19,51 +32,99 @@
     margin-top: 4px;
   }
 
-  &__content {
+  &__retry {
+    margin-top: 10px;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #e6ebf2;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a6df0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  &__card {
+    background: #fff;
+    border: 1px solid #e9eef6;
+    border-radius: 20px;
+    box-shadow:
+      0 1px 2px rgba(13, 27, 42, 0.04),
+      0 12px 28px -18px rgba(16, 42, 84, 0.22);
+    padding: 24px 20px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    text-align: center;
   }
 
   &__image {
     width: 96px;
     height: 96px;
     border-radius: 50%;
-    object-fit: cover;
+    overflow: hidden;
     background: #eef2f8;
+    margin-bottom: 14px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
 
   &__name {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 600;
     color: #0b1526;
-    margin: 8px 0 0;
+    margin: 0;
   }
 
   &__meta {
     font-size: 13px;
     color: #5b6472;
-    margin: 0;
+    margin: 3px 0 0;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eef2f8;
+    width: 100%;
   }
 
   &__experience {
-    font-size: 12px;
+    font-size: 12.5px;
     color: #6b7280;
-    margin: 0;
   }
 
   &__rating {
-    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12.5px;
     font-weight: 600;
-    color: #1f2a37;
-    margin: 0;
+    color: #0b1526;
+
+    svg {
+      width: 13px;
+      height: 13px;
+      color: #ffb020;
+    }
   }
 
   &__description {
     font-size: 14px;
     line-height: 20px;
     color: #1f2a37;
-    margin-top: 12px;
+    margin: 16px 0 0;
+    text-align: left;
 
     &--missing {
       color: #6b7280;

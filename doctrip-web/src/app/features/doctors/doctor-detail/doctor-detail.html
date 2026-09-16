@@ -7,17 +7,19 @@
     <div class="doctor-detail__state doctor-detail__state--error" role="alert">
       <p>We couldn't load this doctor's profile right now.</p>
       <p class="doctor-detail__error-detail">{{ currentError() }}</p>
-      <button type="button" (click)="load()">Retry</button>
+      <button type="button" class="doctor-detail__retry" (click)="load()">Retry</button>
     </div>
   } @else if (isUnavailable()) {
-    <div class="doctor-detail__state" role="status">
+    <div class="doctor-detail__state">
       This doctor profile is currently unavailable.
     </div>
   } @else if (isLoaded() && profile(); as doctor) {
-    <article class="doctor-detail__content">
-      @if (doctor.imageUrl) {
-        <img class="doctor-detail__image" [src]="doctor.imageUrl" alt="" />
-      }
+    <article class="doctor-detail__card">
+      <span class="doctor-detail__image">
+        @if (doctor.imageUrl) {
+          <img [src]="doctor.imageUrl" alt="" />
+        }
+      </span>
 
       <h1 class="doctor-detail__name">{{ doctor.name }}</h1>
 
@@ -27,12 +29,20 @@
         </p>
       }
 
-      @if (doctor.experience) {
-        <p class="doctor-detail__experience">{{ doctor.experience }}</p>
-      }
-
-      @if (doctor.rating) {
-        <p class="doctor-detail__rating">{{ doctor.rating }}</p>
+      @if (doctor.experience || doctor.rating) {
+        <div class="doctor-detail__footer">
+          @if (doctor.experience) {
+            <span class="doctor-detail__experience">{{ doctor.experience }}</span>
+          }
+          @if (doctor.rating) {
+            <span class="doctor-detail__rating">
+              <svg viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
+                <path d="M7 .8 8.7 4.4l3.9.5-2.9 2.7.7 3.9L7 9.6 3.6 11.5l.7-3.9L1.4 4.9l3.9-.5Z" />
+              </svg>
+              {{ doctor.rating }}
+            </span>
+          }
+        </div>
       }
 
       @if (doctor.description) {

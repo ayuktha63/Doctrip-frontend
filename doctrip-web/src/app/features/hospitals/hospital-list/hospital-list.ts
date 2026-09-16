@@ -49,6 +49,10 @@ export class HospitalList {
 
   readonly currentError = this.errorMessage.asReadonly();
 
+  // Purely structural — a fixed count of skeleton placeholder rows shown
+  // while loading (visual only, not hospital data).
+  readonly skeletonRows = [0, 1, 2];
+
   constructor() {
     this.load();
   }

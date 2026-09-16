@@ -1,20 +1,118 @@
+// Visual reference: docs/"Doctrip Prototype (1) 2.html" — doctor card
+// (availableDoctors block): circular avatar, name, role · dept, years of
+// experience, star rating.
+:host {
+  display: block;
+  background: #f4f7fc;
+  font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
 .doctor-discovery {
-  padding: 16px;
-  max-width: 960px;
+  padding: 24px 16px 40px;
+  max-width: 720px;
   margin: 0 auto;
 
-  &__title {
-    font-size: 20px;
+  &__header {
+    margin-bottom: 16px;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 13px;
     font-weight: 600;
-    letter-spacing: -0.1px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #1a6df0;
+  }
+
+  &__heading {
+    margin: 6px 0 0;
+    font-family: 'Newsreader', serif;
+    font-size: 26px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: -0.3px;
     color: #0b1526;
-    margin: 0 0 12px;
+  }
+
+  &__subheading {
+    margin: 8px 0 0;
+    font-size: 14.5px;
+    line-height: 1.45;
+    color: #5b6472;
+    max-width: 46ch;
+  }
+
+  &__search {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #6b7280;
+    pointer-events: none;
+  }
+
+  &__search-input {
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 42px;
+    border: 1px solid #e6ebf2;
+    border-radius: 14px;
+    font-size: 14px;
+    color: #0b1526;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(13, 27, 42, 0.03);
+
+    &::placeholder {
+      color: #6b7280;
+    }
+  }
+
+  &__search-clear {
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
   &__state {
     padding: 24px 16px;
     color: #6b7280;
     font-size: 14px;
+    background: #fff;
+    border: 1px solid #e6ebf2;
+    border-radius: 16px;
 
     &--error {
       color: #b3261e;
@@ -27,6 +125,51 @@
     margin-top: 4px;
   }
 
+  &__retry {
+    margin-top: 10px;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #e6ebf2;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a6df0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  &__empty {
+    padding: 28px 22px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #e6ebf2;
+    border-radius: 16px;
+    color: #5b6472;
+    font-size: 13.5px;
+    line-height: 1.4;
+  }
+
+  &__empty-icon {
+    width: 26px;
+    height: 26px;
+    color: #d6dfec;
+    margin-bottom: 8px;
+  }
+
+  &__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__skeleton-row {
+    height: 84px;
+    border-radius: 18px;
+    background: linear-gradient(90deg, #eef2f8 25%, #f7f9fc 37%, #eef2f8 63%);
+    background-size: 400% 100%;
+    animation: doctor-shimmer 1.3s ease infinite;
+  }
+
   &__list {
     list-style: none;
     margin: 0;
@@ -35,24 +178,14 @@
     flex-direction: column;
     gap: 10px;
   }
+}
 
-  &__search {
-    margin-bottom: 14px;
+@keyframes doctor-shimmer {
+  0% {
+    background-position: 100% 50%;
   }
-
-  &__search-input {
-    width: 100%;
-    height: 44px;
-    padding: 0 14px;
-    border: 1px solid #e3e9f2;
-    border-radius: 12px;
-    background: #f4f7fc;
-    font-size: 14px;
-    color: #0b1526;
-
-    &::placeholder {
-      color: #5b6472;
-    }
+  100% {
+    background-position: 0 50%;
   }
 }
 
@@ -61,39 +194,62 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 12px;
-  border: 1px solid #e3e9f2;
-  border-radius: 16px;
+  padding: 13px;
+  border: 1px solid #e9eef6;
+  border-radius: 18px;
   background: #fff;
+  box-shadow:
+    0 1px 2px rgba(13, 27, 42, 0.04),
+    0 12px 28px -18px rgba(16, 42, 84, 0.22);
   cursor: pointer;
   text-align: left;
   font: inherit;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(13, 27, 42, 0.1);
+  }
 
   &__image {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    object-fit: cover;
+    width: 52px;
+    height: 52px;
     flex: none;
+    border-radius: 50%;
+    overflow: hidden;
     background: #eef2f8;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
 
   &__body {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
   }
 
   &__name {
-    font-size: 14.5px;
+    font-size: 15px;
     font-weight: 600;
     color: #0b1526;
   }
 
   &__meta {
     font-size: 12.5px;
-    color: #6b7280;
+    color: #5b6472;
+    margin-top: 1px;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
   }
 
   &__experience {
@@ -102,8 +258,22 @@
   }
 
   &__rating {
+    display: flex;
+    align-items: center;
+    gap: 3px;
     font-size: 12px;
-    font-weight: 600;
-    color: #1f2a37;
+    color: #6b7280;
+
+    svg {
+      width: 11px;
+      height: 11px;
+      color: #ffb020;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .doctor-discovery__heading {
+    font-size: 22px;
   }
 }

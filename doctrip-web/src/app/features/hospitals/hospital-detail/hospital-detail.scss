@@ -1,12 +1,25 @@
+// Visual reference: docs/"Doctrip Prototype (1) 2.html" — Hospital card
+// visual language (isHospitals block), scaled up into a profile card:
+// rounded image, name, type/city, star rating row, "From" price.
+:host {
+  display: block;
+  background: #f4f7fc;
+  font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100%;
+}
+
 .hospital-detail {
-  padding: 16px;
-  max-width: 720px;
+  padding: 24px 16px 40px;
+  max-width: 640px;
   margin: 0 auto;
 
   &__state {
     padding: 24px 16px;
     color: #6b7280;
     font-size: 14px;
+    background: #fff;
+    border: 1px solid #e6ebf2;
+    border-radius: 16px;
 
     &--error {
       color: #b3261e;
@@ -19,51 +32,96 @@
     margin-top: 4px;
   }
 
-  &__content {
+  &__retry {
+    margin-top: 10px;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #e6ebf2;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a6df0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  &__card {
+    background: #fff;
+    border: 1px solid #e9eef6;
+    border-radius: 20px;
+    box-shadow:
+      0 1px 2px rgba(13, 27, 42, 0.04),
+      0 12px 28px -18px rgba(16, 42, 84, 0.22);
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
   }
 
   &__image {
     width: 100%;
-    max-height: 220px;
-    object-fit: cover;
-    border-radius: 16px;
+    height: 200px;
+    border-radius: 14px;
+    overflow: hidden;
     background: #eef2f8;
+    margin-bottom: 16px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
 
   &__name {
     font-size: 20px;
     font-weight: 600;
     color: #0b1526;
-    margin: 8px 0 0;
+    margin: 0;
   }
 
-  &__meta {
+  &__type,
+  &__city {
     font-size: 13px;
-    color: #5b6472;
-    margin: 0;
+    color: #6b7280;
+    margin: 3px 0 0;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #eef2f8;
   }
 
   &__rating {
-    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
     font-weight: 600;
     color: #0b1526;
-    margin: 0;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      color: #ffb020;
+    }
   }
 
   &__reviews {
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 400;
     color: #6b7280;
   }
 
   &__price {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: #0b1526;
-    margin: 4px 0 0;
   }
 
   &__price-label {
@@ -77,7 +135,7 @@
     font-size: 14px;
     line-height: 20px;
     color: #1f2a37;
-    margin-top: 12px;
+    margin: 16px 0 0;
 
     &--missing {
       color: #6b7280;

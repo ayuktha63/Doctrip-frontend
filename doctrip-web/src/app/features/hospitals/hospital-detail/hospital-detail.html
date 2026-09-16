@@ -7,40 +7,49 @@
     <div class="hospital-detail__state hospital-detail__state--error" role="alert">
       <p>We couldn't load this hospital's profile right now.</p>
       <p class="hospital-detail__error-detail">{{ currentError() }}</p>
-      <button type="button" (click)="load()">Retry</button>
+      <button type="button" class="hospital-detail__retry" (click)="load()">Retry</button>
     </div>
   } @else if (isUnavailable()) {
-    <div class="hospital-detail__state" role="status">
+    <div class="hospital-detail__state">
       This hospital profile is currently unavailable.
     </div>
   } @else if (isLoaded() && profile(); as hospital) {
-    <article class="hospital-detail__content">
-      @if (hospital.imageUrl) {
-        <img class="hospital-detail__image" [src]="hospital.imageUrl" alt="" />
-      }
+    <article class="hospital-detail__card">
+      <span class="hospital-detail__image">
+        @if (hospital.imageUrl) {
+          <img [src]="hospital.imageUrl" alt="" />
+        }
+      </span>
 
       <h1 class="hospital-detail__name">{{ hospital.name }}</h1>
 
-      @if (hospital.type || hospital.city) {
-        <p class="hospital-detail__meta">
-          {{ hospital.type }}@if (hospital.type && hospital.city) { · }{{ hospital.city }}
-        </p>
+      @if (hospital.type) {
+        <p class="hospital-detail__type">{{ hospital.type }}</p>
+      }
+      @if (hospital.city) {
+        <p class="hospital-detail__city">{{ hospital.city }}</p>
       }
 
-      @if (hospital.rating) {
-        <p class="hospital-detail__rating">
-          {{ hospital.rating }}
-          @if (hospital.reviewsCount) {
-            <span class="hospital-detail__reviews">({{ hospital.reviewsCount }})</span>
+      @if (hospital.rating || hospital.priceFrom) {
+        <div class="hospital-detail__footer">
+          @if (hospital.rating) {
+            <span class="hospital-detail__rating">
+              <svg viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
+                <path d="M7 .8 8.7 4.4l3.9.5-2.9 2.7.7 3.9L7 9.6 3.6 11.5l.7-3.9L1.4 4.9l3.9-.5Z" />
+              </svg>
+              {{ hospital.rating }}
+              @if (hospital.reviewsCount) {
+                <span class="hospital-detail__reviews">{{ hospital.reviewsCount }}</span>
+              }
+            </span>
           }
-        </p>
-      }
-
-      @if (hospital.priceFrom) {
-        <p class="hospital-detail__price">
-          <span class="hospital-detail__price-label">from</span>
-          {{ hospital.priceFrom }}
-        </p>
+          @if (hospital.priceFrom) {
+            <span class="hospital-detail__price">
+              <span class="hospital-detail__price-label">From</span>
+              {{ hospital.priceFrom }}
+            </span>
+          }
+        </div>
       }
 
       @if (hospital.description) {

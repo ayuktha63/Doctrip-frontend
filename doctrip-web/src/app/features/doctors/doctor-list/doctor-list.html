@@ -1,7 +1,15 @@
 <section class="doctor-discovery" aria-label="Doctors">
-  <h1 class="doctor-discovery__title">Doctors</h1>
+  <header class="doctor-discovery__header">
+    <p class="doctor-discovery__eyebrow">Find Doctor</p>
+    <h1 class="doctor-discovery__heading">Doctors</h1>
+    <p class="doctor-discovery__subheading">Browse approved consultants and pick one to view their profile.</p>
+  </header>
 
   <div class="doctor-discovery__search">
+    <svg class="doctor-discovery__search-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5" />
+      <line x1="12.2" y1="12.2" x2="16.5" y2="16.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    </svg>
     <input
       type="search"
       class="doctor-discovery__search-input"
@@ -10,38 +18,58 @@
       [value]="query()"
       (input)="onSearchInput($any($event.target).value)"
     />
+    @if (isSearchActive()) {
+      <button
+        type="button"
+        class="doctor-discovery__search-clear"
+        aria-label="Clear search"
+        (click)="onSearchInput('')"
+      >
+        <svg viewBox="0 0 16 16" fill="none">
+          <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </button>
+    }
   </div>
 
   @if (isLoading()) {
-    <div class="doctor-discovery__state" role="status" aria-live="polite">
-      Loading doctors…
+    <div class="doctor-discovery__skeleton" role="status" aria-live="polite" aria-busy="true">
+      <span class="doctor-discovery__visually-hidden">Loading doctors…</span>
+      @for (row of skeletonRows; track row) {
+        <div class="doctor-discovery__skeleton-row"></div>
+      }
     </div>
   } @else if (hasError()) {
     <div class="doctor-discovery__state doctor-discovery__state--error" role="alert">
       <p>We couldn't load doctors right now.</p>
       <p class="doctor-discovery__error-detail">{{ currentError() }}</p>
-      <button type="button" (click)="load()">Retry</button>
+      <button type="button" class="doctor-discovery__retry" (click)="load()">Retry</button>
     </div>
   } @else if (isEmpty()) {
-    <div class="doctor-discovery__state" role="status">
-      @if (isSearchActive()) {
-        No doctors match "{{ query() }}".
-      } @else {
-        No doctors are available right now.
-      }
+    <div class="doctor-discovery__empty">
+      <svg class="doctor-discovery__empty-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="8.5" r="3.5" stroke="currentColor" stroke-width="1.6" />
+        <path d="M5 20c1.2-4 4-6 7-6s5.8 2 7 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      <p>
+        @if (isSearchActive()) {
+          No doctors match "{{ query() }}".
+        } @else {
+          No doctors are available right now.
+        }
+      </p>
     </div>
   } @else {
     <ul class="doctor-discovery__list">
       @for (doctor of visibleDoctors(); track doctor.id) {
         <li>
-          <button
-            type="button"
-            class="doctor-card"
-            (click)="selectDoctor(doctor)"
-          >
-            @if (doctor.imageUrl) {
-              <img class="doctor-card__image" [src]="doctor.imageUrl" alt="" />
-            }
+          <button type="button" class="doctor-card" (click)="selectDoctor(doctor)">
+            <span class="doctor-card__image">
+              @if (doctor.imageUrl) {
+                <img [src]="doctor.imageUrl" alt="" />
+              }
+            </span>
+
             <span class="doctor-card__body">
               <span class="doctor-card__name">{{ doctor.name }}</span>
               @if (doctor.role || doctor.department) {
@@ -49,13 +77,25 @@
                   {{ doctor.role }}@if (doctor.role && doctor.department) { · }{{ doctor.department }}
                 </span>
               }
-              @if (doctor.experience) {
-                <span class="doctor-card__experience">{{ doctor.experience }}</span>
+
+              @if (doctor.experience || doctor.rating) {
+                <span class="doctor-card__footer">
+                  @if (doctor.experience) {
+                    <span class="doctor-card__experience">{{ doctor.experience }}</span>
+                  }
+                  @if (doctor.rating) {
+                    <span class="doctor-card__rating">
+                      <svg viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
+                        <path
+                          d="M7 .8 8.7 4.4l3.9.5-2.9 2.7.7 3.9L7 9.6 3.6 11.5l.7-3.9L1.4 4.9l3.9-.5Z"
+                        />
+                      </svg>
+                      {{ doctor.rating }}
+                    </span>
+                  }
+                </span>
               }
             </span>
-            @if (doctor.rating) {
-              <span class="doctor-card__rating">{{ doctor.rating }}</span>
-            }
           </button>
         </li>
       }
