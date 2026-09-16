@@ -1,0 +1,72 @@
+<div style="min-height: 100vh; display: flex; flex-direction: column; background: #F4F7FC">
+  <header
+    style="flex: none; height: 66px; background: #fff; border-bottom: 1px solid #E9EEF6; display: flex; align-items: center; padding: 0 40px; gap: 34px"
+  >
+    <div (click)="goHome()" style="font-size: 20px; font-weight: 700; letter-spacing: -.2px; cursor: pointer">
+      Doc<span style="color: #1A6DF0">trip</span>
+    </div>
+    <nav style="display: flex; gap: 4px">
+      <button
+        type="button"
+        (click)="comingSoon()"
+        style="height: 36px; padding: 0 14px; border: 0; border-radius: 9px; cursor: pointer; font-size: 13.5px; background: transparent; color: #1F2A37; font-weight: 500; white-space: nowrap"
+      >
+        Discover
+      </button>
+      <button
+        type="button"
+        (click)="comingSoon()"
+        style="height: 36px; padding: 0 14px; border: 0; border-radius: 9px; cursor: pointer; font-size: 13.5px; background: transparent; color: #1F2A37; font-weight: 500; white-space: nowrap"
+      >
+        My appointments
+      </button>
+      <button
+        type="button"
+        (click)="comingSoon()"
+        style="height: 36px; padding: 0 14px; border: 0; border-radius: 9px; cursor: pointer; font-size: 13.5px; background: transparent; color: #1F2A37; font-weight: 500; white-space: nowrap"
+      >
+        Account
+      </button>
+    </nav>
+    <div style="flex: 1"></div>
+    <button
+      type="button"
+      (click)="comingSoon()"
+      style="position: relative; width: 40px; height: 40px; border: 1px solid #E9EEF6; border-radius: 20px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center"
+    >
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1F2A37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8a6 6 0 0 0-12 0c0 6-2 7-2 7h16s-2-1-2-7z"></path>
+        <path d="M10.5 20a2 2 0 0 0 3 0"></path>
+      </svg>
+    </button>
+    @if (isAuthenticated()) {
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div
+          style="width: 36px; height: 36px; border-radius: 18px; background: #0A2456; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600"
+        >
+          {{ initials() }}
+        </div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600">{{ fullName() }}</div>
+          <div style="font-size: 11.5px; color: #9AA4B2">{{ email() }}</div>
+        </div>
+      </div>
+    } @else {
+      <button
+        type="button"
+        (click)="goSignIn()"
+        style="height: 38px; padding: 0 18px; border: 0; border-radius: 10px; background: #1A6DF0; color: #fff; font-size: 13.5px; font-weight: 600; cursor: pointer"
+      >
+        Sign in
+      </button>
+    }
+  </header>
+
+  <main style="flex: 1; min-height: 0; overflow: auto">
+    <div style="max-width: 1160px; margin: 0 auto; padding: 30px 40px 56px">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <app-toast-host></app-toast-host>
+</div>

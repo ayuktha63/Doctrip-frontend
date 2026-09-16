@@ -1,0 +1,101 @@
+<div style="max-width: 940px">
+  <div (click)="cancel()" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #6B7280; cursor: pointer">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"></path></svg>
+    {{ editing() ? 'Hospital details' : 'All hospitals' }}
+  </div>
+  <div style="font-family: Newsreader, Georgia, serif; font-size: 30px; line-height: 36px; font-weight: 500; letter-spacing: -.4px; margin-top: 14px">
+    {{ editing() ? 'Edit hospital' : 'Add hospital' }}
+  </div>
+  <div style="font-size: 13.5px; color: #6B7280; margin-top: 4px">
+    {{ editing() ? 'Update the master record patients and Hospital Admin operate against.' : 'Create the master record — activate it once the contract is signed.' }}
+  </div>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="save()"
+    style="background: #fff; border: 1px solid #E9EEF6; border-radius: 14px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 10px 24px -18px rgba(16,42,84,.2); padding: 24px; margin-top: 20px"
+  >
+    <div style="padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid #EEF2F8">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #3B6FD4">Identity</div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin-top: 14px">
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Hospital name</div>
+          <input formControlName="name" placeholder="Aster Medcity" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <div style="font-size: 11.5px; color: #DC2626; margin-top: 5px">Enter the hospital name.</div>
+          }
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Hospital type</div>
+          <input formControlName="type" placeholder="Multi-speciality" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Registration number</div>
+          <input formControlName="reg" placeholder="KL/HOSP/2013/4412" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Accreditation</div>
+          <input formControlName="accred" placeholder="NABH · JCI" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+        </label>
+      </div>
+    </div>
+
+    <div style="padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid #EEF2F8">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #3B6FD4">Location and capacity</div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin-top: 14px">
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">City</div>
+          <input formControlName="city" placeholder="Kochi" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+          @if (form.controls.city.touched && form.controls.city.invalid) {
+            <div style="font-size: 11.5px; color: #DC2626; margin-top: 5px">Enter a city.</div>
+          }
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">State</div>
+          <input formControlName="region" placeholder="Kerala" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Beds</div>
+          <input formControlName="beds" type="number" placeholder="670" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+          @if (form.controls.beds.touched && form.controls.beds.invalid) {
+            <div style="font-size: 11.5px; color: #DC2626; margin-top: 5px">Enter the bed count as a number.</div>
+          }
+        </label>
+      </div>
+    </div>
+
+    <div style="padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid #EEF2F8">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #3B6FD4">International patient desk</div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin-top: 14px">
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Contact person</div>
+          <input formControlName="person" placeholder="Meera Suresh" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Email</div>
+          <input formControlName="email" placeholder="intl.desk@hospital.example" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <div style="font-size: 11.5px; color: #DC2626; margin-top: 5px">Enter a valid email address.</div>
+          }
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Phone</div>
+          <input formControlName="phone" placeholder="+91 484 669 9999" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+        </label>
+      </div>
+    </div>
+
+    @if (serverError()) {
+      <div style="font-size: 12.5px; color: #DC2626; margin-bottom: 14px">{{ serverError() }}</div>
+    }
+
+    <div style="display: flex; align-items: center; gap: 12px">
+      <button type="submit" [disabled]="submitting()" style="height: 42px; padding: 0 20px; border: 0; border-radius: 10px; background: #1A6DF0; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 14px -8px rgba(16,63,151,.5)">
+        {{ editing() ? 'Save changes' : 'Add hospital' }}
+      </button>
+      <button type="button" (click)="cancel()" style="height: 42px; padding: 0 18px; border: 1px solid #E3E9F2; border-radius: 10px; background: #fff; color: #1F2A37; font-size: 14px; font-weight: 600; cursor: pointer">Cancel</button>
+      <div style="flex: 1"></div>
+      <div style="font-size: 12.5px; color: #9AA4B2">{{ editing() ? 'Changes are recorded in the audit trail.' : 'New hospitals start inactive until you activate them.' }}</div>
+    </div>
+  </form>
+</div>

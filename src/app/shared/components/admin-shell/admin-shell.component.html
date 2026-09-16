@@ -1,0 +1,59 @@
+<div style="min-height: 100vh; display: flex; background: #F4F7FC">
+  <aside style="width: 236px; flex: none; background: #FFFFFF; border-right: 1px solid #E9EEF6; display: flex; flex-direction: column; padding: 22px 14px">
+    <div style="padding: 0 8px 20px">
+      <div style="font-size: 19px; font-weight: 700; letter-spacing: -.2px">Doc<span style="color: #1A6DF0">trip</span></div>
+      <div style="font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #9AA4B2; margin-top: 3px">Admin console</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <button
+        type="button"
+        (click)="goDashboard()"
+        style="display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 10px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onDashboard() ? '#EAF1FE' : 'transparent'"
+        [style.color]="onDashboard() ? '#1A6DF0' : '#1F2A37'"
+        [style.font-weight]="onDashboard() ? 600 : 500"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onDashboard() ? '#1A6DF0' : '#6B7280'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
+        Dashboard
+      </button>
+      <button
+        type="button"
+        (click)="goHospitals()"
+        style="display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 10px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onHospitals() ? '#EAF1FE' : 'transparent'"
+        [style.color]="onHospitals() ? '#1A6DF0' : '#1F2A37'"
+        [style.font-weight]="onHospitals() ? 600 : 500"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onHospitals() ? '#1A6DF0' : '#6B7280'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14"></path><path d="M2 21h20"></path><path d="M12 8v6M9 11h6"></path></svg>
+        Hospitals
+      </button>
+    </div>
+
+    <div style="flex: 1"></div>
+
+    <div style="border-top: 1px solid #EEF2F8; padding-top: 14px; display: flex; align-items: center; gap: 10px">
+      <div style="width: 34px; height: 34px; flex: none; border-radius: 17px; background: #0A2456; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600">
+        {{ adminInitials() }}
+      </div>
+      <div style="flex: 1; min-width: 0">
+        <div style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ adminName() }}</div>
+        <div style="font-size: 11.5px; color: #9AA4B2">Platform admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+    <header style="flex: none; height: 62px; background: #FFFFFF; border-bottom: 1px solid #E9EEF6; display: flex; align-items: center; padding: 0 28px; gap: 10px">
+      <div style="font-size: 14px; font-weight: 600; color: #1F2A37">{{ crumb() }}</div>
+      <div style="flex: 1"></div>
+    </header>
+
+    <main style="flex: 1; min-height: 0; overflow: auto; padding: 26px 28px 40px">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <app-toast-host></app-toast-host>
+  <app-confirm-dialog></app-confirm-dialog>
+</div>

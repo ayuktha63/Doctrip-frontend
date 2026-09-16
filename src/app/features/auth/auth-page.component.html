@@ -1,0 +1,249 @@
+<div style="max-width: 460px; margin: 0 auto; padding-top: 8px">
+  <div style="text-align: center">
+    <div style="font-family: Newsreader, Georgia, serif; font-size: 32px; line-height: 39px; font-weight: 500; letter-spacing: -.5px">
+      {{ tab() === 'signin' ? 'Welcome back' : 'Create your account' }}
+    </div>
+    <div style="font-size: 14px; line-height: 21px; color: #6B7280; margin-top: 6px">
+      {{ tab() === 'signin' ? 'Log in to continue your care journey' : 'One account for the website and the mobile app' }}
+    </div>
+  </div>
+
+  <div style="background: #fff; border: 1px solid #E9EEF6; border-radius: 16px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 12px 28px -20px rgba(16,42,84,.28); padding: 24px; margin-top: 20px">
+    <div style="display: flex; gap: 4px; background: #EDF1F8; border-radius: 12px; padding: 4px">
+      <button
+        type="button"
+        (click)="pickTab('signin')"
+        [style.background]="tab() === 'signin' ? '#fff' : 'transparent'"
+        [style.color]="tab() === 'signin' ? '#1A6DF0' : '#1F2A37'"
+        [style.font-weight]="tab() === 'signin' ? 600 : 500"
+        [style.box-shadow]="tab() === 'signin' ? '0 1px 4px rgba(13,27,42,.12)' : 'none'"
+        style="flex: 1; height: 40px; border: 0; border-radius: 9px; cursor: pointer; font-size: 14px"
+      >
+        Sign in
+      </button>
+      <button
+        type="button"
+        (click)="pickTab('signup')"
+        [style.background]="tab() === 'signup' ? '#fff' : 'transparent'"
+        [style.color]="tab() === 'signup' ? '#1A6DF0' : '#1F2A37'"
+        [style.font-weight]="tab() === 'signup' ? 600 : 500"
+        [style.box-shadow]="tab() === 'signup' ? '0 1px 4px rgba(13,27,42,.12)' : 'none'"
+        style="flex: 1; height: 40px; border: 0; border-radius: 9px; cursor: pointer; font-size: 14px"
+      >
+        Sign up
+      </button>
+    </div>
+
+    @if (tab() === 'signin') {
+      <form [formGroup]="loginForm" (ngSubmit)="submitLogin()" style="display: flex; flex-direction: column; gap: 16px; margin-top: 22px">
+        <label style="display: block">
+          <div style="font-size: 12.5px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Email or mobile</div>
+          <input
+            formControlName="loginId"
+            placeholder="you@example.com"
+            style="width: 100%; height: 46px; box-sizing: border-box; padding: 0 14px; border: 1px solid #E3E9F2; border-radius: 12px; font-size: 14px; color: #0B1526; background: #fff"
+          />
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12.5px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Password</div>
+          <div style="position: relative">
+            <input
+              formControlName="password"
+              [type]="loginShowPassword() ? 'text' : 'password'"
+              placeholder="Your password"
+              style="width: 100%; height: 46px; box-sizing: border-box; padding: 0 14px; border: 1px solid #E3E9F2; border-radius: 12px; font-size: 14px; color: #0B1526; background: #fff; padding-right: 46px"
+            />
+            <button
+              type="button"
+              (click)="toggleLoginPasswordVisibility()"
+              style="position: absolute; right: 4px; top: 4px; width: 38px; height: 38px; border: 0; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center"
+            >
+              @if (loginShowPassword()) {
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle><path d="M4 20L20 4"></path></svg>
+              } @else {
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              }
+            </button>
+          </div>
+        </label>
+        @if (loginError()) {
+          <div style="font-size: 12px; line-height: 16px; color: #DC2626; margin-top: -8px">{{ loginError() }}</div>
+        }
+        <div style="text-align: right; font-size: 13px; font-weight: 600; color: #1A6DF0; cursor: pointer">Forgot password?</div>
+        <button
+          type="submit"
+          [disabled]="submitting()"
+          style="height: 48px; border: 0; border-radius: 12px; background: #1A6DF0; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 16px -8px rgba(16,63,151,.5)"
+        >
+          Log in
+        </button>
+        <button
+          type="button"
+          (click)="goOtpLogin()"
+          [disabled]="submitting()"
+          style="height: 48px; margin-top: -4px; border: 1.5px solid #E3E9F2; border-radius: 12px; background: #fff; color: #1F2A37; font-size: 14.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A6DF0" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M8 10h.01M12 10h.01M16 10h.01"></path></svg>
+          Log in with a one-time code
+        </button>
+      </form>
+    }
+
+    @if (tab() === 'signup') {
+      <form [formGroup]="registerForm" (ngSubmit)="submitRegister()">
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 22px">
+          <label style="display: block">
+            <div style="font-size: 12.5px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Full name</div>
+            <input
+              formControlName="fullName"
+              placeholder="John Mathew"
+              style="width: 100%; height: 46px; box-sizing: border-box; padding: 0 14px; border: 1px solid #E3E9F2; border-radius: 12px; font-size: 14px; color: #0B1526; background: #fff"
+            />
+            @if (registerForm.controls.fullName.touched && registerForm.controls.fullName.invalid) {
+              <div style="font-size: 12px; line-height: 16px; color: #DC2626; margin-top: 6px">Enter your full name.</div>
+            }
+          </label>
+          <label style="display: block">
+            <div style="font-size: 12.5px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Email</div>
+            <input
+              formControlName="email"
+              placeholder="you@example.com"
+              style="width: 100%; height: 46px; box-sizing: border-box; padding: 0 14px; border: 1px solid #E3E9F2; border-radius: 12px; font-size: 14px; color: #0B1526; background: #fff"
+            />
+            @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
+              <div style="font-size: 12px; line-height: 16px; color: #DC2626; margin-top: 6px">Enter a valid email address.</div>
+            }
+          </label>
+          <label style="display: block">
+            <div style="font-size: 12.5px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Mobile</div>
+            <div style="display: flex; gap: 10px">
+              <div style="position: relative; flex: none">
+                <button
+                  type="button"
+                  (click)="toggleCountryDropdown(); $event.stopPropagation()"
+                  style="width: 100px; height: 46px; border: 1px solid #E3E9F2; border-radius: 12px; background: #fff; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600; color: #1F2A37; cursor: pointer"
+                >
+                  {{ selectedCountry().dial }}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9AA4B2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+                </button>
+                @if (countryDropdownOpen()) {
+                  <div
+                    (click)="$event.stopPropagation()"
+                    style="position: absolute; top: 52px; left: 0; z-index: 20; width: 240px; max-height: 260px; overflow-y: auto; background: #fff; border: 1px solid #E3E9F2; border-radius: 12px; box-shadow: 0 12px 28px -12px rgba(16,42,84,.28); padding: 6px"
+                  >
+                    @for (country of countryCodes; track country.iso) {
+                      <button
+                        type="button"
+                        (click)="selectCountry(country)"
+                        style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; font-size: 13.5px; color: #1F2A37; cursor: pointer; text-align: left"
+                        [style.background]="selectedCountry().iso === country.iso ? '#F0F6FF' : 'transparent'"
+                      >
+                        <span>{{ country.name }}</span>
+                        <span style="color: #6B7280; font-weight: 600">{{ country.dial }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+              <input
+                formControlName="mobile"
+                placeholder="98765 43210"
+                style="width: 100%; height: 46px; box-sizing: border-box; padding: 0 14px; border: 1px solid #E3E9F2; border-radius: 12px; font-size: 14px; color: #0B1526; background: #fff; flex: 1"
+              />
+            </div>
+            @if (registerForm.controls.mobile.touched && registerForm.controls.mobile.invalid) {
+              <div style="font-size: 12px; line-height: 16px; color: #DC2626; margin-top: 6px">Enter a 10-digit mobile number.</div>
+            }
+          </label>
+          <label style="display: block">
+            <div style="font-size: 12.5px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Password</div>
+            <input
+              type="password"
+              formControlName="password"
+              placeholder="At least 8 characters"
+              style="width: 100%; height: 46px; box-sizing: border-box; padding: 0 14px; border: 1px solid #E3E9F2; border-radius: 12px; font-size: 14px; color: #0B1526; background: #fff"
+            />
+            <div style="height: 4px; border-radius: 2px; background: #E3E9F2; margin-top: 9px; overflow: hidden">
+              <div
+                style="height: 100%; border-radius: 2px; transition: width .2s"
+                [style.width]="passwordStrength().pct"
+                [style.background]="passwordStrength().color"
+              ></div>
+            </div>
+            <div style="font-size: 11.5px; color: #6B7280; margin-top: 5px">{{ passwordStrength().label }}</div>
+            @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+              <div style="font-size: 12px; line-height: 16px; color: #DC2626; margin-top: 6px">
+                Use 8+ characters with an uppercase letter, a lowercase letter, a number and a symbol.
+              </div>
+            }
+          </label>
+        </div>
+
+        <div (click)="toggleAgree()" style="display: flex; gap: 11px; align-items: flex-start; margin-top: 18px; cursor: pointer">
+          <div
+            style="width: 20px; height: 20px; flex: none; border-radius: 6px; margin-top: 1px; display: flex; align-items: center; justify-content: center; border: 1.5px solid"
+            [style.border-color]="registerForm.controls.agree.value ? '#1A6DF0' : '#E3E9F2'"
+            [style.background]="registerForm.controls.agree.value ? '#1A6DF0' : '#fff'"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              stroke-width="3.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              [style.opacity]="registerForm.controls.agree.value ? 1 : 0"
+            >
+              <path d="M20 6L9 17l-5-5"></path>
+            </svg>
+          </div>
+          <div style="font-size: 13px; line-height: 19px; color: #1F2A37">
+            I agree to the <span style="color: #1A6DF0; font-weight: 600">Terms of Service</span> and
+            <span style="color: #1A6DF0; font-weight: 600">Privacy Policy</span>
+          </div>
+        </div>
+        @if (registerForm.controls.agree.touched && registerForm.controls.agree.invalid) {
+          <div style="font-size: 12px; line-height: 16px; color: #DC2626; margin-top: 6px">Please accept the Terms of Service to continue.</div>
+        }
+
+        @if (registerServerError()) {
+          <div style="font-size: 12px; line-height: 16px; color: #DC2626; margin-top: 10px">{{ registerServerError() }}</div>
+        }
+
+        <button
+          type="submit"
+          [disabled]="submitting()"
+          style="width: 100%; height: 48px; margin-top: 20px; border: 0; border-radius: 12px; background: #1A6DF0; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 16px -8px rgba(16,63,151,.5)"
+        >
+          Create account
+        </button>
+      </form>
+    }
+
+    <div style="display: flex; align-items: center; gap: 12px; margin: 22px 0">
+      <div style="flex: 1; height: 1px; background: #E3E9F2"></div>
+      <div style="font-size: 12px; color: #6B7280">or continue with</div>
+      <div style="flex: 1; height: 1px; background: #E3E9F2"></div>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+      <button
+        type="button"
+        (click)="continueWithGoogle()"
+        style="height: 46px; border: 1px solid #E3E9F2; border-radius: 12px; background: #fff; font-size: 14px; font-weight: 600; color: #1F2A37; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px"
+      >
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1F2A37" stroke-width="1.9" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"></path><path d="M21 12h-8"></path></svg>
+        Google
+      </button>
+      <button
+        type="button"
+        (click)="continueWithApple()"
+        style="height: 46px; border: 1px solid #E3E9F2; border-radius: 12px; background: #fff; font-size: 14px; font-weight: 600; color: #1F2A37; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px"
+      >
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="#1F2A37"><path d="M16.4 12.8c0-2.2 1.8-3.3 1.9-3.4-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.3.8-.7 0-1.7-.8-2.8-.8-1.5 0-2.8.9-3.6 2.2-1.5 2.6-.4 6.5 1.1 8.6.7 1 1.6 2.2 2.7 2.2 1.1 0 1.5-.7 2.8-.7s1.6.7 2.8.7c1.2 0 1.9-1 2.6-2.1.8-1.2 1.2-2.4 1.2-2.5 0 0-2.2-.9-2.2-3.3z"></path><path d="M14.6 6.3c.6-.7 1-1.7.9-2.7-.9 0-1.9.6-2.5 1.3-.6.6-1 1.6-.9 2.6 1 .1 2-.5 2.5-1.2z"></path></svg>
+        Apple
+      </button>
+    </div>
+  </div>
+</div>
