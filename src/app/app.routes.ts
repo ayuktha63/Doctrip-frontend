@@ -34,6 +34,31 @@ export const routes: Routes = [
           import('./features/booking/booking-placeholder/booking-placeholder').then((m) => m.BookingPlaceholder),
       },
       {
+        path: 'appointments',
+        canActivate: [authGuard],
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./features/appointments/appointments.component').then((m) => m.AppointmentsComponent),
+      },
+      {
+        path: 'appointments/:id',
+        canActivate: [authGuard],
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./features/appointments/appointment-detail.component').then((m) => m.AppointmentDetailComponent),
+      },
+      {
+        path: 'appointments/:id/payment',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/appointments/payment.component').then((m) => m.PaymentComponent),
+      },
+      {
+        path: 'notifications',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/notifications/notifications.component').then((m) => m.NotificationsComponent),
+      },
+      {
         path: 'auth',
         canActivate: [guestGuard],
         loadComponent: () => import('./features/auth/auth-page.component').then((m) => m.AuthPageComponent),

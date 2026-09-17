@@ -15,8 +15,11 @@
       </button>
       <button
         type="button"
-        (click)="comingSoon()"
-        style="height: 36px; padding: 0 14px; border: 0; border-radius: 9px; cursor: pointer; font-size: 13.5px; background: transparent; color: #1F2A37; font-weight: 500; white-space: nowrap"
+        (click)="goAppointments()"
+        style="height: 36px; padding: 0 14px; border: 0; border-radius: 9px; cursor: pointer; font-size: 13.5px; white-space: nowrap"
+        [style.background]="onAppointments() ? '#EAF1FE' : 'transparent'"
+        [style.color]="onAppointments() ? '#1A6DF0' : '#1F2A37'"
+        [style.font-weight]="onAppointments() ? 600 : 500"
       >
         My appointments
       </button>
@@ -31,13 +34,16 @@
     <div style="flex: 1"></div>
     <button
       type="button"
-      (click)="comingSoon()"
+      (click)="goNotifications()"
       style="position: relative; width: 40px; height: 40px; border: 1px solid #E9EEF6; border-radius: 20px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center"
     >
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1F2A37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18 8a6 6 0 0 0-12 0c0 6-2 7-2 7h16s-2-1-2-7z"></path>
         <path d="M10.5 20a2 2 0 0 0 3 0"></path>
       </svg>
+      @if (appointmentsState.unreadCount() > 0) {
+        <span style="position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 4px; background: #FFB020; border: 1.5px solid #fff"></span>
+      }
     </button>
     @if (isAuthenticated()) {
       <div style="display: flex; align-items: center; gap: 10px">
@@ -69,4 +75,5 @@
   </main>
 
   <app-toast-host></app-toast-host>
+  <app-confirm-dialog></app-confirm-dialog>
 </div>
