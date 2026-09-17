@@ -13,6 +13,26 @@ export const routes: Routes = [
         canActivate: [authGuard],
         loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
       },
+      // Story 2 — Healthcare Discovery. Unified page (matches
+      // docs/"doctrip-web-panels 2.html", PatientPanel.dc.html's
+      // Discover/Detail screens): one search+tabs page plus one detail
+      // route across treatments/hospitals/doctors. Public: no
+      // canActivate guard, per story_2.md ("Treatment, hospital and
+      // doctor discovery does not require authentication"). Only the
+      // Book appointment action inside the detail page checks auth, via
+      // BookingHandoffService.
+      {
+        path: 'discover',
+        loadChildren: () => import('./features/discover/discover.routes').then((m) => m.DISCOVER_ROUTES),
+      },
+      // Landing target for BookingHandoffService.proceed() — see
+      // booking-placeholder.ts for why this exists and what it is not.
+      {
+        path: 'booking/:kind/:id',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/booking/booking-placeholder/booking-placeholder').then((m) => m.BookingPlaceholder),
+      },
       {
         path: 'auth',
         canActivate: [guestGuard],
