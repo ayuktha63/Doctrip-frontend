@@ -1,0 +1,50 @@
+<div>
+  <div style="font-family: Newsreader, Georgia, serif; font-size: 32px; line-height: 39px; font-weight: 500; letter-spacing: -.5px">My appointments</div>
+  <div style="font-size: 14px; color: #6B7280; margin-top: 5px">{{ countLabel() }}</div>
+
+  <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 22px">
+    @for (a of appointments(); track a.id) {
+      <div
+        (click)="open(a.id)"
+        style="background: #fff; border: 1px solid #E9EEF6; border-radius: 16px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 12px 28px -20px rgba(16,42,84,.28); padding: 20px 22px; cursor: pointer"
+        [style.border-left]="'3px solid ' + a.accent"
+      >
+        <div style="display: flex; align-items: flex-start; gap: 18px">
+          <div style="flex: 1; min-width: 0">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <div style="font-size: 16px; font-weight: 600">{{ a.treatment }}</div>
+              <span
+                style="display: inline-flex; align-items: center; gap: 6px; border-radius: 20px; padding: 4px 10px; font-size: 11.5px; font-weight: 600"
+                [style.color]="a.accent"
+                [style.background]="a.tint"
+              >
+                <span style="width: 6px; height: 6px; border-radius: 3px" [style.background]="a.accent"></span>{{ a.statusLabel }}
+              </span>
+            </div>
+            <div style="font-size: 13.5px; color: #6B7280; margin-top: 5px">{{ a.hospital }} · {{ a.dept }}</div>
+            <div style="display: flex; gap: 22px; margin-top: 12px">
+              <div>
+                <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Doctor</div>
+                <div style="font-size: 13.5px; margin-top: 3px">{{ a.doctor }}</div>
+              </div>
+              <div>
+                <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">{{ a.whenLabel }}</div>
+                <div style="font-size: 13.5px; margin-top: 3px">{{ a.when }}</div>
+              </div>
+              <div>
+                <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Reference</div>
+                <div style="font-size: 13.5px; margin-top: 3px">{{ a.id }}</div>
+              </div>
+            </div>
+          </div>
+          <div style="flex: none; text-align: right">
+            <div style="font-size: 12.5px; color: #9AA4B2">{{ a.nudge }}</div>
+            @if (a.needsYou) {
+              <div style="display: inline-block; margin-top: 10px; height: 36px; line-height: 36px; padding: 0 15px; border-radius: 10px; background: #1A6DF0; color: #fff; font-size: 13px; font-weight: 600">Review proposal</div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
