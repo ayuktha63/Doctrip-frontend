@@ -1,0 +1,23 @@
+<section class="review" aria-label="Review request">
+  <div class="review__card">
+    <h1>Review your request</h1>
+    <p class="review__hint">Check the details below, then submit — the hospital will confirm a slot.</p>
+
+    @for (group of groups(); track group.title) {
+      <div class="review__group">
+        <h2>{{ group.title }}</h2>
+        @for (row of group.rows; track row.k) {
+          <div class="review__row">
+            <span class="review__k">{{ row.k }}</span>
+            <span class="review__v">{{ row.v }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <div class="review__actions">
+      <button type="button" class="review__ghost" (click)="goBook()">Edit request</button>
+      <button type="button" class="review__primary" (click)="submitRequest()">Submit request</button>
+    </div>
+  </div>
+</section>

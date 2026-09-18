@@ -1,0 +1,85 @@
+<section class="book" aria-label="Book appointment">
+  @if (state.state() === 'loading') {
+    <p class="book__status">Loading your selection…</p>
+  } @else if (state.state() === 'unavailable') {
+    <div class="book__card">
+      <h1>No longer available</h1>
+      <p>This selection isn't available anymore. Head back to discovery to find another option.</p>
+      <button type="button" (click)="backToDiscovery()">Back to discovery</button>
+    </div>
+  } @else if (state.state() === 'error') {
+    <div class="book__card">
+      <h1>Something went wrong</h1>
+      <p>We couldn't load this selection. Please try again from discovery.</p>
+      <button type="button" (click)="backToDiscovery()">Back to discovery</button>
+    </div>
+  } @else if (state.record(); as record) {
+    <div class="book__card">
+      <h1>Book appointment</h1>
+      <p class="book__summary">
+        {{ record.title }} · {{ record.hospital }}
+        @if (record.dept) {
+          · {{ record.dept }}
+        }
+      </p>
+
+      @for (section of sections; track section.title) {
+        <div class="book__section">
+          <h2>{{ section.title }}</h2>
+          @for (field of section.fields; track field.key) {
+            <label class="book__field">
+              <span>{{ field.label }}@if (field.required) { <em>*</em> }</span>
+              <input
+                type="text"
+                [placeholder]="field.ph"
+                [value]="fieldValue(field.key)"
+                (input)="onField(field.key, $event)"
+              />
+              @if (fieldError(field.key); as error) {
+                <small class="book__error">{{ error }}</small>
+              }
+            </label>
+          }
+        </div>
+      }
+
+      <div class="book__section">
+        <h2>Preferred date</h2>
+        <div class="book__chips">
+          @for (chip of dateChips(); track chip.num) {
+            <button type="button" [class.book__chip--selected]="chip.selected" (click)="pickDay(chip.num)">
+              {{ chip.label }} {{ chip.num }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="book__section">
+        <h2>Preferred time</h2>
+        <div class="book__chips">
+          @for (chip of timeChips(); track chip.label) {
+            <button type="button" [class.book__chip--selected]="chip.selected" (click)="pickTime(chip.label)">
+              {{ chip.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="book__section">
+        <h2>Documents</h2>
+        @for (doc of state.docs(); track doc; let i = $index) {
+          <div class="book__doc">
+            <span>{{ doc }}</span>
+            <button type="button" (click)="removeDoc(i)" aria-label="Remove document">✕</button>
+          </div>
+        }
+        <button type="button" class="book__add-doc" (click)="addDoc()">+ Add document</button>
+      </div>
+
+      <div class="book__actions">
+        <button type="button" class="book__ghost" (click)="backToDiscovery()">Cancel</button>
+        <button type="button" class="book__primary" (click)="goReview()">Review request</button>
+      </div>
+    </div>
+  }
+</section>
