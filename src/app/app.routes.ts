@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { hospitalAdminAuthGuard } from './core/guards/hospital-admin-auth.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -90,6 +91,76 @@ export const routes: Routes = [
         path: 'hospitals/:id/edit',
         loadComponent: () =>
           import('./features/admin/hospitals/hospital-form.component').then((m) => m.HospitalFormComponent),
+      },
+    ],
+  },
+  {
+    // Story 4 — Hospital Admin console. A third top-level route tree, sibling to the patient
+    // '' route and Story 3's 'admin' route — its own shell, its own login, its own JWT session
+    // (HospitalAdminAuthService), scoped to a single hospital. See CLAUDE.md's "Story 4" section.
+    path: 'hospital-admin/login',
+    loadComponent: () =>
+      import('./features/hospital-admin/login/hospital-admin-login.component').then(
+        (m) => m.HospitalAdminLoginComponent,
+      ),
+  },
+  {
+    path: 'hospital-admin',
+    canActivate: [hospitalAdminAuthGuard],
+    loadComponent: () =>
+      import('./shared/components/hospital-admin-shell/hospital-admin-shell.component').then(
+        (m) => m.HospitalAdminShellComponent,
+      ),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./features/hospital-admin/dashboard/hospital-admin-dashboard.component').then(
+            (m) => m.HospitalAdminDashboardComponent,
+          ),
+      },
+      {
+        path: 'hospital',
+        loadComponent: () =>
+          import('./features/hospital-admin/hospital/hospital-admin-hospital.component').then(
+            (m) => m.HospitalAdminHospitalComponent,
+          ),
+      },
+      {
+        path: 'departments',
+        loadComponent: () =>
+          import('./features/hospital-admin/departments/hospital-admin-departments.component').then(
+            (m) => m.HospitalAdminDepartmentsComponent,
+          ),
+      },
+      {
+        path: 'treatments',
+        loadComponent: () =>
+          import('./features/hospital-admin/treatments/hospital-admin-treatments.component').then(
+            (m) => m.HospitalAdminTreatmentsComponent,
+          ),
+      },
+      {
+        path: 'doctors',
+        loadComponent: () =>
+          import('./features/hospital-admin/doctors/hospital-admin-doctors.component').then(
+            (m) => m.HospitalAdminDoctorsComponent,
+          ),
+      },
+      {
+        path: 'availability',
+        loadComponent: () =>
+          import('./features/hospital-admin/availability/hospital-admin-availability.component').then(
+            (m) => m.HospitalAdminAvailabilityComponent,
+          ),
+      },
+      {
+        path: 'requests',
+        loadComponent: () =>
+          import('./features/hospital-admin/requests/hospital-admin-requests.component').then(
+            (m) => m.HospitalAdminRequestsComponent,
+          ),
       },
     ],
   },

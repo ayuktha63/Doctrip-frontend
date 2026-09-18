@@ -1,0 +1,162 @@
+<div style="padding: 28px 32px 56px; max-width: 1360px">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 20px">
+    <div>
+      <div style="font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -.6px; color: #0A1626">Treatments</div>
+      <p style="margin: 5px 0 0; font-size: 13.5px; line-height: 20px; color: #4E5A6B">{{ treatments().length }} treatments · {{ listedTreatments().length }} listed</p>
+    </div>
+    <button type="button" (click)="openAdd()" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 0; border-radius: 10px; background: #0F62D6; color: #fff; font-size: 13.5px; font-weight: 650; cursor: pointer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+      Add treatment
+    </button>
+  </div>
+
+  <div style="display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px; border-radius: 10px; background: #F3F7FE; border: 1px solid #D6E4F9; font-size: 13px; line-height: 19px; color: #0A3D82; margin-bottom: 18px">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px; flex: none"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.5"></path></svg>
+    <div>A listed treatment is exactly what Treatment Discovery shows patients. Unlist one to pull it from Discovery without deleting the record.</div>
+  </div>
+
+  <div style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; overflow: hidden">
+    <div style="display: grid; grid-template-columns: 2fr 1fr 1.1fr .8fr .8fr 150px; gap: 14px; padding: 11px 20px; background: #FBFCFE; border-bottom: 1px solid #E6EBF3; font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #A7B2C2">
+      <div>Treatment</div><div>Department</div><div>Package price</div><div>Typical stay</div><div>Discovery</div><div style="text-align: right">Actions</div>
+    </div>
+    @for (t of treatments(); track t.id) {
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1.1fr .8fr .8fr 150px; gap: 14px; padding: 13px 20px; border-bottom: 1px solid #E6EBF3; align-items: center; font-size: 13.5px; color: #334155">
+        <div style="display: flex; align-items: center; gap: 12px; min-width: 0">
+          <span [style.background]="deptTint(t.departmentName)" style="width: 36px; height: 36px; flex: none; border-radius: 10px; display: flex; align-items: center; justify-content: center">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" [attr.stroke]="deptAccent(t.departmentName)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path [attr.d]="deptIcon(t.departmentName)"></path></svg>
+          </span>
+          <span style="min-width: 0">
+            <span style="display: block; font-size: 13.5px; font-weight: 650; color: #0A1626; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ t.name }}</span>
+            <span style="display: block; font-size: 12.5px; color: #697585; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ t.description }}</span>
+          </span>
+        </div>
+        <div>{{ t.departmentName }}</div>
+        <div>
+          <span style="display: block; font-size: 13.5px; font-weight: 650; color: #0A1626">₹{{ t.price }}</span>
+          <span style="font-size: 12.5px; color: #697585">₹{{ t.consultationFee }} consultation</span>
+        </div>
+        <div>{{ t.typicalStay }}</div>
+        <div>
+          <span [style.color]="t.listed ? '#0E7C4A' : '#B45309'" [style.background]="t.listed ? '#E6F4EC' : '#FDF3E3'" style="display: inline-flex; align-items: center; gap: 6px; height: 23px; padding: 0 10px; border-radius: 999px; font-size: 11.5px; font-weight: 650">
+            <span style="width: 6px; height: 6px; border-radius: 3px; background: currentColor"></span>
+            {{ t.listed ? 'Listed' : 'Unlisted' }}
+          </span>
+        </div>
+        <div style="display: flex; gap: 8px; justify-content: flex-end">
+          <button type="button" (click)="openEdit(t)" style="height: 32px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 8px; background: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Edit</button>
+          <button type="button" (click)="toggleListed(t)" [style.color]="t.listed ? '#B45309' : '#0E7C4A'" [style.border-color]="t.listed ? '#F2DFC2' : '#C9E5D5'" style="height: 32px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 8px; background: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">{{ t.listed ? 'Unlist' : 'List' }}</button>
+        </div>
+      </div>
+    }
+    @if (!loading() && treatments().length === 0) {
+      <div style="padding: 56px 24px; text-align: center">
+        <div style="width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 14px; background: #EDF1F7; display: flex; align-items: center; justify-content: center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#697585" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4L13.4 20.6a2 2 0 0 1-2.8 0l-7.1-7.1a2 2 0 0 1-.6-1.4V4.6a1.4 1.4 0 0 1 1.4-1.4h7.5a2 2 0 0 1 1.4.6l7.4 7.4a2 2 0 0 1 0 2.8z"></path><path d="M7.2 7.2h.02"></path></svg>
+        </div>
+        <div style="font-size: 14.5px; font-weight: 650; color: #0A1626">No treatments published yet</div>
+        <div style="font-size: 13px; color: #4E5A6B; margin-top: 4px; max-width: 380px; margin-left: auto; margin-right: auto">Add a treatment to give patients something to find. Nothing appears in Treatment Discovery until you list one.</div>
+      </div>
+    }
+  </div>
+
+  <!-- What patients actually see, rendered from the same records above (Story_4.md: "a listed
+       treatment is exactly what Treatment Discovery shows"). -->
+  <div style="margin-top: 30px">
+    <div style="font-size: 19px; line-height: 26px; font-weight: 700; letter-spacing: -.3px; color: #0A1626">In Treatment Discovery</div>
+    <p style="margin: 4px 0 0; font-size: 13.5px; line-height: 20px; color: #4E5A6B">
+      @if (listedTreatments().length > 0) {
+        What patients see for Aster Medcity right now — {{ listedTreatments().length }} listed.
+      } @else {
+        What patients see for this hospital right now.
+      }
+    </p>
+
+    @if (treatments().length > 0 && listedTreatments().length === 0) {
+      <div style="margin-top: 14px; background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; padding: 56px 24px; text-align: center">
+        <div style="width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 14px; background: #EDF1F7; display: flex; align-items: center; justify-content: center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#697585" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        </div>
+        <div style="font-size: 14.5px; font-weight: 650; color: #0A1626">Patients find nothing from this hospital</div>
+        <div style="font-size: 13px; color: #4E5A6B; margin-top: 4px; max-width: 380px; margin-left: auto; margin-right: auto">Every treatment is unlisted, so this hospital does not appear in Treatment Discovery. List one to put it back in front of patients.</div>
+      </div>
+    }
+
+    @if (listedTreatments().length > 0) {
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(288px, 1fr)); gap: 16px; margin-top: 14px">
+        @for (t of listedTreatments(); track t.id) {
+          <div style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; box-shadow: 0 1px 2px rgba(10,37,64,.04), 0 2px 6px -2px rgba(10,37,64,.08); padding: 18px 20px 16px">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span [style.background]="deptTint(t.departmentName)" [style.color]="deptAccent(t.departmentName)" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex: none; border-radius: 10px; font-size: 12px; font-weight: 800; letter-spacing: .04em">{{ deptCodeFor(t.departmentName) }}</span>
+              <div style="min-width: 0">
+                <div style="font-size: 15px; font-weight: 650; letter-spacing: -.1px; color: #0A1626; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ t.name }}</div>
+                <div style="font-size: 12.5px; color: #697585">{{ t.departmentName }}</div>
+              </div>
+            </div>
+            <div style="font-size: 13.5px; line-height: 20px; color: #4E5A6B; margin-top: 12px; min-height: 40px">{{ t.description }}</div>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 13px; margin-top: 13px; border-top: 1px solid #E6EBF3">
+              <span style="font-size: 15px; font-weight: 650; color: #0A1626">₹{{ t.price }}</span>
+              <span style="display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 650; color: #0F62D6">
+                View details
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"></path></svg>
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (showForm()) {
+    <div style="position: fixed; inset: 0; background: rgba(10,22,38,.45); display: flex; align-items: center; justify-content: center; z-index: 50">
+      <form [formGroup]="form" (ngSubmit)="submit()" style="width: 460px; background: #fff; border-radius: 14px; padding: 22px 24px; max-height: 88vh; overflow: auto">
+        <div style="font-size: 17px; font-weight: 700; color: #0A1626">{{ editing() ? 'Edit treatment' : 'Add treatment' }}</div>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px">
+          <label>
+            <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Treatment name</span>
+            <input formControlName="name" placeholder="Knee Replacement Surgery" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+            <span style="display: block; font-size: 11.5px; color: #A7B2C2; margin-top: 6px">The heading on the patient's card.</span>
+          </label>
+          <label>
+            <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Department</span>
+            <select formControlName="departmentId" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px">
+              <option value="" disabled>Select department</option>
+              @for (dep of departments(); track dep.id) {
+                <option [value]="dep.id">{{ dep.name }}</option>
+              }
+            </select>
+            <span style="display: block; font-size: 11.5px; color: #A7B2C2; margin-top: 6px">Match a department above so requests reach the right consultants.</span>
+          </label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+            <label>
+              <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Package price (₹)</span>
+              <input formControlName="price" type="number" min="0" placeholder="120000" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+              <span style="display: block; font-size: 11.5px; color: #A7B2C2; margin-top: 6px">Shown on the card and as "Package from" on the detail page.</span>
+            </label>
+            <label>
+              <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Consultation fee (₹)</span>
+              <input formControlName="consultationFee" type="number" min="0" placeholder="1000" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+              <span style="display: block; font-size: 11.5px; color: #A7B2C2; margin-top: 6px">Added to the package when the patient confirms and pays.</span>
+            </label>
+          </div>
+          <label>
+            <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Typical stay</span>
+            <input formControlName="typicalStay" placeholder="10 days including rehab" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+            <span style="display: block; font-size: 11.5px; color: #A7B2C2; margin-top: 6px">Listed among the treatment facts.</span>
+          </label>
+          <label>
+            <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Short description</span>
+            <textarea formControlName="description" rows="3" placeholder="What the package covers, in one line." style="width: 100%; padding: 11px 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px; resize: vertical"></textarea>
+            <span style="display: block; font-size: 11.5px; color: #A7B2C2; margin-top: 6px">The line under the title on the patient's card.</span>
+          </label>
+          @if (formErr()) {
+            <div style="font-size: 12.5px; color: #B42318; background: #FBECEA; border-radius: 8px; padding: 8px 10px">{{ formErr() }}</div>
+          }
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px">
+          <button type="button" (click)="closeForm()" style="height: 38px; padding: 0 14px; border: 1px solid #DDE4EE; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 650; cursor: pointer">Cancel</button>
+          <button type="submit" [disabled]="saving()" style="height: 38px; padding: 0 16px; border: 0; border-radius: 10px; background: #0F62D6; color: #fff; font-size: 13px; font-weight: 650; cursor: pointer">{{ saving() ? 'Saving…' : 'Save' }}</button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

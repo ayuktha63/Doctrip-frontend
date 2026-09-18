@@ -6,8 +6,15 @@ import { AuthService } from '../services/auth.service';
 
 const PUBLIC_AUTH_PATHS = ['/auth/register', '/auth/otp/', '/auth/login', '/auth/token/refresh'];
 
-/** Attaches the JWT bearer token to every request and handles 401s globally. */
+/**
+ * Attaches the JWT bearer token to every request and handles 401s globally. Explicitly skips
+ * `/api/hospital-admin/**` — that path prefix carries its own separate bearer token via
+ * `hospitalAdminAuthInterceptor` (Story 4), and this interceptor must never attach the patient
+ * token to those calls.
+ */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  if (req.url.includes('/api/hospital-admin')) return next(req);
+
   const auth = inject(AuthService);
   const router = inject(Router);
 

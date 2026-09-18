@@ -170,6 +170,81 @@ src/app/
   booking. DocTrip Admin only creates/views/edits/activates/deactivates hospital master records —
   see `Doctrip-backend`'s `CLAUDE.md` for the full rationale.
 
+## Story 4 — Hospital Administration
+
+A third top-level route tree lives alongside the patient app (`''`) and Story 3's DocTrip Admin
+(`/admin`): the **Hospital Admin** console at `/hospital-admin`, scoped to a single hospital and,
+unlike Story 3, requiring login (JWT). Reference mockup: `HospitalAdmin.dc.html` (a Claude Design
+canvas artboard, same `dt-*` token system as the other two mockups).
+
+```
+src/app/
+  core/
+    services/       HospitalAdminAuthService, HospitalAdminHospitalService,
+                     HospitalAdminDepartmentService, HospitalAdminDoctorService,
+                     HospitalAdminAvailabilityService, HospitalAdminTreatmentService,
+                     HospitalAdminDashboardService
+    guards/          hospitalAdminAuthGuard
+    interceptors/    hospitalAdminAuthInterceptor
+    models/          hospital-admin.model.ts (reuses auth.model.ts's ApiError)
+  shared/
+    components/      hospital-admin-shell (sidebar + top bar, its own route tree)
+  features/
+    hospital-admin/
+      login/          HospitalAdminLoginComponent
+      dashboard/       HospitalAdminDashboardComponent ("Coordination desk" — see below)
+      hospital/        HospitalAdminHospitalComponent (read-only hospital record + editable
+                        operational-settings form)
+      departments/     HospitalAdminDepartmentsComponent (list + inline add/edit modal +
+                        activate/deactivate via ConfirmDialogService)
+      doctors/         HospitalAdminDoctorsComponent (same pattern, plus a link into Availability)
+      availability/    HospitalAdminAvailabilityComponent (per-doctor slot list, add/remove only —
+                        no edit/PUT exists on the backend)
+      treatments/      HospitalAdminTreatmentsComponent (list + inline add/edit modal + list/unlist)
+      requests/        HospitalAdminRequestsComponent (placeholder — see below)
+```
+
+- **Separate JWT session from both other personas.** `HospitalAdminAuthService` stores
+  `accessToken`/`hospitalId`/`hospitalName` in `sessionStorage` under `doctrip_hadmin_*` keys —
+  distinct from the patient `AuthService`'s `doctrip_*` keys — as signals, mirroring the patient
+  service's shape but with no refresh token (the login response doesn't return one) and therefore
+  no silent-refresh scheduling; the session simply expires and the guard/interceptor send the user
+  back to `/hospital-admin/login`.
+- **Interceptor path-scoping.** `hospitalAdminAuthInterceptor` only touches requests whose URL
+  contains `/api/hospital-admin`; the existing patient `authInterceptor` was given a matching early
+  return that skips any request to that same prefix. Both are registered in `app.config.ts`'s
+  `withInterceptors([...])` array. This keeps the two bearer tokens from ever crossing onto the
+  wrong backend calls. Story 3's DocTrip Admin calls (`/api/admin/**`) carry no auth header at all
+  and are untouched by either interceptor.
+- **Login screen deviates from the mockup's copy.** The mock's `isLogin` screen uses a generic
+  `user`/`pw` (a per-hospital-desk username), but the real endpoint
+  (`POST /api/hospital-admin/auth/login`) takes `{ email, password }` — same precedent as the
+  patient OTP screen's SMS-vs-email copy fix. `HospitalAdminLoginComponent` uses a real `email`
+  input.
+- **Dashboard is the mockup's "Coordination desk", intentionally out of `Story_4.md`'s scope** —
+  its request pipeline / SLA alerts / needs-attention queue needs a backend endpoint that Story 4's
+  original spec explicitly did not include (`Story_4.md` has no dashboard/analytics requirement,
+  and Requests was called out as nav-only). Built anyway per an explicit follow-up ask from the
+  user, against a NEW endpoint proposed to the backend team:
+  `GET /api/hospital-admin/dashboard/summary` → `{ kpis, pipeline, needsAttention, slaAlerts,
+  upcomingAppointments }` (see `DashboardSummary` in `hospital-admin.model.ts` for the exact
+  shape). `HospitalAdminDashboardService.getSummary()` also caches the `slaBreaches` count in a
+  signal so `hospital-admin-shell`'s top-bar breach badge doesn't need its own HTTP call.
+  `HospitalAdminDashboardComponent` shows a plain "not available yet" note (no fake numbers) if
+  this endpoint 404s/500s, since it may not exist on a given backend checkout yet.
+- **Requests remains nav-only**, per the original Story 4 brief — no `/api/hospital-admin/requests`
+  call exists anywhere in this codebase; the nav item and route render only a "coming soon"
+  placeholder. Only the Dashboard's read-only summary was pulled forward; the full requests
+  list/detail/coordination screens are still a future story.
+- **Departments/doctors/treatments each combine list + create/edit into one component** (an inline
+  modal), rather than following Story 3's separate list/detail/form component split — a deliberate
+  simplification given how similar the four CRUD screens are; activate/deactivate and list/unlist
+  reuse the existing `ConfirmDialogService`/`ToastService` from Story 3.
+- **Availability has no edit affordance** — only add (POST) and remove (DELETE), matching both the
+  backend contract and the mockup exactly. A 409 on add (an overlapping slot) surfaces the
+  mockup's conflict-callout styling with a "Drop the overlap" action that deletes the flagged slot
+  and retries the add.
+
 ## Constraints / things not to reintroduce
 
 - No "Continue as guest" button or flow — explicitly removed from product scope.
