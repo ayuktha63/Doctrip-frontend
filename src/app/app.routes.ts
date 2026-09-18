@@ -113,5 +113,64 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    // Hospital Appointment Coordination story — Hospital Admin's coordination desk. Its own
+    // top-level shell (HospitalAdminShellComponent), distinct from DocTrip Admin's /admin console
+    // above (different persona: a Hospital Admin only coordinates their own hospital's
+    // appointments, not platform-wide hospital master records). Only "Requests" (FR-01 onward) is
+    // functional — the other sidebar tabs are real nav items routing to a placeholder screen; see
+    // HospitalAdminShellComponent's doc comment for why.
+    path: 'hospital-admin',
+    loadComponent: () =>
+      import('./shared/components/hospital-admin-shell/hospital-admin-shell.component').then(
+        (m) => m.HospitalAdminShellComponent,
+      ),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'requests' },
+      {
+        path: 'dashboard',
+        data: { title: 'Coordination desk' },
+        loadComponent: () =>
+          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+      },
+      {
+        path: 'hospital',
+        data: { title: 'Hospital' },
+        loadComponent: () =>
+          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+      },
+      {
+        path: 'departments',
+        data: { title: 'Departments' },
+        loadComponent: () =>
+          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+      },
+      {
+        path: 'doctors',
+        data: { title: 'Doctors' },
+        loadComponent: () =>
+          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+      },
+      {
+        path: 'availability',
+        data: { title: 'Doctor availability' },
+        loadComponent: () =>
+          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+      },
+      {
+        path: 'requests',
+        pathMatch: 'full',
+        loadComponent: () =>
+          import('./features/hospital-admin/requests/request-list.component').then((m) => m.RequestListComponent),
+      },
+      {
+        path: 'requests/:id',
+        loadComponent: () =>
+          import('./features/hospital-admin/requests/request-detail.component').then(
+            (m) => m.RequestDetailComponent,
+          ),
+      },
+    ],
+  },
   { path: '**', redirectTo: 'home' },
 ];
