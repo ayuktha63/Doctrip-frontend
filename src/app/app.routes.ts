@@ -25,13 +25,18 @@ export const routes: Routes = [
         path: 'discover',
         loadChildren: () => import('./features/discover/discover.routes').then((m) => m.DISCOVER_ROUTES),
       },
-      // Landing target for BookingHandoffService.proceed() — see
-      // booking-placeholder.ts for why this exists and what it is not.
+      // Landing target for BookingHandoffService.proceed() — the request form (book) and its
+      // review/submit step, backed by BookingRequestStateService.
       {
         path: 'booking/:kind/:id',
         canActivate: [authGuard],
-        loadComponent: () =>
-          import('./features/booking/booking-placeholder/booking-placeholder').then((m) => m.BookingPlaceholder),
+        pathMatch: 'full',
+        loadComponent: () => import('./features/booking/book/book.component').then((m) => m.BookComponent),
+      },
+      {
+        path: 'booking/:kind/:id/review',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/booking/review/review.component').then((m) => m.ReviewComponent),
       },
       {
         path: 'appointments',
