@@ -10,10 +10,10 @@ import { ToastHostComponent } from '../toast-host/toast-host.component';
 
 /**
  * The persistent header from the reference mockup (PatientPanel.dc.html's top `<header>`), which
- * wraps every screen including sign-in/sign-up — not just the authenticated app. "My appointments"
- * and the notification bell route to their real screens (this branch ships appointments
- * management only, no Discover/booking); "Discover" and "Account" still have no screen built here,
- * so they keep the "coming soon" toast.
+ * wraps every screen including sign-in/sign-up — not just the authenticated app. "Discover"
+ * routes to Story 2's treatment discovery, and "My appointments" / the notification bell route to
+ * the appointments management screens; "Account" still has no screen built here, so it keeps the
+ * "coming soon" toast.
  */
 @Component({
   selector: 'app-shell',
@@ -58,6 +58,10 @@ export class AppShellComponent {
 
   goSignIn(): void {
     this.router.navigate(['/auth']);
+  }
+
+  goDiscover(): void {
+    this.router.navigate(['/discover']);
   }
 
   goAppointments(): void {

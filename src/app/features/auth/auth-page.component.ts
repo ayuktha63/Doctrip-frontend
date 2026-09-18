@@ -1,12 +1,13 @@
 import { Component, HostListener, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 import { OtpChallengeStore } from '../../core/services/otp-challenge-store.service';
 import { ApiError } from '../../core/models/auth.model';
 import { mobileNumberValidator, passwordStrengthScore, strongPasswordValidator } from '../../shared/validators';
+import { continueUrlAfterAuth } from '../../core/auth/continue-after-auth';
 
 type AuthTab = 'signin' | 'signup';
 
@@ -53,6 +54,7 @@ export class AuthPageComponent {
   private readonly auth = inject(AuthService);
   private readonly otpChallengeStore = inject(OtpChallengeStore);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly tab = signal<AuthTab>('signin');
   protected readonly submitting = signal(false);
@@ -132,7 +134,10 @@ export class AuthPageComponent {
     this.auth.login(this.loginForm.getRawValue()).subscribe({
       next: () => {
         this.submitting.set(false);
-        this.router.navigate(['/home']);
+        // FE-WEB-2.10/2.11: continue to the booking destination (with
+        // discovery context) if this sign-in was reached via a Book
+        // action redirect; otherwise the usual /home.
+        this.router.navigateByUrl(continueUrlAfterAuth(this.route.snapshot.queryParamMap));
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
@@ -153,7 +158,7 @@ export class AuthPageComponent {
       next: (res) => {
         this.submitting.set(false);
         this.otpChallengeStore.set({ patientId: res.patientId, purpose: 'LOGIN', target: res.otpTarget });
-        this.router.navigate(['/auth/otp']);
+        this.router.navigate(['/auth/otp'], { queryParamsHandling: 'preserve' });
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
@@ -174,7 +179,7 @@ export class AuthPageComponent {
       next: (res) => {
         this.submitting.set(false);
         this.otpChallengeStore.set({ patientId: res.patientId, purpose: 'REGISTER', target: res.otpTarget });
-        this.router.navigate(['/auth/otp']);
+        this.router.navigate(['/auth/otp'], { queryParamsHandling: 'preserve' });
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);

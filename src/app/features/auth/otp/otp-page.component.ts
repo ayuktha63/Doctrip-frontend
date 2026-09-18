@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { OtpChallengeStore } from '../../../core/services/otp-challenge-store.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ApiError } from '../../../core/models/auth.model';
+import { continueUrlAfterAuth } from '../../../core/auth/continue-after-auth';
 
 const RESEND_COOLDOWN_SECONDS = 30;
 
@@ -29,6 +30,7 @@ export class OtpPageComponent implements OnInit, OnDestroy {
   private readonly otpChallengeStore = inject(OtpChallengeStore);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   private tick: ReturnType<typeof setInterval> | null = null;
 
@@ -104,7 +106,10 @@ export class OtpPageComponent implements OnInit, OnDestroy {
         const isSignUp = challenge.purpose === 'REGISTER';
         this.otpChallengeStore.clear();
         this.toast.show(isSignUp ? 'Account created. Welcome to DocTrip.' : 'Signed in.');
-        this.router.navigate(['/home']);
+        // FE-WEB-2.10/2.11: continue to the booking destination (with
+        // discovery context) if this sign-in was reached via a Book
+        // action redirect; otherwise the usual /home.
+        this.router.navigateByUrl(continueUrlAfterAuth(this.route.snapshot.queryParamMap));
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);

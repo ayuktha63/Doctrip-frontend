@@ -1,0 +1,49 @@
+:host {
+  display: block;
+  font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.booking-placeholder {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 40px 0;
+
+  &__card {
+    background: #fff;
+    border: 1px solid #e9eef6;
+    border-radius: 16px;
+    box-shadow:
+      0 1px 2px rgba(13, 27, 42, 0.04),
+      0 12px 28px -20px rgba(16, 42, 84, 0.28);
+    padding: 28px 24px;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: #0b1526;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 14px;
+    line-height: 21px;
+    color: #6b7280;
+  }
+
+  button {
+    margin-top: 20px;
+    height: 44px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 12px;
+    background: #1a6df0;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
