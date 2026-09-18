@@ -1,0 +1,57 @@
+<div style="width: 100%; min-height: 100vh; display: flex; background: #F4F7FC">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────── -->
+  <aside style="width: 232px; flex: none; background: #FFFFFF; border-right: 1px solid #E9EEF6; display: flex; flex-direction: column; padding: 22px 14px">
+    <div style="padding: 0 8px 18px">
+      <div style="font-size: 19px; font-weight: 700; letter-spacing: -.2px">Doc<span style="color: #1A6DF0">trip</span></div>
+      <div style="font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #9AA4B2; margin-top: 3px">Hospital admin</div>
+    </div>
+
+    <div style="padding: 10px 10px; border-radius: 10px; background: #F7F9FC; margin-bottom: 16px">
+      @if (context.hospital(); as hospital) {
+        <div style="font-size: 12.5px; font-weight: 600">{{ hospital.name }}</div>
+        <div style="font-size: 11.5px; color: #9AA4B2; margin-top: 1px">{{ hospital.hospitalCode }} · {{ hospital.city }}</div>
+      } @else {
+        <div style="font-size: 12.5px; font-weight: 600; color: #9AA4B2">No hospital on file</div>
+      }
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      @for (item of navItems; track item.key) {
+        <button
+          type="button"
+          (click)="go(item.path)"
+          style="display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 10px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+          [style.background]="isActive(item.path) ? '#EAF1FE' : 'transparent'"
+          [style.color]="isActive(item.path) ? '#1A6DF0' : '#1F2A37'"
+          [style.font-weight]="isActive(item.path) ? 600 : 500"
+        >
+          <span style="flex: 1">{{ item.label }}</span>
+        </button>
+      }
+    </div>
+
+    <div style="flex: 1"></div>
+    <div style="border-top: 1px solid #EEF2F8; padding-top: 14px; display: flex; align-items: center; gap: 10px">
+      <div style="width: 34px; height: 34px; flex: none; border-radius: 17px; background: #1A6DF0; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600">MS</div>
+      <div style="flex: 1; min-width: 0">
+        <div style="font-size: 13px; font-weight: 600">Meera Suresh</div>
+        <div style="font-size: 11.5px; color: #9AA4B2">Coordination desk</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main column ─────────────────────────────────────────── -->
+  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+    <header style="flex: none; height: 62px; background: #FFFFFF; border-bottom: 1px solid #E9EEF6; display: flex; align-items: center; padding: 0 26px; gap: 10px">
+      <div style="font-size: 14px; font-weight: 600; color: #1F2A37">{{ crumb() }}</div>
+      <div style="flex: 1"></div>
+    </header>
+
+    <main style="flex: 1; min-height: 0; overflow: auto; padding: 24px 26px 40px">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <app-toast-host></app-toast-host>
+</div>
