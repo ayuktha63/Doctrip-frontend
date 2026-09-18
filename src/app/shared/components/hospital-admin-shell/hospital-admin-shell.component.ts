@@ -12,6 +12,13 @@ import { HospitalAdminDashboardService } from '../../../core/services/hospital-a
  * Doctors, Availability), Coordination (Requests). Entirely separate route tree and chrome from
  * both the patient AppShellComponent and the Story 3 AdminShellComponent — this is a third,
  * distinct persona with its own login (see hospital-admin-auth.guard.ts).
+ *
+ * Supersedes an earlier version of this same file from the Hospital Appointment Coordination
+ * story (DT-6, merged into develop first), which had no Hospital-Admin login yet and left every
+ * tab but Requests as a placeholder — that story's own code comment said to "replace with a real
+ * session-derived hospitalId once Hospital Admin auth exists." This is that auth. Requests now
+ * routes to DT-6's real RequestListComponent/RequestDetailComponent, behind this real guard,
+ * instead of its previous no-auth placeholder — see app.routes.ts.
  */
 @Component({
   selector: 'app-hospital-admin-shell',

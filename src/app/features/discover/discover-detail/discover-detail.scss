@@ -1,0 +1,282 @@
+// Visual reference: docs/"doctrip-web-panels 2.html" (PatientPanel.dc.html
+// — the "Detail" screen). Values copied from its inline styles. Every
+// section here (facts grid, team list, indicative price) only renders
+// when the confirmed backend actually returned that data — see
+// discover-detail.ts / discover.types.ts.
+:host {
+  display: block;
+  font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.discover-detail {
+  &__state {
+    padding: 24px 16px;
+    color: #6b7280;
+    font-size: 14px;
+    background: #fff;
+    border: 1px solid #e9eef6;
+    border-radius: 16px;
+
+    &--error {
+      color: #b3261e;
+    }
+  }
+
+  &__error-detail {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+
+  &__retry {
+    margin-top: 10px;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid #e3e9f2;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a6df0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+
+    svg {
+      width: 15px;
+      height: 15px;
+    }
+  }
+
+  &__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 22px;
+    margin-top: 16px;
+    align-items: start;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 34px;
+    line-height: 41px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    color: #0b1526;
+  }
+
+  &__subtitle {
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: #6b7280;
+  }
+
+  &__card {
+    background: #fff;
+    border: 1px solid #e9eef6;
+    border-radius: 16px;
+    box-shadow:
+      0 1px 2px rgba(13, 27, 42, 0.04),
+      0 12px 28px -20px rgba(16, 42, 84, 0.28);
+    padding: 22px;
+    margin-top: 20px;
+  }
+
+  &__card-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0b1526;
+  }
+
+  &__about {
+    margin: 9px 0 0;
+    font-size: 14px;
+    line-height: 21px;
+    color: #1f2a37;
+
+    &--missing {
+      color: #6b7280;
+      font-style: italic;
+    }
+  }
+
+  &__facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px 24px;
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid #f4f7fc;
+  }
+
+  &__fact-key {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #9aa4b2;
+  }
+
+  &__fact-value {
+    font-size: 14px;
+    color: #0b1526;
+    margin-top: 5px;
+  }
+
+  &__team {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  &__team-member {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 13px 14px;
+    border-radius: 12px;
+    background: #f9fbfd;
+  }
+
+  &__team-initials {
+    width: 38px;
+    height: 38px;
+    flex: none;
+    border-radius: 19px;
+    background: #eaf1fe;
+    color: #1a6df0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  &__team-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__team-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0b1526;
+  }
+
+  &__team-role {
+    font-size: 12.5px;
+    color: #6b7280;
+    margin-top: 1px;
+  }
+
+  &__team-dept {
+    font-size: 12.5px;
+    color: #9aa4b2;
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__price-card {
+    background: #fff;
+    border: 1px solid #e9eef6;
+    border-radius: 16px;
+    box-shadow:
+      0 1px 2px rgba(13, 27, 42, 0.04),
+      0 12px 28px -20px rgba(16, 42, 84, 0.28);
+    padding: 22px;
+  }
+
+  &__price-label {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #9aa4b2;
+  }
+
+  &__price-value {
+    margin: 6px 0 0;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.7px;
+    color: #0b1526;
+  }
+
+  &__price-note {
+    margin: 4px 0 0;
+    font-size: 12.5px;
+    line-height: 18px;
+    color: #6b7280;
+  }
+
+  &__book {
+    width: 100%;
+    height: 48px;
+    margin-top: 18px;
+    border: 0;
+    border-radius: 12px;
+    background: #1a6df0;
+    color: #fff;
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 16px -8px rgba(16, 63, 151, 0.5);
+
+    &:disabled {
+      background: #9ab8f0;
+      cursor: default;
+      box-shadow: none;
+    }
+  }
+
+  &__book-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 14px;
+    padding: 12px 13px;
+    border-radius: 11px;
+    background: #eaf1fe;
+    font-size: 12px;
+    line-height: 17px;
+    color: #1f2a37;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      flex: none;
+      margin-top: 1px;
+      color: #1a6df0;
+    }
+  }
+}
+
+@media (max-width: 760px) {
+  .discover-detail__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .discover-detail__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

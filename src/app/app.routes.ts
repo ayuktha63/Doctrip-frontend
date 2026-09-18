@@ -14,6 +14,31 @@ export const routes: Routes = [
         canActivate: [authGuard],
         loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
       },
+      // Story 2 — Healthcare Discovery. Unified page (matches
+      // docs/"doctrip-web-panels 2.html", PatientPanel.dc.html's
+      // Discover/Detail screens): one search+tabs page plus one detail
+      // route across treatments/hospitals/doctors. Public: no
+      // canActivate guard, per story_2.md ("Treatment, hospital and
+      // doctor discovery does not require authentication"). Only the
+      // Book appointment action inside the detail page checks auth, via
+      // BookingHandoffService.
+      {
+        path: 'discover',
+        loadChildren: () => import('./features/discover/discover.routes').then((m) => m.DISCOVER_ROUTES),
+      },
+      // Landing target for BookingHandoffService.proceed() — the request form (book) and its
+      // review/submit step, backed by BookingRequestStateService.
+      {
+        path: 'booking/:kind/:id',
+        canActivate: [authGuard],
+        pathMatch: 'full',
+        loadComponent: () => import('./features/booking/book/book.component').then((m) => m.BookComponent),
+      },
+      {
+        path: 'booking/:kind/:id/review',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/booking/review/review.component').then((m) => m.ReviewComponent),
+      },
       {
         path: 'appointments',
         canActivate: [authGuard],
@@ -155,11 +180,22 @@ export const routes: Routes = [
             (m) => m.HospitalAdminAvailabilityComponent,
           ),
       },
+      // Requests — from the Hospital Appointment Coordination story (DT-6, merged into develop
+      // before this one). That story's own shell/routes assumed no Hospital Admin login existed
+      // yet ("replace with a real session-derived hospitalId once Hospital Admin auth exists" —
+      // see RequestListComponent's history); Story 4 built that auth, so these routes now sit
+      // behind hospitalAdminAuthGuard above instead of DT-6's original no-auth placeholder.
       {
         path: 'requests',
+        pathMatch: 'full',
         loadComponent: () =>
-          import('./features/hospital-admin/requests/hospital-admin-requests.component').then(
-            (m) => m.HospitalAdminRequestsComponent,
+          import('./features/hospital-admin/requests/request-list.component').then((m) => m.RequestListComponent),
+      },
+      {
+        path: 'requests/:id',
+        loadComponent: () =>
+          import('./features/hospital-admin/requests/request-detail.component').then(
+            (m) => m.RequestDetailComponent,
           ),
       },
     ],

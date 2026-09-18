@@ -230,6 +230,31 @@ export class AppointmentsStateService {
     );
   }
 
+  /**
+   * Discover → booking flow's submit step (BookReviewComponent). Creates a new
+   * client-only appointment the same way the rest of this service's dummy data is
+   * shaped — no backend appointment-creation endpoint exists yet — and returns its
+   * id so the caller can navigate to the detail screen.
+   */
+  createFromRequest(input: { treatment: string; hospital: string; dept: string; doctor: string; when: string }): string {
+    const id = `APT-${Math.floor(2000 + Math.random() * 900)}`;
+    const submitted = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    const appointment: Appointment = {
+      id,
+      treatment: input.treatment,
+      hospital: input.hospital,
+      dept: input.dept,
+      doctor: input.doctor || 'Not assigned',
+      when: input.when,
+      submitted,
+      status: 'requested',
+      log: [{ title: 'Request submitted', body: `Sent to ${input.hospital} for coordination.`, time: submitted }],
+    };
+    this.appointments.update((list) => [appointment, ...list]);
+    this.currentAppointmentId.set(id);
+    return id;
+  }
+
   finalise(id: string): void {
     this.currentAppointmentId.set(id);
     this.pay.set('processing');

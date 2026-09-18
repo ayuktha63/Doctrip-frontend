@@ -1,0 +1,98 @@
+<section class="discover" aria-label="Healthcare discovery">
+  <h1 class="discover__heading">
+    Your journey to <span class="discover__heading-accent">world-class care</span>
+  </h1>
+  <p class="discover__subheading">
+    Browse treatment packages, hospitals and doctors, and view their details before you start
+    your booking journey.
+  </p>
+
+  <div class="discover__search">
+    <svg class="discover__search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+      <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </svg>
+    <input
+      type="search"
+      class="discover__search-input"
+      placeholder="Search a treatment, hospital or doctor"
+      aria-label="Search a treatment, hospital or doctor"
+      [value]="query()"
+      (input)="onSearchInput($any($event.target).value)"
+    />
+  </div>
+
+  <div class="discover__tabs" role="tablist">
+    @for (kind of kinds; track kind) {
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="activeTab() === kind"
+        class="discover__tab"
+        [class.discover__tab--active]="activeTab() === kind"
+        (click)="selectTab(kind)"
+      >
+        {{ kind }}
+      </button>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="discover__grid discover__grid--skeleton" role="status" aria-live="polite" aria-busy="true">
+      <span class="discover__visually-hidden">Loading {{ activeTab() }}…</span>
+      @for (row of skeletonRows; track row) {
+        <div class="discover__skeleton-card"></div>
+      }
+    </div>
+  } @else if (hasError()) {
+    <div class="discover__state discover__state--error" role="alert">
+      <p>We couldn't load {{ activeTab().toLowerCase() }} right now.</p>
+      <p class="discover__error-detail">{{ currentError() }}</p>
+      <button type="button" class="discover__retry" (click)="load()">Retry</button>
+    </div>
+  } @else if (isEmpty()) {
+    <div class="discover__empty">
+      @if (query()) {
+        <p class="discover__empty-title">Nothing matches "{{ query() }}"</p>
+        <p class="discover__empty-hint">{{ emptyHint() }}</p>
+      } @else {
+        <p class="discover__empty-title">No {{ activeTab().toLowerCase() }} are available right now.</p>
+      }
+    </div>
+  } @else {
+    <div class="discover__grid">
+      @for (record of visibleCards(); track record.id) {
+        <button type="button" class="discover-card" (click)="open(record)">
+          <span class="discover-card__header">
+            <span
+              class="discover-card__badge"
+              [style.background]="badgeTint()"
+              [style.color]="badgeAccent()"
+            >
+              {{ badgeFor(record) }}
+            </span>
+            <span class="discover-card__header-text">
+              <span class="discover-card__title">{{ record.name }}</span>
+              @if (subFor(record); as sub) {
+                <span class="discover-card__sub">{{ sub }}</span>
+              }
+            </span>
+          </span>
+
+          @if (record.description) {
+            <span class="discover-card__blurb">{{ record.description }}</span>
+          }
+
+          <span class="discover-card__footer">
+            @if (metaFor(record); as meta) {
+              <span class="discover-card__meta">{{ meta }}</span>
+            } @else {
+              <span></span>
+            }
+            <span class="discover-card__view">View details</span>
+          </span>
+        </button>
+      }
+    </div>
+  }
+</section>

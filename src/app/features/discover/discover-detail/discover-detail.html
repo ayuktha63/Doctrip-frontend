@@ -1,0 +1,100 @@
+<section class="discover-detail" aria-label="Discovery detail">
+  @if (isLoading()) {
+    <div class="discover-detail__state" role="status" aria-live="polite">Loading…</div>
+  } @else if (hasError()) {
+    <div class="discover-detail__state discover-detail__state--error" role="alert">
+      <p>We couldn't load this right now.</p>
+      <p class="discover-detail__error-detail">{{ currentError() }}</p>
+      <button type="button" class="discover-detail__retry" (click)="load()">Retry</button>
+    </div>
+  } @else if (isUnavailable()) {
+    <div class="discover-detail__state">This is currently unavailable.</div>
+  } @else if (isLoaded() && item(); as record) {
+    <button type="button" class="discover-detail__back" (click)="backToDiscovery()">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      Back to discovery
+    </button>
+
+    <div class="discover-detail__layout">
+      <div class="discover-detail__main">
+        <h1 class="discover-detail__title">{{ record.name }}</h1>
+        @if (subtitle(); as sub) {
+          <p class="discover-detail__subtitle">{{ sub }}</p>
+        }
+
+        <div class="discover-detail__card">
+          <h2 class="discover-detail__card-title">About</h2>
+          @if (record.description) {
+            <p class="discover-detail__about">{{ record.description }}</p>
+          } @else {
+            <p class="discover-detail__about discover-detail__about--missing">
+              Detailed information is not available yet.
+            </p>
+          }
+
+          @if (facts().length > 0) {
+            <div class="discover-detail__facts">
+              @for (fact of facts(); track fact.key) {
+                <div class="discover-detail__fact">
+                  <div class="discover-detail__fact-key">{{ fact.key }}</div>
+                  <div class="discover-detail__fact-value">{{ fact.value }}</div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        @if (team().length > 0) {
+          <div class="discover-detail__card">
+            <h2 class="discover-detail__card-title">Departments and consultants</h2>
+            <div class="discover-detail__team">
+              @for (member of team(); track member.id) {
+                <div class="discover-detail__team-member">
+                  <span class="discover-detail__team-initials">{{ teamInitials(member.name) }}</span>
+                  <span class="discover-detail__team-info">
+                    <span class="discover-detail__team-name">{{ member.name }}</span>
+                    @if (member.specialty || member.experienceYears != null) {
+                      <span class="discover-detail__team-role">
+                        {{ member.specialty }}{{ member.specialty && member.experienceYears != null ? ' · ' : '' }}{{ member.experienceYears != null ? formatExperience(member.experienceYears) : '' }}
+                      </span>
+                    }
+                  </span>
+                  @if (member.department) {
+                    <span class="discover-detail__team-dept">{{ member.department }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <aside class="discover-detail__sidebar">
+        <div class="discover-detail__price-card">
+          @if (meta(); as metaValue) {
+            <p class="discover-detail__price-label">Indicative package</p>
+            <p class="discover-detail__price-value">{{ metaValue }}</p>
+            <p class="discover-detail__price-note">Final cost is confirmed by the hospital after the consultation.</p>
+          }
+          <button
+            type="button"
+            class="discover-detail__book"
+            [disabled]="isVerifyingBooking()"
+            (click)="proceedToBooking()"
+          >
+            {{ isVerifyingBooking() ? 'Checking availability…' : 'Book appointment' }}
+          </button>
+          <div class="discover-detail__book-note">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+              <path d="M12 11v5M12 8v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <span>Booking sends a request. The hospital coordinates a doctor and a slot, then you confirm.</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  }
+</section>
