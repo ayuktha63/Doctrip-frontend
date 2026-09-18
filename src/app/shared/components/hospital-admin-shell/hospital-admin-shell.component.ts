@@ -1,30 +1,35 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { HospitalAdminContextService } from '../../../core/services/hospital-admin-context.service';
 import { ToastHostComponent } from '../toast-host/toast-host.component';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { HospitalAdminAuthService } from '../../../core/services/hospital-admin-auth.service';
+import { HospitalAdminDashboardService } from '../../../core/services/hospital-admin-dashboard.service';
 
 /**
- * Hospital Admin's "coordination desk" console shell — reproduces the reference mockup's
- * `HospitalAdmin.dc.html` artboard sidebar/header field-for-field. This is a distinct persona from
- * DocTrip Admin's platform-wide `AdminShellComponent` (Story 3) — a Hospital Admin only ever sees
- * their own hospital's coordination, not the platform's hospital master records.
+ * Hospital Admin console shell — ports the mockup's `.dt-side` sidebar (HospitalAdmin.dc.html,
+ * ~lines 1002-1071): Overview (Dashboard, Hospital), Clinical setup (Departments, Treatments,
+ * Doctors, Availability), Coordination (Requests). Entirely separate route tree and chrome from
+ * both the patient AppShellComponent and the Story 3 AdminShellComponent — this is a third,
+ * distinct persona with its own login (see hospital-admin-auth.guard.ts).
  *
- * Per the Hospital Appointment Coordination story, only the "Requests" tab is functionally built —
- * Dashboard/Hospital/Departments/Doctors/Availability are real nav items (matching the mockup's
- * sidebar) but route to a placeholder screen; their data isn't built yet (no Department/Doctor
- * master data, no availability, in this backend at all — see Doctrip-backend's CLAUDE.md
- * non-goals). Don't wire them up as a side effect of other work without their own story.
+ * Supersedes an earlier version of this same file from the Hospital Appointment Coordination
+ * story (DT-6, merged into develop first), which had no Hospital-Admin login yet and left every
+ * tab but Requests as a placeholder — that story's own code comment said to "replace with a real
+ * session-derived hospitalId once Hospital Admin auth exists." This is that auth. Requests now
+ * routes to DT-6's real RequestListComponent/RequestDetailComponent, behind this real guard,
+ * instead of its previous no-auth placeholder — see app.routes.ts.
  */
 @Component({
   selector: 'app-hospital-admin-shell',
   standalone: true,
-  imports: [RouterOutlet, ToastHostComponent],
+  imports: [RouterOutlet, ToastHostComponent, ConfirmDialogComponent],
   templateUrl: './hospital-admin-shell.component.html',
 })
-export class HospitalAdminShellComponent implements OnInit {
+export class HospitalAdminShellComponent {
   private readonly router = inject(Router);
-  protected readonly context = inject(HospitalAdminContextService);
+  protected readonly auth = inject(HospitalAdminAuthService);
+  protected readonly dashboard = inject(HospitalAdminDashboardService);
 
   private readonly url = signal(this.router.url);
 
@@ -34,29 +39,56 @@ export class HospitalAdminShellComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.context.ensureLoaded();
-  }
-
-  protected readonly navItems = [
-    { key: 'dashboard', label: 'Dashboard', path: '/hospital-admin/dashboard' },
-    { key: 'hospital', label: 'Hospital', path: '/hospital-admin/hospital' },
-    { key: 'departments', label: 'Departments', path: '/hospital-admin/departments' },
-    { key: 'doctors', label: 'Doctors', path: '/hospital-admin/doctors' },
-    { key: 'availability', label: 'Availability', path: '/hospital-admin/availability' },
-    { key: 'requests', label: 'Requests', path: '/hospital-admin/requests' },
-  ] as const;
-
-  protected isActive(path: string): boolean {
-    return this.url() === path || this.url().startsWith(`${path}/`);
-  }
+  protected readonly onDashboard = computed(() => this.isOn('/hospital-admin', true));
+  protected readonly onHospital = computed(() => this.isOn('/hospital-admin/hospital'));
+  protected readonly onDepartments = computed(() => this.isOn('/hospital-admin/departments'));
+  protected readonly onTreatments = computed(() => this.isOn('/hospital-admin/treatments'));
+  protected readonly onDoctors = computed(() => this.isOn('/hospital-admin/doctors'));
+  protected readonly onAvailability = computed(() => this.isOn('/hospital-admin/availability'));
+  protected readonly onRequests = computed(() => this.isOn('/hospital-admin/requests'));
 
   protected readonly crumb = computed(() => {
-    const current = this.navItems.find((n) => this.isActive(n.path));
-    return current?.label ?? 'Coordination desk';
+    if (this.onHospital()) return 'Hospital';
+    if (this.onDepartments()) return 'Departments';
+    if (this.onTreatments()) return 'Treatments';
+    if (this.onDoctors()) return 'Doctors';
+    if (this.onAvailability()) return 'Availability';
+    if (this.onRequests()) return 'Requests';
+    return 'Dashboard';
   });
 
-  go(path: string): void {
-    this.router.navigateByUrl(path);
+  protected readonly hospitalCode = computed(() => this.auth.hospitalId() ?? '');
+  protected readonly hospitalName = computed(() => this.auth.hospitalName() ?? 'Your hospital');
+
+  private isOn(prefix: string, exact = false): boolean {
+    const u = this.url();
+    return exact ? u === prefix || u === `${prefix}/` : u.startsWith(prefix);
+  }
+
+  goDashboard(): void {
+    this.router.navigate(['/hospital-admin']);
+  }
+  goHospital(): void {
+    this.router.navigate(['/hospital-admin/hospital']);
+  }
+  goDepartments(): void {
+    this.router.navigate(['/hospital-admin/departments']);
+  }
+  goTreatments(): void {
+    this.router.navigate(['/hospital-admin/treatments']);
+  }
+  goDoctors(): void {
+    this.router.navigate(['/hospital-admin/doctors']);
+  }
+  goAvailability(): void {
+    this.router.navigate(['/hospital-admin/availability']);
+  }
+  goRequests(): void {
+    this.router.navigate(['/hospital-admin/requests']);
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigate(['/hospital-admin/login']);
   }
 }

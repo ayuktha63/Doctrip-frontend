@@ -1,0 +1,67 @@
+<div style="padding: 28px 32px 56px; max-width: 1360px">
+  @if (hospital()) {
+    <div style="font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -.6px; color: #0A1626">{{ hospital()!.name }}</div>
+    <p style="margin: 5px 0 0; font-size: 13.5px; line-height: 20px; color: #4E5A6B">{{ hospital()!.type }} · {{ hospital()!.city }}, {{ hospital()!.state }} · {{ hospital()!.hospitalCode }}</p>
+  } @else {
+    <div style="font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -.6px; color: #0A1626">Hospital</div>
+  }
+
+  @if (hospital()) {
+    <div style="margin-top: 18px; background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; padding: 20px 22px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px">
+        <div>
+          <div style="font-size: 14.5px; font-weight: 650; color: #0A1626">Hospital information</div>
+          <div style="font-size: 12.5px; color: #A7B2C2; margin-top: 2px">Held by DocTrip Admin. Read-only here.</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 7px; height: 28px; padding: 0 11px; border-radius: 14px; background: #F1F5FA; flex: none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#697585" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+          <span style="font-size: 11.5px; font-weight: 650; color: #697585">Locked</span>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 26px; margin-top: 18px">
+        <div><div style="font-size: 11px; font-weight: 650; color: #697585; text-transform: uppercase; letter-spacing: .06em">Hospital</div><div style="font-size: 13.5px; margin-top: 5px">{{ hospital()!.name }}</div></div>
+        <div><div style="font-size: 11px; font-weight: 650; color: #697585; text-transform: uppercase; letter-spacing: .06em">Hospital ID</div><div style="font-size: 13.5px; margin-top: 5px">{{ hospital()!.hospitalCode }}</div></div>
+        <div><div style="font-size: 11px; font-weight: 650; color: #697585; text-transform: uppercase; letter-spacing: .06em">Type</div><div style="font-size: 13.5px; margin-top: 5px">{{ hospital()!.type }}</div></div>
+        <div><div style="font-size: 11px; font-weight: 650; color: #697585; text-transform: uppercase; letter-spacing: .06em">Location</div><div style="font-size: 13.5px; margin-top: 5px">{{ hospital()!.city }}, {{ hospital()!.state }}</div></div>
+        <div><div style="font-size: 11px; font-weight: 650; color: #697585; text-transform: uppercase; letter-spacing: .06em">Accreditation</div><div style="font-size: 13.5px; margin-top: 5px">{{ hospital()!.accreditation ?? '—' }}</div></div>
+        <div><div style="font-size: 11px; font-weight: 650; color: #697585; text-transform: uppercase; letter-spacing: .06em">Beds</div><div style="font-size: 13.5px; margin-top: 5px">{{ hospital()!.beds }}</div></div>
+      </div>
+    </div>
+  }
+
+  @if (!loading()) {
+    <form [formGroup]="form" (ngSubmit)="save()" style="margin-top: 18px; background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; padding: 20px 22px">
+      <div style="font-size: 14.5px; font-weight: 650; color: #0A1626">Operational information</div>
+      <div style="font-size: 12.5px; color: #A7B2C2; margin-top: 2px">How this hospital runs coordination. Yours to set.</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 14px">
+        <label>
+          <span style="display: block; font-size: 12px; font-weight: 650; color: #1B2534; margin-bottom: 6px">Doctor response SLA</span>
+          <input formControlName="sla" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+        </label>
+        <label>
+          <span style="display: block; font-size: 12px; font-weight: 650; color: #1B2534; margin-bottom: 6px">Coordination hours</span>
+          <input formControlName="coordinationWindow" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+        </label>
+        <label>
+          <span style="display: block; font-size: 12px; font-weight: 650; color: #1B2534; margin-bottom: 6px">Escalation contact</span>
+          <input formControlName="escalationContact" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+        </label>
+        <label>
+          <span style="display: block; font-size: 12px; font-weight: 650; color: #1B2534; margin-bottom: 6px">Languages supported</span>
+          <input formControlName="languagesSupported" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+        </label>
+        <label>
+          <span style="display: block; font-size: 12px; font-weight: 650; color: #1B2534; margin-bottom: 6px">Minimum booking lead time</span>
+          <input formControlName="minLeadTime" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+        </label>
+        <label>
+          <span style="display: block; font-size: 12px; font-weight: 650; color: #1B2534; margin-bottom: 6px">Interpreter availability</span>
+          <input formControlName="interpreterAvailability" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+        </label>
+      </div>
+      <button type="submit" [disabled]="saving()" style="margin-top: 16px; height: 40px; padding: 0 16px; border: 0; border-radius: 10px; background: #0F62D6; color: #fff; font-size: 13.5px; font-weight: 650; cursor: pointer">
+        {{ saving() ? 'Saving…' : 'Save settings' }}
+      </button>
+    </form>
+  }
+</div>

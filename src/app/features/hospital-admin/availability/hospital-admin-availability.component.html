@@ -1,0 +1,114 @@
+<div style="padding: 28px 32px 56px; max-width: 1360px">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+    <div>
+      <div style="font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -.6px; color: #0A1626">Doctor availability</div>
+      <div style="font-size: 13.5px; color: #697585; margin-top: 4px">{{ weekLabel() }}</div>
+    </div>
+    <button type="button" (click)="openAdd()" [disabled]="!selectedDoctorId()" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 0; border-radius: 10px; background: #0F62D6; color: #fff; font-size: 13.5px; font-weight: 650; cursor: pointer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+      Add availability
+    </button>
+  </div>
+
+  @if (doctors().length === 0) {
+    <div style="margin-top: 40px; text-align: center; color: #697585; font-size: 13.5px">Add a doctor first to manage availability.</div>
+  } @else {
+    <div style="display: flex; gap: 8px; margin-top: 18px; overflow-x: auto; padding-bottom: 4px">
+      @for (d of doctors(); track d.id) {
+        <button
+          type="button"
+          (click)="selectDoctor(d.id)"
+          [style.background]="d.id === selectedDoctorId() ? '#0A2540' : '#fff'"
+          [style.color]="d.id === selectedDoctorId() ? '#fff' : '#1B2534'"
+          [style.border-color]="d.id === selectedDoctorId() ? '#0A2540' : '#DDE4EE'"
+          style="display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid #DDE4EE; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; flex: none"
+        >
+          <span [style.background]="dotFor(d.id)" style="width: 6px; height: 6px; border-radius: 3px; flex: none"></span>
+          {{ d.name }} &middot; {{ d.departmentName }}
+        </button>
+      }
+    </div>
+
+    @if (selectedDoctorId()) {
+      @if (conflictErr()) {
+        <div role="alert" style="margin-top: 14px; background: #FBECEA; border: 1px solid #F0D3CF; border-radius: 10px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 10px; justify-content: space-between">
+          <div style="display: flex; gap: 10px">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B42318" stroke-width="2" stroke-linecap="round" style="margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.6v5M12 16v.4"></path></svg>
+            <div>
+              <div style="font-size: 13px; font-weight: 650; color: #0A1626">Availability conflict</div>
+              <div style="font-size: 12.5px; color: #697585; margin-top: 2px">{{ conflictErr() }}</div>
+            </div>
+          </div>
+          @if (slots().length > 0) {
+            <button type="button" (click)="dropOverlap(slots()[0])" style="height: 32px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 8px; background: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer; flex: none">Drop the overlap</button>
+          }
+        </div>
+      }
+
+      <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; margin-top: 18px">
+        @for (day of weekDays(); track day.iso) {
+          <div style="background: #fff; border: 1px solid #E6EBF3; border-radius: 12px; min-height: 260px; padding: 12px 10px">
+            <div style="text-align: center; padding-bottom: 10px; border-bottom: 1px solid #F1F4F9">
+              <div style="font-size: 10.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #A7B2C2">{{ day.dow }}</div>
+              <div style="font-size: 17px; font-weight: 700; margin-top: 2px; color: #0A1626">{{ day.dayNum }}</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px">
+              @for (s of day.slots; track s.id) {
+                <div [style.background]="clashingSlotIds().has(s.id) ? '#FBECEA' : '#F3F7FE'" [style.border-color]="clashingSlotIds().has(s.id) ? '#F0D3CF' : '#D9E6FB'" style="border-radius: 9px; padding: 9px 10px; border: 1px solid">
+                  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 6px">
+                    <div [style.color]="clashingSlotIds().has(s.id) ? '#B42318' : '#0F62D6'" style="font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums">{{ s.startTime }} &ndash; {{ s.endTime }}</div>
+                    <button type="button" (click)="removeSlot(s)" title="Remove" style="border: 0; background: transparent; color: #A7B2C2; cursor: pointer; font-size: 13px; line-height: 1; padding: 0">&times;</button>
+                  </div>
+                  <div style="font-size: 11px; color: #697585; margin-top: 2px">{{ s.kind }}</div>
+                  @if (clashingSlotIds().has(s.id)) {
+                    <div style="font-size: 10.5px; font-weight: 650; color: #B42318; margin-top: 4px">Overlaps</div>
+                  }
+                </div>
+              }
+              @if (day.slots.length === 0) {
+                <div style="text-align: center; padding: 14px 4px; font-size: 11.5px; color: #C3CCDA">Not available</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (showForm()) {
+    <div style="position: fixed; inset: 0; background: rgba(10,22,38,.45); display: flex; align-items: center; justify-content: center; z-index: 50">
+      <form [formGroup]="form" (ngSubmit)="addSlot()" style="width: 420px; background: #fff; border-radius: 14px; padding: 22px 24px">
+        <div style="font-size: 17px; font-weight: 700; color: #0A1626">Availability block</div>
+        <div style="font-size: 12.5px; color: #697585; margin-top: 4px">Overlapping blocks for the same consultant are flagged as conflicts.</div>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px">
+          <label>
+            <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Doctor</span>
+            <div style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px; color: #4E5A6B; background: #F7F9FC; display: flex; align-items: center">{{ selectedDoctorName() }}</div>
+          </label>
+          <label>
+            <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Date</span>
+            <input formControlName="slotDate" type="date" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+          </label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+            <label>
+              <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Start</span>
+              <input formControlName="startTime" type="time" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+            </label>
+            <label>
+              <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">End</span>
+              <input formControlName="endTime" type="time" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+            </label>
+          </div>
+          <label>
+            <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Block type</span>
+            <input formControlName="kind" type="text" placeholder="OP consults" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+          </label>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px">
+          <button type="button" (click)="closeForm()" style="height: 38px; padding: 0 14px; border: 1px solid #DDE4EE; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 650; cursor: pointer">Cancel</button>
+          <button type="submit" [disabled]="saving()" style="height: 38px; padding: 0 16px; border: 0; border-radius: 10px; background: #0F62D6; color: #fff; font-size: 13px; font-weight: 650; cursor: pointer">{{ saving() ? 'Saving…' : 'Save availability' }}</button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

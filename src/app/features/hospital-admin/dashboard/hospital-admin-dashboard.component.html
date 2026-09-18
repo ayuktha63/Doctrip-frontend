@@ -1,0 +1,137 @@
+<div style="padding: 28px 32px 56px; max-width: 1360px">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap">
+    <div>
+      <div style="font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -.6px; color: #0A1626">Coordination desk</div>
+      <p style="margin: 5px 0 0; font-size: 13.5px; line-height: 20px; color: #4E5A6B">Where every appointment request stands right now.</p>
+    </div>
+    <button type="button" (click)="goRequests()" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid #DDE4EE; border-radius: 10px; background: #fff; color: #1B2534; font-size: 13.5px; font-weight: 650; cursor: pointer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"></path></svg>
+      All requests
+    </button>
+  </div>
+
+  @if (loadFailed()) {
+    <div style="margin-top: 20px; background: #F3F7FE; border: 1px solid #D6E4F9; border-radius: 10px; padding: 13px 15px; font-size: 13px; line-height: 19px; color: #0A3D82; display: flex; gap: 11px; align-items: flex-start">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px; flex: none"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8v.5"></path></svg>
+      <div>The coordination summary isn't available from the backend yet. Once <code>GET /api/hospital-admin/dashboard/summary</code> is live, this screen fills in automatically.</div>
+    </div>
+  }
+
+  @if (!loading() && !loadFailed()) {
+    <div class="dt-kpi-grid" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 20px">
+      @for (t of tiles(); track t.label) {
+        <div [style.border-left]="'3px solid ' + t.accent" style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; box-shadow: 0 1px 2px rgba(10,37,64,.04), 0 12px 28px -18px rgba(10,37,64,.28); padding: 16px 18px 17px">
+          <div style="font-size: 12.5px; font-weight: 600; color: #4E5A6B; display: flex; align-items: center; gap: 7px">
+            <span [style.background]="t.accent" style="width: 7px; height: 7px; border-radius: 4px; flex: none"></span>
+            {{ t.label }}
+          </div>
+          <div style="font-size: 34px; line-height: 38px; font-weight: 750; letter-spacing: -1.2px; margin-top: 10px; color: #0A1626">{{ t.value }}</div>
+          <div style="font-size: 12.5px; color: #A7B2C2; margin-top: 2px">{{ t.sub }}</div>
+        </div>
+      }
+    </div>
+
+    <section style="margin-top: 20px; background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; box-shadow: 0 1px 2px rgba(10,37,64,.04); padding: 20px 22px">
+      <div style="font-size: 15px; line-height: 21px; font-weight: 650; color: #0A1626">Request pipeline</div>
+      <div style="font-size: 12.5px; color: #A7B2C2; margin-top: 1px">{{ pipelineTotal() }} requests across every stage.</div>
+      <div style="display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: #EDF1F7; gap: 2px; margin-top: 16px">
+        @for (p of pipeline(); track p.label) {
+          <div [style.width]="p.pct" [style.background]="p.accent" [attr.title]="p.label"></div>
+        }
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 14px">
+        @for (p of pipeline(); track p.label) {
+          <div style="display: flex; align-items: center; gap: 7px">
+            <span [style.background]="p.accent" style="width: 8px; height: 8px; border-radius: 2px; flex: none"></span>
+            <span style="font-size: 12.5px; color: #4E5A6B">{{ p.label }}</span>
+            <span style="font-size: 12.5px; font-weight: 700; color: #0A1626">{{ p.value }}</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; align-items: start; margin-top: 20px">
+      <section style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(10,37,64,.04)">
+        <div style="padding: 15px 20px; border-bottom: 1px solid #E6EBF3; display: flex; align-items: center; justify-content: space-between; gap: 14px">
+          <div>
+            <div style="font-size: 15px; font-weight: 650; color: #0A1626">Needs your attention</div>
+            <div style="font-size: 12.5px; color: #A7B2C2">Open requests, most urgent first.</div>
+          </div>
+          <button type="button" (click)="goRequests()" style="border: 0; background: transparent; font-size: 13px; font-weight: 650; color: #0F62D6; cursor: pointer">All requests</button>
+        </div>
+        @for (r of summary()?.needsAttention ?? []; track r.id) {
+          <button type="button" style="display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 13px 20px; border: 0; border-bottom: 1px solid #E6EBF3; background: transparent; cursor: pointer">
+            <span style="width: 38px; height: 38px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700; background: linear-gradient(160deg, #1C4266, #0A2540); color: #fff">{{ initialsOf(r.patientName) }}</span>
+            <span style="flex: 1; min-width: 0">
+              <span style="display: block; font-size: 13.5px; font-weight: 650; color: #0A1626; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.patientName }}</span>
+              <span style="display: block; font-size: 12.5px; color: #697585; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ r.department }} · {{ formatWhen(r.requestedAt) }}</span>
+            </span>
+            <span style="text-align: right; flex: none">
+              <span [style.color]="statusFg(r.status)" [style.background]="statusBg(r.status)" style="display: inline-flex; align-items: center; gap: 6px; height: 23px; padding: 0 10px; border-radius: 999px; font-size: 11.5px; font-weight: 650">
+                <span style="width: 6px; height: 6px; border-radius: 3px; background: currentColor"></span>
+                {{ statusLabel(r.status) }}
+              </span>
+              <div [style.color]="slaColor(r)" style="font-size: 12.5px; margin-top: 4px">{{ slaLabel(r) }}</div>
+            </span>
+          </button>
+        }
+        @if ((summary()?.needsAttention ?? []).length === 0) {
+          <div style="padding: 56px 24px; text-align: center">
+            <div style="width: 52px; height: 52px; margin: 0 auto 14px; border-radius: 14px; background: #E6F4EC; display: flex; align-items: center; justify-content: center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E7C4A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+            </div>
+            <div style="font-size: 14.5px; font-weight: 650; color: #0A1626">Nothing waiting on the desk</div>
+            <div style="font-size: 13px; color: #4E5A6B; margin-top: 4px">Every request has been picked up and moved on.</div>
+          </div>
+        }
+      </section>
+
+      <div style="display: flex; flex-direction: column; gap: 18px">
+        <section style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; box-shadow: 0 1px 2px rgba(10,37,64,.04); padding: 20px 22px">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="width: 8px; height: 8px; border-radius: 4px; background: #B42318"></span>
+            <div style="font-size: 15px; font-weight: 650; color: #0A1626">SLA alerts</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px">
+            @for (a of summary()?.slaAlerts ?? []; track a.id) {
+              <div style="display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px; border-radius: 10px; background: #FBECEA; border: 1px solid #F0D3CF; font-size: 13px; line-height: 19px; color: #8C1B12">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-top: 1px; flex: none"><path d="M12 8v5M12 16.4v.4"></path><circle cx="12" cy="12" r="9"></circle></svg>
+                <div>
+                  <div style="font-weight: 650">{{ a.id }} · {{ a.patientName }}</div>
+                  <div style="margin-top: 2px; opacity: .88">{{ a.message }}</div>
+                </div>
+              </div>
+            }
+            @if ((summary()?.slaAlerts ?? []).length === 0) {
+              <div style="display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px; border-radius: 10px; background: #E6F4EC; border: 1px solid #C9E5D5; font-size: 13px; line-height: 19px; color: #0A5E38">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px; flex: none"><path d="M20 6L9 17l-5-5"></path></svg>
+                <div>Every request is inside its response window.</div>
+              </div>
+            }
+          </div>
+        </section>
+
+        <section style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; box-shadow: 0 1px 2px rgba(10,37,64,.04); padding: 20px 22px">
+          <div style="font-size: 15px; font-weight: 650; color: #0A1626">Upcoming appointments</div>
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px">
+            @for (u of summary()?.upcomingAppointments ?? []; track u.id) {
+              <div style="display: flex; align-items: center; gap: 12px">
+                <div style="width: 46px; height: 48px; flex: none; border-radius: 10px; background: #F5F8FC; border: 1px solid #E6EBF3; display: flex; flex-direction: column; align-items: center; justify-content: center">
+                  <div style="font-size: 17px; font-weight: 750; line-height: 19px; letter-spacing: -.4px; color: #0A1626">{{ u.day }}</div>
+                  <div style="font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #A7B2C2">{{ u.month }}</div>
+                </div>
+                <div style="flex: 1; min-width: 0">
+                  <div style="font-size: 13.5px; font-weight: 650; color: #0A1626; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ u.patientName }}</div>
+                  <div style="font-size: 12.5px; color: #697585; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ u.doctorName }} · {{ u.time }}</div>
+                </div>
+              </div>
+            }
+            @if ((summary()?.upcomingAppointments ?? []).length === 0) {
+              <div style="font-size: 12.5px; color: #A7B2C2">No confirmed appointments this week.</div>
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+  }
+</div>

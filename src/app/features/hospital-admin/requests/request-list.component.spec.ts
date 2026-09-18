@@ -5,50 +5,33 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { RequestListComponent } from './request-list.component';
 import { AppointmentRequestService } from '../../../core/services/appointment-request.service';
-import { HospitalAdminContextService } from '../../../core/services/hospital-admin-context.service';
+import { HospitalAdminAuthService } from '../../../core/services/hospital-admin-auth.service';
 import { AppointmentRequestSummary } from '../../../core/models/appointment-request.model';
-import { Hospital } from '../../../core/models/hospital.model';
 
 describe('RequestListComponent', () => {
-  const hospital: Hospital = {
-    id: 'h1',
-    hospitalCode: 'HSP-0001',
-    name: 'Aster Medcity',
-    type: 'Multi-speciality',
-    city: 'Kochi',
-    state: 'Kerala',
-    registrationNumber: null,
-    accreditation: null,
-    beds: 100,
-    contactPerson: null,
-    contactEmail: null,
-    contactPhone: null,
-    active: true,
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-  };
-
-  function setup(overrides: { listForHospital?: ReturnType<typeof vi.fn>; navigate?: ReturnType<typeof vi.fn> } = {}) {
-    const hospitalSignal = signal<Hospital | null>(null);
-    const ensureLoaded = vi.fn();
+  function setup(
+    overrides: {
+      listForHospital?: ReturnType<typeof vi.fn>;
+      navigate?: ReturnType<typeof vi.fn>;
+      hospitalId?: string | null;
+    } = {},
+  ) {
     const listForHospital = overrides.listForHospital ?? vi.fn(() => of([]));
     const navigate = overrides.navigate ?? vi.fn();
+    const hospitalId = overrides.hospitalId ?? 'h1';
 
     TestBed.configureTestingModule({
       imports: [RequestListComponent],
       providers: [
         { provide: AppointmentRequestService, useValue: { listForHospital } },
-        {
-          provide: HospitalAdminContextService,
-          useValue: { hospital: hospitalSignal, loading: signal(false), loadError: signal(false), ensureLoaded },
-        },
+        { provide: HospitalAdminAuthService, useValue: { hospitalId: signal(hospitalId) } },
         { provide: Router, useValue: { navigate } },
       ],
     });
 
     const fixture = TestBed.createComponent(RequestListComponent);
     fixture.detectChanges();
-    return { fixture, hospitalSignal, listForHospital, ensureLoaded, navigate };
+    return { fixture, listForHospital, navigate };
   }
 
   const summary: AppointmentRequestSummary = {
@@ -65,20 +48,11 @@ describe('RequestListComponent', () => {
     adminSlaBreached: false,
   };
 
-  it('calls context.ensureLoaded on init and does not fetch requests until a hospital resolves', () => {
-    const { ensureLoaded, listForHospital } = setup();
-    expect(ensureLoaded).toHaveBeenCalled();
-    expect(listForHospital).not.toHaveBeenCalled();
-  });
-
-  it('loads requests once the hospital context resolves, keyed by that hospital id', () => {
+  it('loads requests for the logged-in admin\'s hospitalId on init', () => {
     const listForHospital = vi.fn(() => of([summary]));
-    const { fixture, hospitalSignal } = setup({ listForHospital });
+    const { fixture, listForHospital: called } = setup({ listForHospital });
 
-    hospitalSignal.set(hospital);
-    fixture.detectChanges();
-
-    expect(listForHospital).toHaveBeenCalledWith('h1');
+    expect(called).toHaveBeenCalledWith('h1');
     expect((fixture.componentInstance as any).requests()).toEqual([summary]);
     expect((fixture.componentInstance as any).countLabel()).toBe('1 request');
     expect((fixture.componentInstance as any).loading()).toBe(false);
@@ -86,21 +60,24 @@ describe('RequestListComponent', () => {
 
   it('pluralizes the count label for more than one request', () => {
     const listForHospital = vi.fn(() => of([summary, { ...summary, id: 'r2', requestCode: 'APR-0002' }]));
-    const { fixture, hospitalSignal } = setup({ listForHospital });
-
-    hospitalSignal.set(hospital);
-    fixture.detectChanges();
+    const { fixture } = setup({ listForHospital });
 
     expect((fixture.componentInstance as any).countLabel()).toBe('2 requests');
   });
 
   it('sets loadError and clears loading when the request list fails', () => {
     const listForHospital = vi.fn(() => throwError(() => new Error('network down')));
-    const { fixture, hospitalSignal } = setup({ listForHospital });
+    const { fixture } = setup({ listForHospital });
 
-    hospitalSignal.set(hospital);
-    fixture.detectChanges();
+    expect((fixture.componentInstance as any).loadError()).toBe(true);
+    expect((fixture.componentInstance as any).loading()).toBe(false);
+  });
 
+  it('sets loadError without calling the service when there is no hospitalId', () => {
+    const listForHospital = vi.fn(() => of([]));
+    const { fixture, listForHospital: called } = setup({ listForHospital, hospitalId: null });
+
+    expect(called).not.toHaveBeenCalled();
     expect((fixture.componentInstance as any).loadError()).toBe(true);
     expect((fixture.componentInstance as any).loading()).toBe(false);
   });

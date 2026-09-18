@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { hospitalAdminAuthGuard } from './core/guards/hospital-admin-auth.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -119,49 +120,71 @@ export const routes: Routes = [
     ],
   },
   {
-    // Hospital Appointment Coordination story — Hospital Admin's coordination desk. Its own
-    // top-level shell (HospitalAdminShellComponent), distinct from DocTrip Admin's /admin console
-    // above (different persona: a Hospital Admin only coordinates their own hospital's
-    // appointments, not platform-wide hospital master records). Only "Requests" (FR-01 onward) is
-    // functional — the other sidebar tabs are real nav items routing to a placeholder screen; see
-    // HospitalAdminShellComponent's doc comment for why.
+    // Story 4 — Hospital Admin console. A third top-level route tree, sibling to the patient
+    // '' route and Story 3's 'admin' route — its own shell, its own login, its own JWT session
+    // (HospitalAdminAuthService), scoped to a single hospital. See CLAUDE.md's "Story 4" section.
+    path: 'hospital-admin/login',
+    loadComponent: () =>
+      import('./features/hospital-admin/login/hospital-admin-login.component').then(
+        (m) => m.HospitalAdminLoginComponent,
+      ),
+  },
+  {
     path: 'hospital-admin',
+    canActivate: [hospitalAdminAuthGuard],
     loadComponent: () =>
       import('./shared/components/hospital-admin-shell/hospital-admin-shell.component').then(
         (m) => m.HospitalAdminShellComponent,
       ),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'requests' },
       {
-        path: 'dashboard',
-        data: { title: 'Coordination desk' },
+        path: '',
+        pathMatch: 'full',
         loadComponent: () =>
-          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+          import('./features/hospital-admin/dashboard/hospital-admin-dashboard.component').then(
+            (m) => m.HospitalAdminDashboardComponent,
+          ),
       },
       {
         path: 'hospital',
-        data: { title: 'Hospital' },
         loadComponent: () =>
-          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+          import('./features/hospital-admin/hospital/hospital-admin-hospital.component').then(
+            (m) => m.HospitalAdminHospitalComponent,
+          ),
       },
       {
         path: 'departments',
-        data: { title: 'Departments' },
         loadComponent: () =>
-          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+          import('./features/hospital-admin/departments/hospital-admin-departments.component').then(
+            (m) => m.HospitalAdminDepartmentsComponent,
+          ),
+      },
+      {
+        path: 'treatments',
+        loadComponent: () =>
+          import('./features/hospital-admin/treatments/hospital-admin-treatments.component').then(
+            (m) => m.HospitalAdminTreatmentsComponent,
+          ),
       },
       {
         path: 'doctors',
-        data: { title: 'Doctors' },
         loadComponent: () =>
-          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+          import('./features/hospital-admin/doctors/hospital-admin-doctors.component').then(
+            (m) => m.HospitalAdminDoctorsComponent,
+          ),
       },
       {
         path: 'availability',
-        data: { title: 'Doctor availability' },
         loadComponent: () =>
-          import('./features/hospital-admin/placeholder/coming-soon.component').then((m) => m.ComingSoonComponent),
+          import('./features/hospital-admin/availability/hospital-admin-availability.component').then(
+            (m) => m.HospitalAdminAvailabilityComponent,
+          ),
       },
+      // Requests — from the Hospital Appointment Coordination story (DT-6, merged into develop
+      // before this one). That story's own shell/routes assumed no Hospital Admin login existed
+      // yet ("replace with a real session-derived hospitalId once Hospital Admin auth exists" —
+      // see RequestListComponent's history); Story 4 built that auth, so these routes now sit
+      // behind hospitalAdminAuthGuard above instead of DT-6's original no-auth placeholder.
       {
         path: 'requests',
         pathMatch: 'full',

@@ -1,10 +1,16 @@
-import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppointmentRequestService } from '../../../core/services/appointment-request.service';
-import { HospitalAdminContextService } from '../../../core/services/hospital-admin-context.service';
+import { HospitalAdminAuthService } from '../../../core/services/hospital-admin-auth.service';
 import { AppointmentRequestSummary } from '../../../core/models/appointment-request.model';
 
-/** FR-01 — Hospital Admin's "Appointment requests" list, matching the reference mockup's isRequests block. */
+/**
+ * FR-01 — Hospital Admin's "Appointment requests" list, matching the reference mockup's
+ * isRequests block. Originally built (DT-6, Hospital Appointment Coordination) against
+ * `HospitalAdminContextService`, a stopgap that picked the first hospital from DocTrip Admin's
+ * list because no Hospital Admin login existed yet. Story 4 built that login, so this now sources
+ * the hospitalId from the real JWT session instead.
+ */
 @Component({
   selector: 'app-request-list',
   standalone: true,
@@ -12,7 +18,7 @@ import { AppointmentRequestSummary } from '../../../core/models/appointment-requ
 })
 export class RequestListComponent implements OnInit {
   private readonly appointmentRequestService = inject(AppointmentRequestService);
-  protected readonly context = inject(HospitalAdminContextService);
+  private readonly auth = inject(HospitalAdminAuthService);
   private readonly router = inject(Router);
 
   protected readonly requests = signal<AppointmentRequestSummary[]>([]);
@@ -24,15 +30,13 @@ export class RequestListComponent implements OnInit {
     return total === 1 ? '1 request' : `${total} requests`;
   });
 
-  constructor() {
-    effect(() => {
-      const hospital = this.context.hospital();
-      if (hospital) this.load(hospital.id);
-    });
-  }
-
   ngOnInit(): void {
-    this.context.ensureLoaded();
+    const hospitalId = this.auth.hospitalId();
+    if (hospitalId) this.load(hospitalId);
+    else {
+      this.loadError.set(true);
+      this.loading.set(false);
+    }
   }
 
   private load(hospitalId: string): void {

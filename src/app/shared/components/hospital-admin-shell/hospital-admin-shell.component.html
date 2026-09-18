@@ -1,57 +1,93 @@
-<div style="width: 100%; min-height: 100vh; display: flex; background: #F4F7FC">
-
-  <!-- ── Sidebar ─────────────────────────────────────────────── -->
-  <aside style="width: 232px; flex: none; background: #FFFFFF; border-right: 1px solid #E9EEF6; display: flex; flex-direction: column; padding: 22px 14px">
-    <div style="padding: 0 8px 18px">
-      <div style="font-size: 19px; font-weight: 700; letter-spacing: -.2px">Doc<span style="color: #1A6DF0">trip</span></div>
-      <div style="font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #9AA4B2; margin-top: 3px">Hospital admin</div>
+<div style="min-height: 100vh; display: flex; background: #F2F5FA">
+  <aside style="width: 244px; flex: none; background: #FFFFFF; border-right: 1px solid #E6EBF3; display: flex; flex-direction: column; padding: 20px 12px 14px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 2px 10px 18px">
+      <div style="width: 30px; height: 30px; flex: none; border-radius: 9px; background: linear-gradient(150deg, #0F62D6 0%, #0A2540 100%); display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M9.6 3.4h4.8a1.2 1.2 0 0 1 1.2 1.2v3.8h3.8a1.2 1.2 0 0 1 1.2 1.2v4.8a1.2 1.2 0 0 1-1.2 1.2h-3.8v3.8a1.2 1.2 0 0 1-1.2 1.2H9.6a1.2 1.2 0 0 1-1.2-1.2v-3.8H4.6a1.2 1.2 0 0 1-1.2-1.2V9.6a1.2 1.2 0 0 1 1.2-1.2h3.8V4.6a1.2 1.2 0 0 1 1.2-1.2z" fill="#fff"></path></svg>
+      </div>
+      <div>
+        <div style="font-size: 17px; font-weight: 800; letter-spacing: -.4px; color: #0A1626; line-height: 1.1">Doc<span style="color: #0F62D6">trip</span></div>
+        <div style="font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #697585; margin-top: 2px">Hospital admin</div>
+      </div>
     </div>
 
-    <div style="padding: 10px 10px; border-radius: 10px; background: #F7F9FC; margin-bottom: 16px">
-      @if (context.hospital(); as hospital) {
-        <div style="font-size: 12.5px; font-weight: 600">{{ hospital.name }}</div>
-        <div style="font-size: 11.5px; color: #9AA4B2; margin-top: 1px">{{ hospital.hospitalCode }} · {{ hospital.city }}</div>
-      } @else {
-        <div style="font-size: 12.5px; font-weight: 600; color: #9AA4B2">No hospital on file</div>
-      }
+    <div style="margin: 0 4px 16px; padding: 11px 12px; background: #F5F8FC; border: 1px solid #E6EBF3; border-radius: 10px">
+      <div style="font-size: 13.5px; font-weight: 650; color: #0A1626">{{ hospitalName() }}</div>
+      <div style="font-size: 12.5px; color: #697585; margin-top: 1px">{{ hospitalCode() }}</div>
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: 2px">
-      @for (item of navItems; track item.key) {
-        <button
-          type="button"
-          (click)="go(item.path)"
-          style="display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 10px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
-          [style.background]="isActive(item.path) ? '#EAF1FE' : 'transparent'"
-          [style.color]="isActive(item.path) ? '#1A6DF0' : '#1F2A37'"
-          [style.font-weight]="isActive(item.path) ? 600 : 500"
-        >
-          <span style="flex: 1">{{ item.label }}</span>
-        </button>
-      }
-    </div>
+    <nav style="display: flex; flex-direction: column; gap: 2px" aria-label="Primary">
+      <div style="padding: 0 12px 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #A7B2C2">Overview</div>
+      <button type="button" (click)="goDashboard()" style="display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 11px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onDashboard() ? '#E7EFFC' : 'transparent'" [style.color]="onDashboard() ? '#0B4EAE' : '#1B2534'" [style.font-weight]="onDashboard() ? 700 : 550">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onDashboard() ? '#0B4EAE' : 'currentColor'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="3.2" width="7.2" height="8.4" rx="1.8"></rect><rect x="13.6" y="3.2" width="7.2" height="5.2" rx="1.8"></rect><rect x="13.6" y="12.4" width="7.2" height="8.4" rx="1.8"></rect><rect x="3.2" y="15.6" width="7.2" height="5.2" rx="1.8"></rect></svg>
+        Dashboard
+      </button>
+      <button type="button" (click)="goHospital()" style="display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 11px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onHospital() ? '#E7EFFC' : 'transparent'" [style.color]="onHospital() ? '#0B4EAE' : '#1B2534'" [style.font-weight]="onHospital() ? 700 : 550">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onHospital() ? '#0B4EAE' : 'currentColor'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 20.8V7.2a2 2 0 0 1 2-2h11.2a2 2 0 0 1 2 2v13.6"></path><path d="M2.4 20.8h19.2"></path><path d="M12 8.4v5.2M9.4 11h5.2"></path></svg>
+        Hospital
+      </button>
+
+      <div style="padding: 16px 12px 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #A7B2C2">Clinical setup</div>
+      <button type="button" (click)="goDepartments()" style="display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 11px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onDepartments() ? '#E7EFFC' : 'transparent'" [style.color]="onDepartments() ? '#0B4EAE' : '#1B2534'" [style.font-weight]="onDepartments() ? 700 : 550">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onDepartments() ? '#0B4EAE' : 'currentColor'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="4" width="17.6" height="6" rx="1.8"></rect><rect x="3.2" y="14" width="17.6" height="6" rx="1.8"></rect></svg>
+        Departments
+      </button>
+      <button type="button" (click)="goTreatments()" style="display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 11px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onTreatments() ? '#E7EFFC' : 'transparent'" [style.color]="onTreatments() ? '#0B4EAE' : '#1B2534'" [style.font-weight]="onTreatments() ? 700 : 550">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onTreatments() ? '#0B4EAE' : 'currentColor'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4L13.4 20.6a2 2 0 0 1-2.8 0l-7.1-7.1a2 2 0 0 1-.6-1.4V4.6a1.4 1.4 0 0 1 1.4-1.4h7.5a2 2 0 0 1 1.4.6l7.4 7.4a2 2 0 0 1 0 2.8z"></path></svg>
+        Treatments
+      </button>
+      <button type="button" (click)="goDoctors()" style="display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 11px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onDoctors() ? '#E7EFFC' : 'transparent'" [style.color]="onDoctors() ? '#0B4EAE' : '#1B2534'" [style.font-weight]="onDoctors() ? 700 : 550">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onDoctors() ? '#0B4EAE' : 'currentColor'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7.8" r="3.6"></circle><path d="M4.6 20.4a7.4 7.4 0 0 1 14.8 0"></path></svg>
+        Doctors
+      </button>
+      <button type="button" (click)="goAvailability()" style="display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 11px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onAvailability() ? '#E7EFFC' : 'transparent'" [style.color]="onAvailability() ? '#0B4EAE' : '#1B2534'" [style.font-weight]="onAvailability() ? 700 : 550">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onAvailability() ? '#0B4EAE' : 'currentColor'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="5" width="17.6" height="15.8" rx="2.2"></rect><path d="M3.2 10h17.6M8 3.2v3.6M16 3.2v3.6"></path></svg>
+        Availability
+      </button>
+
+      <div style="padding: 16px 12px 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #A7B2C2">Coordination</div>
+      <button type="button" (click)="goRequests()" style="display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 11px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onRequests() ? '#E7EFFC' : 'transparent'" [style.color]="onRequests() ? '#0B4EAE' : '#1B2534'" [style.font-weight]="onRequests() ? 700 : 550">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onRequests() ? '#0B4EAE' : 'currentColor'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.2h8.4l4.2 4.2v13.4a1 1 0 0 1-1 1H6.2a1 1 0 0 1-1-1V4.2a1 1 0 0 1 1-1z"></path><path d="M14.2 3.2v4.4h4.4M8.6 13h6.8M8.6 16.8h4"></path></svg>
+        Requests
+      </button>
+    </nav>
 
     <div style="flex: 1"></div>
-    <div style="border-top: 1px solid #EEF2F8; padding-top: 14px; display: flex; align-items: center; gap: 10px">
-      <div style="width: 34px; height: 34px; flex: none; border-radius: 17px; background: #1A6DF0; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600">MS</div>
+
+    <div style="border-top: 1px solid #E6EBF3; padding-top: 13px; margin: 0 4px; display: flex; align-items: center; gap: 10px">
       <div style="flex: 1; min-width: 0">
-        <div style="font-size: 13px; font-weight: 600">Meera Suresh</div>
-        <div style="font-size: 11.5px; color: #9AA4B2">Coordination desk</div>
+        <div style="font-size: 13.5px; font-weight: 650; color: #0A1626; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ hospitalName() }}</div>
+        <div style="font-size: 12.5px; color: #697585">Hospital admin</div>
       </div>
+      <button type="button" (click)="logout()" aria-label="Sign out" style="width: 36px; height: 36px; flex: none; display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #334155; cursor: pointer">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"></path><path d="M15.4 16.2l4.2-4.2-4.2-4.2M19.6 12H9.4"></path></svg>
+      </button>
     </div>
   </aside>
 
-  <!-- ── Main column ─────────────────────────────────────────── -->
   <div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
-    <header style="flex: none; height: 62px; background: #FFFFFF; border-bottom: 1px solid #E9EEF6; display: flex; align-items: center; padding: 0 26px; gap: 10px">
-      <div style="font-size: 14px; font-weight: 600; color: #1F2A37">{{ crumb() }}</div>
+    <header style="flex: none; height: 60px; background: rgba(255,255,255,.82); border-bottom: 1px solid #E6EBF3; display: flex; align-items: center; padding: 0 32px; gap: 10px">
+      <span style="font-size: 13.5px; font-weight: 650; color: #152233">{{ crumb() }}</span>
       <div style="flex: 1"></div>
+      @if (dashboard.slaBreaches() > 0) {
+        <div role="status" style="display: inline-flex; align-items: center; gap: 6px; height: 23px; padding: 0 10px; border-radius: 999px; font-size: 11.5px; font-weight: 650; color: #B42318; background: #FBECEA">
+          <span style="width: 6px; height: 6px; border-radius: 3px; background: currentColor"></span>
+          {{ dashboard.slaBreaches() }} SLA breach
+        </div>
+      }
     </header>
 
-    <main style="flex: 1; min-height: 0; overflow: auto; padding: 24px 26px 40px">
+    <main style="flex: 1; min-height: 0; overflow: auto">
       <router-outlet></router-outlet>
     </main>
   </div>
 
   <app-toast-host></app-toast-host>
+  <app-confirm-dialog></app-confirm-dialog>
 </div>
