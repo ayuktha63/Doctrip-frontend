@@ -7,7 +7,6 @@ import { BookingRequestStateService, BookingSegment } from '../../../core/servic
   selector: 'app-booking-review',
   imports: [],
   templateUrl: './review.component.html',
-  styleUrl: './review.component.scss',
 })
 export class ReviewComponent implements OnInit {
   protected readonly state = inject(BookingRequestStateService);
@@ -16,6 +15,8 @@ export class ReviewComponent implements OnInit {
 
   private readonly kind = this.route.snapshot.paramMap.get('kind') as BookingSegment;
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
+
+  protected readonly hospitalName = computed(() => this.state.record()?.hospital ?? 'The hospital');
 
   protected readonly groups = computed(() => {
     const record = this.state.record();

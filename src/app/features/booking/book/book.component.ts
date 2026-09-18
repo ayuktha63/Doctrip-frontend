@@ -35,7 +35,6 @@ const SECTIONS: { title: string; fields: BookField[] }[] = [
   selector: 'app-booking-book',
   imports: [],
   templateUrl: './book.component.html',
-  styleUrl: './book.component.scss',
 })
 export class BookComponent implements OnInit {
   protected readonly state = inject(BookingRequestStateService);
