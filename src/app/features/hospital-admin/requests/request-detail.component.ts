@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppointmentRequestService } from '../../../core/services/appointment-request.service';
@@ -19,11 +19,17 @@ import { AppointmentRequestDetail, DoctorAvailability } from '../../../core/mode
   imports: [DatePipe],
   templateUrl: './request-detail.component.html',
 })
-export class RequestDetailComponent implements OnInit {
+export class RequestDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly appointmentRequestService = inject(AppointmentRequestService);
   private readonly toast = inject(ToastService);
+
+  // The doctor acts entirely by email (Story 7) — Accept/Reject/Alternative all happen outside
+  // this tab, so without polling the admin would only see the outcome on a manual refresh. Only
+  // runs while the request is still waiting on a doctor; stopped once it reaches a resolved state.
+  private static readonly POLL_INTERVAL_MS = 8000;
+  private pollHandle: ReturnType<typeof setInterval> | null = null;
 
   protected readonly request = signal<AppointmentRequestDetail | null>(null);
   protected readonly loading = signal(true);
@@ -76,12 +82,41 @@ export class RequestDetailComponent implements OnInit {
         this.request.set(detail);
         this.loading.set(false);
         if (detail.status === 'REQUESTED') this.loadAvailability();
+        this.syncPolling(detail.status);
       },
       error: () => {
         this.loadError.set(true);
         this.loading.set(false);
       },
     });
+  }
+
+  /** Silent background refresh — doesn't touch loading/error signals, so it never flickers the
+   *  page while the admin is reading it. */
+  private refreshQuietly(): void {
+    this.appointmentRequestService.get(this.id).subscribe({
+      next: (detail) => {
+        this.request.set(detail);
+        this.syncPolling(detail.status);
+      },
+      error: () => {
+        // Transient network hiccup — leave the poll running, next tick will retry.
+      },
+    });
+  }
+
+  private syncPolling(status: string): void {
+    const awaitingDoctor = status === 'DOCTOR_COORDINATION';
+    if (awaitingDoctor && this.pollHandle === null) {
+      this.pollHandle = setInterval(() => this.refreshQuietly(), RequestDetailComponent.POLL_INTERVAL_MS);
+    } else if (!awaitingDoctor && this.pollHandle !== null) {
+      clearInterval(this.pollHandle);
+      this.pollHandle = null;
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollHandle !== null) clearInterval(this.pollHandle);
   }
 
   private loadAvailability(): void {
@@ -100,6 +135,7 @@ export class RequestDetailComponent implements OnInit {
     this.appointmentRequestService.startCoordination(this.id).subscribe({
       next: (detail) => {
         this.request.set(detail);
+        this.syncPolling(detail.status);
         this.starting.set(false);
         this.toast.show(
           detail.requestedDoctorName && detail.coordination.length === 1
@@ -139,7 +175,7 @@ export class RequestDetailComponent implements OnInit {
     if (status === 'ESCALATED') return 'Escalated';
     if (status === 'CANCELLED') return 'Cancelled';
     if (status === 'CONFIRMED') return 'Confirmed';
-    if (status === 'DOCTOR_COORDINATION') return 'Doctor coordination';
+    if (status === 'DOCTOR_COORDINATION') return 'In coordination';
     if (status === 'REQUESTED') return 'Requested';
     return status ?? '';
   }

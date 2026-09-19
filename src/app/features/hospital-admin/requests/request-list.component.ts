@@ -68,7 +68,7 @@ export class RequestListComponent implements OnInit {
       case 'CONFIRMED':
         return { label: 'Confirmed', fg: '#16A34A', bg: '#E7F6EC' };
       case 'DOCTOR_COORDINATION':
-        return { label: 'Doctor coordination', fg: '#B26A00', bg: '#FFF6E6' };
+        return { label: 'In coordination', fg: '#B26A00', bg: '#FFF6E6' };
       case 'REQUESTED':
       default:
         return { label: 'Requested', fg: '#1A6DF0', bg: '#EAF1FE' };
