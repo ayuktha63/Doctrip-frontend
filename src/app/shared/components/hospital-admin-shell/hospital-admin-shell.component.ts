@@ -5,6 +5,7 @@ import { ToastHostComponent } from '../toast-host/toast-host.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { HospitalAdminAuthService } from '../../../core/services/hospital-admin-auth.service';
 import { HospitalAdminDashboardService } from '../../../core/services/hospital-admin-dashboard.service';
+import { AppointmentRequestService } from '../../../core/services/appointment-request.service';
 
 /**
  * Hospital Admin console shell — ports the mockup's `.dt-side` sidebar (HospitalAdmin.dc.html,
@@ -30,10 +31,21 @@ export class HospitalAdminShellComponent {
   private readonly router = inject(Router);
   protected readonly auth = inject(HospitalAdminAuthService);
   protected readonly dashboard = inject(HospitalAdminDashboardService);
+  protected readonly appointmentRequestService = inject(AppointmentRequestService);
 
   private readonly url = signal(this.router.url);
 
   constructor() {
+    // Populates the sidebar "Requests" open-count badge and the top-bar SLA breach badge on
+    // every screen, not just after visiting Dashboard (which is the only other place this gets
+    // called).
+    this.dashboard.getSummary().subscribe({ error: () => {} });
+
+    // Same reasoning, for the sidebar "Doctor approvals" badge.
+    if (this.auth.hospitalId()) {
+      this.appointmentRequestService.listPendingAcknowledgements().subscribe({ error: () => {} });
+    }
+
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e) => {
       this.url.set((e as NavigationEnd).urlAfterRedirects);
     });
@@ -46,6 +58,7 @@ export class HospitalAdminShellComponent {
   protected readonly onDoctors = computed(() => this.isOn('/hospital-admin/doctors'));
   protected readonly onAvailability = computed(() => this.isOn('/hospital-admin/availability'));
   protected readonly onRequests = computed(() => this.isOn('/hospital-admin/requests'));
+  protected readonly onDoctorApprovals = computed(() => this.isOn('/hospital-admin/doctor-approvals'));
 
   protected readonly crumb = computed(() => {
     if (this.onHospital()) return 'Hospital';
@@ -54,6 +67,7 @@ export class HospitalAdminShellComponent {
     if (this.onDoctors()) return 'Doctors';
     if (this.onAvailability()) return 'Availability';
     if (this.onRequests()) return 'Requests';
+    if (this.onDoctorApprovals()) return 'Doctor approvals';
     return 'Dashboard';
   });
 
@@ -85,6 +99,9 @@ export class HospitalAdminShellComponent {
   }
   goRequests(): void {
     this.router.navigate(['/hospital-admin/requests']);
+  }
+  goDoctorApprovals(): void {
+    this.router.navigate(['/hospital-admin/doctor-approvals']);
   }
 
   logout(): void {

@@ -13,7 +13,10 @@ export interface AppointmentLogEntry {
 }
 
 export interface Appointment {
+  /** The backend's real id (UUID) — used for routing/API calls. */
   id: string;
+  /** The backend's human-readable request code (e.g. "APR-0042") — used for display only. */
+  code: string;
   treatment: string;
   hospital: string;
   dept: string;

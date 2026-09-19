@@ -6,7 +6,7 @@ import { HospitalsService } from '../../features/hospitals/hospitals.service';
 import { Hospital } from '../../features/hospitals/hospital.model';
 import { DoctorsService } from '../../features/doctors/doctors.service';
 import { Doctor } from '../../features/doctors/doctor.model';
-import { AppointmentsStateService } from './appointments-state.service';
+import { PatientAppointmentsService } from './patient-appointments.service';
 import { BookingRequestForm, EMPTY_BOOKING_FORM, REQUIRED_BOOKING_FIELDS } from '../models/booking-request.model';
 
 export type BookingSegment = 'treatment' | 'hospital' | 'doctor';
@@ -17,37 +17,55 @@ export interface BookingRecordSummary {
   hospital: string;
   dept: string;
   doctor: string;
+  /** Story 2 public-discovery hospital id — what the real create call resolves to an admin hospital via. */
+  discoveryHospitalId: number;
 }
 
-const DAYS: [string, number][] = [
-  ['Mon', 20],
-  ['Tue', 21],
-  ['Wed', 22],
-  ['Thu', 23],
-  ['Fri', 24],
-  ['Sat', 25],
-  ['Sun', 26],
+interface DateOption {
+  label: string;
+  num: number;
+  iso: string;
+}
+
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function nextSevenDays(): DateOption[] {
+  const options: DateOption[] = [];
+  for (let i = 1; i <= 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    options.push({ label: WEEKDAY_LABELS[d.getDay()], num: d.getDate(), iso: d.toISOString().slice(0, 10) });
+  }
+  return options;
+}
+
+const TIME_OPTIONS: { label: string; iso: string }[] = [
+  { label: '09:00 AM', iso: '09:00' },
+  { label: '10:00 AM', iso: '10:00' },
+  { label: '11:00 AM', iso: '11:00' },
+  { label: '02:00 PM', iso: '14:00' },
+  { label: '03:00 PM', iso: '15:00' },
+  { label: '04:00 PM', iso: '16:00' },
 ];
-const TIMES = ['09:00 AM', '10:00 AM', '11:00 AM', '02:00 PM', '03:00 PM', '04:00 PM'];
 
 export type BookingLoadState = 'idle' | 'loading' | 'loaded' | 'unavailable' | 'error';
 
 /**
  * Backs the discover → booking journey (`/booking/:kind/:id` → book form →
  * `/booking/:kind/:id/review`). The record itself (treatment/hospital/doctor) comes from the
- * real, already-confirmed public discovery endpoints; the request form fields and preferred
- * slot are client-only, same simulation convention as AppointmentsStateService, since no
- * backend appointment-creation endpoint exists yet.
+ * real, already-confirmed public discovery endpoints; submitting creates a real
+ * AppointmentRequest via PatientAppointmentsService, landing in Hospital Admin's actual
+ * coordination queue.
  */
 @Injectable({ providedIn: 'root' })
 export class BookingRequestStateService {
   private readonly treatmentsService = inject(TreatmentsService);
   private readonly hospitalsService = inject(HospitalsService);
   private readonly doctorsService = inject(DoctorsService);
-  private readonly appointmentsState = inject(AppointmentsStateService);
+  private readonly patientAppointmentsService = inject(PatientAppointmentsService);
 
-  readonly days = DAYS;
-  readonly times = TIMES;
+  readonly days: DateOption[] = nextSevenDays();
+  readonly times = TIME_OPTIONS;
 
   private loadedKind: BookingSegment | null = null;
   private loadedId: string | null = null;
@@ -57,13 +75,14 @@ export class BookingRequestStateService {
 
   readonly form = signal<BookingRequestForm>({ ...EMPTY_BOOKING_FORM });
   readonly formErrors = signal<Partial<Record<keyof BookingRequestForm, string>>>({});
-  readonly day = signal<number>(this.days[0][1]);
-  readonly time = signal<string>(this.times[0]);
+  readonly day = signal<number>(this.days[0].num);
+  readonly time = signal<string>(this.times[0].label);
   readonly docs = signal<string[]>([]);
+  readonly submitError = signal<string | null>(null);
 
   readonly whenLabel = computed(() => {
-    const dayLabel = this.days.find(([, num]) => num === this.day())?.[0] ?? '';
-    return `${dayLabel} ${this.day()} May 2024, ${this.time()}`;
+    const option = this.days.find((d) => d.num === this.day());
+    return `${option?.label ?? ''} ${this.day()}, ${this.time()}`;
   });
 
   /** Loads (or re-uses, if navigating book → review → book for the same record) the summary. */
@@ -92,6 +111,7 @@ export class BookingRequestStateService {
               hospital: r.hospitalName ?? 'To be confirmed',
               dept: r.department ?? 'To be confirmed',
               doctor: 'To be assigned',
+              discoveryHospitalId: r.hospitalId ?? 0,
             }),
           error: onError,
         });
@@ -99,7 +119,13 @@ export class BookingRequestStateService {
       case 'hospital':
         this.hospitalsService.getHospitalById(id).subscribe({
           next: (r: Hospital) =>
-            onLoaded({ title: r.name, hospital: r.name, dept: r.type ?? 'General', doctor: 'To be assigned' }),
+            onLoaded({
+              title: r.name,
+              hospital: r.name,
+              dept: r.type ?? 'General',
+              doctor: 'To be assigned',
+              discoveryHospitalId: r.id,
+            }),
           error: onError,
         });
         break;
@@ -111,6 +137,7 @@ export class BookingRequestStateService {
               hospital: r.hospitalName ?? 'To be confirmed',
               dept: r.department ?? r.specialty ?? 'To be confirmed',
               doctor: r.name,
+              discoveryHospitalId: r.hospitalId ?? 0,
             }),
           error: onError,
         });
@@ -143,18 +170,39 @@ export class BookingRequestStateService {
     return Object.keys(errors).length === 0;
   }
 
-  /** Creates the appointment from the current form + selected record and resets this service's state. */
-  submit(): string {
+  /** Creates the real appointment request from the current form + selected record. */
+  submit(): Promise<string> {
     const record = this.record();
-    const id = this.appointmentsState.createFromRequest({
-      treatment: record?.title ?? this.form().need,
-      hospital: record?.hospital ?? 'To be confirmed',
-      dept: record?.dept ?? 'To be confirmed',
-      doctor: record?.doctor ?? 'Not assigned',
-      when: this.whenLabel(),
+    const f = this.form();
+    const dateOption = this.days.find((d) => d.num === this.day());
+    const timeOption = this.times.find((t) => t.label === this.time());
+    const age = Number.parseInt(f.age, 10);
+
+    return new Promise((resolve, reject) => {
+      this.patientAppointmentsService
+        .create({
+          discoveryHospitalId: record?.discoveryHospitalId ?? 0,
+          department: record?.dept ?? 'To be confirmed',
+          requestedDoctorName: record?.doctor && record.doctor !== 'To be assigned' ? record.doctor : undefined,
+          requestedDate: dateOption?.iso ?? this.days[0].iso,
+          requestedTime: timeOption?.iso ?? this.times[0].iso,
+          healthcareRequirement: f.need,
+          additionalInfo: f.notes || undefined,
+          patientCountry: f.country || undefined,
+          patientAge: Number.isFinite(age) ? age : undefined,
+          requiredDocuments: this.docs(),
+        })
+        .subscribe({
+          next: (detail) => {
+            this.reset();
+            resolve(detail.id);
+          },
+          error: (err: HttpErrorResponse) => {
+            this.submitError.set(err.error?.message ?? 'Could not submit this request. Please try again.');
+            reject(err);
+          },
+        });
     });
-    this.reset();
-    return id;
   }
 
   private reset(): void {
@@ -165,5 +213,6 @@ export class BookingRequestStateService {
     this.form.set({ ...EMPTY_BOOKING_FORM });
     this.formErrors.set({});
     this.docs.set([]);
+    this.submitError.set(null);
   }
 }

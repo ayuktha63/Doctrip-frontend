@@ -1,0 +1,81 @@
+<div>
+  <div>
+    <div style="font-family: Newsreader, Georgia, serif; font-size: 30px; line-height: 36px; font-weight: 500; letter-spacing: -.4px">Users</div>
+    <div style="font-size: 13.5px; color: #6B7280; margin-top: 4px">{{ countLabel() }}</div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 12px; margin-top: 20px">
+    <div style="position: relative; flex: 1; max-width: 420px">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9AA4B2" stroke-width="2" stroke-linecap="round" style="position: absolute; left: 13px; top: 11px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <input
+        [value]="q()"
+        (input)="onQueryInput($event)"
+        placeholder="Search by name, email or mobile"
+        style="width: 100%; height: 40px; padding: 0 12px 0 38px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff"
+      />
+    </div>
+    <div style="display: flex; gap: 4px; background: #EDF1F8; border-radius: 10px; padding: 4px">
+      @for (f of filters; track f) {
+        <button
+          type="button"
+          (click)="pickFilter(f)"
+          style="height: 32px; padding: 0 14px; border: 0; border-radius: 8px; font-size: 12.5px; cursor: pointer"
+          [style.background]="filter() === f ? '#fff' : 'transparent'"
+          [style.color]="filter() === f ? '#1A6DF0' : '#1F2A37'"
+          [style.font-weight]="filter() === f ? 600 : 500"
+          [style.box-shadow]="filter() === f ? '0 1px 3px rgba(13,27,42,.14)' : 'none'"
+        >
+          {{ f }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loadError()) {
+    <div style="margin-top: 20px; padding: 16px; border-radius: 12px; background: #FCECEC; font-size: 13px; color: #DC2626">Could not load users. Please try again.</div>
+  }
+
+  <div style="background: #fff; border: 1px solid #E9EEF6; border-radius: 14px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 10px 24px -18px rgba(16,42,84,.2); overflow: hidden; margin-top: 16px">
+    <div style="display: grid; grid-template-columns: 2.2fr 1.6fr 1.3fr 1fr 1fr; padding: 12px 18px 10px; background: #FBFCFE; border-bottom: 1px solid #EEF2F8">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">User</div>
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Email</div>
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Mobile</div>
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Signed up via</div>
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Status</div>
+    </div>
+
+    @for (p of rows(); track p.id) {
+      <div style="display: grid; grid-template-columns: 2.2fr 1.6fr 1.3fr 1fr 1fr; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F4F7FC">
+        <div style="display: flex; align-items: center; gap: 12px; min-width: 0; padding-right: 12px">
+          <div style="width: 32px; height: 32px; flex: none; border-radius: 16px; background: #0A2456; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 600">{{ initialsOf(p.fullName) }}</div>
+          <div style="min-width: 0">
+            <div style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.fullName }}</div>
+            <div style="font-size: 12px; color: #9AA4B2; margin-top: 1px">{{ p.createdAt | date: 'mediumDate' }}</div>
+          </div>
+        </div>
+        <div style="font-size: 13px; color: #1F2A37; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 10px">{{ p.email || '—' }}</div>
+        <div style="font-size: 13px; color: #6B7280">{{ p.mobile || '—' }}</div>
+        <div style="font-size: 13px; color: #6B7280">{{ channelOf(p) }}</div>
+        <div>
+          <span
+            style="display: inline-flex; align-items: center; gap: 6px; border-radius: 20px; padding: 4px 10px; font-size: 11.5px; font-weight: 600"
+            [style.color]="statusOf(p).fg"
+            [style.background]="statusOf(p).bg"
+          >
+            <span style="width: 6px; height: 6px; border-radius: 3px" [style.background]="statusOf(p).fg"></span>{{ statusOf(p).label }}
+          </span>
+        </div>
+      </div>
+    }
+
+    @if (!loading() && rows().length === 0) {
+      <div style="padding: 56px 24px; text-align: center">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#D6DFEC" stroke-width="1.6" stroke-linecap="round" style="margin: 0 auto"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg>
+        <div style="font-size: 14px; font-weight: 600; margin-top: 12px">No users match this view</div>
+        <div style="font-size: 13px; color: #6B7280; margin-top: 3px">
+          {{ q().trim() ? 'Nothing matches “' + q().trim() + '”. Try a name, email or mobile number.' : 'No users carry this status right now.' }}
+        </div>
+      </div>
+    }
+  </div>
+</div>

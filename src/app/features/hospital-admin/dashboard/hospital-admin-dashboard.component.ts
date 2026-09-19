@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { HospitalAdminDashboardService } from '../../../core/services/hospital-admin-dashboard.service';
+import { HospitalAdminHospitalService } from '../../../core/services/hospital-admin.service';
 import { DashboardAttentionItem, DashboardSummary, RequestStatus } from '../../../core/models/hospital-admin.model';
 
 interface PipelineStage {
@@ -33,6 +34,9 @@ const STATUS_META: Record<RequestStatus, { label: string; fg: string; bg: string
 export class HospitalAdminDashboardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly service = inject(HospitalAdminDashboardService);
+  private readonly hospitalService = inject(HospitalAdminHospitalService);
+
+  protected readonly dataHidden = this.hospitalService.dataHidden;
 
   protected readonly summary = signal<DashboardSummary | null>(null);
   protected readonly loading = signal(true);
@@ -69,6 +73,7 @@ export class HospitalAdminDashboardComponent implements OnInit {
   protected readonly pipelineTotal = computed(() => this.pipeline().reduce((sum, p) => sum + p.value, 0));
 
   ngOnInit(): void {
+    this.hospitalService.refreshDataHidden();
     this.service.getSummary().subscribe({
       next: (summary) => {
         this.summary.set(summary);

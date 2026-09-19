@@ -11,7 +11,7 @@
         (click)="goDiscover()"
         style="height: 36px; padding: 0 14px; border: 0; border-radius: 9px; cursor: pointer; font-size: 13.5px; background: transparent; color: #1F2A37; font-weight: 500; white-space: nowrap"
       >
-        Discover
+        {{ 'shell.nav.discover' | translate }}
       </button>
       <button
         type="button"
@@ -21,17 +21,18 @@
         [style.color]="onAppointments() ? '#1A6DF0' : '#1F2A37'"
         [style.font-weight]="onAppointments() ? 600 : 500"
       >
-        My appointments
+        {{ 'shell.nav.appointments' | translate }}
       </button>
       <button
         type="button"
-        (click)="comingSoon()"
+        (click)="goAccount()"
         style="height: 36px; padding: 0 14px; border: 0; border-radius: 9px; cursor: pointer; font-size: 13.5px; background: transparent; color: #1F2A37; font-weight: 500; white-space: nowrap"
       >
-        Account
+        {{ 'shell.nav.account' | translate }}
       </button>
     </nav>
     <div style="flex: 1"></div>
+    <app-language-switcher></app-language-switcher>
     <button
       type="button"
       (click)="goNotifications()"
@@ -46,7 +47,7 @@
       }
     </button>
     @if (isAuthenticated()) {
-      <div style="display: flex; align-items: center; gap: 10px">
+      <div (click)="goAccount()" style="display: flex; align-items: center; gap: 10px; cursor: pointer">
         <div
           style="width: 36px; height: 36px; border-radius: 18px; background: #0A2456; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600"
         >
@@ -63,7 +64,7 @@
         (click)="goSignIn()"
         style="height: 38px; padding: 0 18px; border: 0; border-radius: 10px; background: #1A6DF0; color: #fff; font-size: 13.5px; font-weight: 600; cursor: pointer"
       >
-        Sign in
+        {{ 'shell.signIn' | translate }}
       </button>
     }
   </header>

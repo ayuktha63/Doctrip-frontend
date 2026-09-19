@@ -19,6 +19,7 @@ import {
   initialsFromName,
   formatExperience,
 } from '../discover.types';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 type LoadState = 'loading' | 'loaded' | 'unavailable' | 'error';
 
@@ -42,7 +43,7 @@ type LoadState = 'loading' | 'loaded' | 'unavailable' | 'error';
  */
 @Component({
   selector: 'app-discover-detail',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './discover-detail.html',
   styleUrl: './discover-detail.scss',
 })

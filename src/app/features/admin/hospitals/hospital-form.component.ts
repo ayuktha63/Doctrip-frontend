@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { map, of, switchMap } from 'rxjs';
 import { HospitalService } from '../../../core/services/hospital.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ApiError } from '../../../core/models/auth.model';
@@ -26,9 +27,11 @@ export class HospitalFormComponent implements OnInit {
 
   protected readonly editing = signal(false);
   protected readonly hospitalId = signal<string | null>(null);
+  protected readonly adminAccountId = signal<string | null>(null);
   protected readonly submitting = signal(false);
   protected readonly serverError = signal('');
   protected readonly loading = signal(true);
+  protected readonly showAdminPassword = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -41,6 +44,9 @@ export class HospitalFormComponent implements OnInit {
     person: [''],
     email: ['', Validators.email],
     phone: [''],
+    adminName: [''],
+    adminEmail: ['', Validators.email],
+    adminPassword: [''],
   });
 
   ngOnInit(): void {
@@ -72,6 +78,16 @@ export class HospitalFormComponent implements OnInit {
         this.loading.set(false);
       },
     });
+    this.hospitalService.getAdminAccounts(id).subscribe({
+      next: (accounts) => {
+        const account = accounts[0];
+        if (account) {
+          this.adminAccountId.set(account.id);
+          this.form.patchValue({ adminName: account.name, adminEmail: account.email, adminPassword: account.password ?? '' });
+        }
+      },
+      error: () => {}, // Non-fatal — the hospital details themselves still loaded.
+    });
   }
 
   save(): void {
@@ -81,6 +97,12 @@ export class HospitalFormComponent implements OnInit {
       return;
     }
     const v = this.form.getRawValue();
+    const needsNewAdminAccount = !this.editing() || !this.adminAccountId();
+    if (needsNewAdminAccount && (!v.adminName.trim() || !v.adminEmail.trim() || !v.adminPassword)) {
+      this.form.markAllAsTouched();
+      this.serverError.set('Enter a name, email and password for this hospital’s admin login.');
+      return;
+    }
     const payload = {
       name: v.name.trim(),
       type: v.type,
@@ -96,19 +118,72 @@ export class HospitalFormComponent implements OnInit {
 
     this.submitting.set(true);
     const id = this.hospitalId();
-    const call = this.editing() && id ? this.hospitalService.update(id, payload) : this.hospitalService.create(payload);
-    call.subscribe({
-      next: (h) => {
-        this.submitting.set(false);
-        this.toast.show(this.editing() ? `${h.name} updated.` : `${h.name} added as ${h.hospitalCode}. Activate it when the contract is signed.`);
-        this.router.navigate(['/admin/hospitals', h.id]);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.submitting.set(false);
-        const body = err.error as ApiError | undefined;
-        this.serverError.set(body?.message || 'Could not save this hospital. Please try again.');
-      },
-    });
+    const adminAccountId = this.adminAccountId();
+    if (this.editing() && id) {
+      this.hospitalService
+        .update(id, payload)
+        .pipe(
+          switchMap((h) => {
+            if (adminAccountId) {
+              return this.hospitalService
+                .updateAdminAccount(adminAccountId, {
+                  name: v.adminName.trim(),
+                  email: v.adminEmail.trim(),
+                  password: v.adminPassword,
+                })
+                .pipe(map(() => h));
+            }
+            if (v.adminName.trim() && v.adminEmail.trim() && v.adminPassword) {
+              return this.hospitalService
+                .createAdminAccount({ hospitalId: h.id, name: v.adminName.trim(), email: v.adminEmail.trim(), password: v.adminPassword })
+                .pipe(map(() => h));
+            }
+            return of(h);
+          }),
+        )
+        .subscribe({
+          next: (h) => {
+            this.submitting.set(false);
+            this.toast.show(`${h.name} updated.`);
+            this.router.navigate(['/admin/hospitals', h.id]);
+          },
+          error: (err: HttpErrorResponse) => this.handleSaveError(err),
+        });
+      return;
+    }
+
+    this.hospitalService
+      .create(payload)
+      .pipe(
+        switchMap((h) =>
+          this.hospitalService.createAdminAccount({
+            hospitalId: h.id,
+            name: v.adminName.trim(),
+            email: v.adminEmail.trim(),
+            password: v.adminPassword,
+          }).pipe(map(() => h)),
+        ),
+      )
+      .subscribe({
+        next: (h) => {
+          this.submitting.set(false);
+          this.toast.show(
+            `${h.name} added as ${h.hospitalCode}, with a Hospital Admin login. Activate it when the contract is signed.`,
+          );
+          this.router.navigate(['/admin/hospitals', h.id]);
+        },
+        error: (err: HttpErrorResponse) => this.handleSaveError(err),
+      });
+  }
+
+  private handleSaveError(err: HttpErrorResponse): void {
+    this.submitting.set(false);
+    const body = err.error as ApiError | undefined;
+    this.serverError.set(body?.message || 'Could not save this hospital. Please try again.');
+  }
+
+  toggleAdminPasswordVisibility(): void {
+    this.showAdminPassword.update((v) => !v);
   }
 
   cancel(): void {

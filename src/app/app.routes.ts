@@ -54,15 +54,15 @@ export const routes: Routes = [
           import('./features/appointments/appointment-detail.component').then((m) => m.AppointmentDetailComponent),
       },
       {
-        path: 'appointments/:id/payment',
-        canActivate: [authGuard],
-        loadComponent: () => import('./features/appointments/payment.component').then((m) => m.PaymentComponent),
-      },
-      {
         path: 'notifications',
         canActivate: [authGuard],
         loadComponent: () =>
           import('./features/notifications/notifications.component').then((m) => m.NotificationsComponent),
+      },
+      {
+        path: 'account',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/account/account.component').then((m) => m.AccountComponent),
       },
       {
         path: 'auth',
@@ -116,6 +116,10 @@ export const routes: Routes = [
         path: 'hospitals/:id/edit',
         loadComponent: () =>
           import('./features/admin/hospitals/hospital-form.component').then((m) => m.HospitalFormComponent),
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./features/admin/users/user-list.component').then((m) => m.UserListComponent),
       },
     ],
   },
@@ -196,6 +200,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/hospital-admin/requests/request-detail.component').then(
             (m) => m.RequestDetailComponent,
+          ),
+      },
+      {
+        path: 'doctor-approvals',
+        loadComponent: () =>
+          import('./features/hospital-admin/doctor-approvals/hospital-admin-doctor-approvals.component').then(
+            (m) => m.HospitalAdminDoctorApprovalsComponent,
           ),
       },
     ],

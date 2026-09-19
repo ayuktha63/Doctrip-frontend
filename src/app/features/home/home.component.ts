@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 /**
  * The reference mockup's "Discover" home screen (hospital/treatment browsing) belongs to a later
@@ -10,6 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-home',
   standalone: true,
+  imports: [TranslatePipe],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {

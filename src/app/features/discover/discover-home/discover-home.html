@@ -1,10 +1,9 @@
 <section class="discover" aria-label="Healthcare discovery">
   <h1 class="discover__heading">
-    Your journey to <span class="discover__heading-accent">world-class care</span>
+    {{ 'discover.headingPrefix' | translate }} <span class="discover__heading-accent">{{ 'discover.headingAccent' | translate }}</span>
   </h1>
   <p class="discover__subheading">
-    Browse treatment packages, hospitals and doctors, and view their details before you start
-    your booking journey.
+    {{ 'discover.subheading' | translate }}
   </p>
 
   <div class="discover__search">
@@ -15,8 +14,8 @@
     <input
       type="search"
       class="discover__search-input"
-      placeholder="Search a treatment, hospital or doctor"
-      aria-label="Search a treatment, hospital or doctor"
+      [placeholder]="'discover.searchPlaceholder' | translate"
+      [attr.aria-label]="'discover.searchPlaceholder' | translate"
       [value]="query()"
       (input)="onSearchInput($any($event.target).value)"
     />
@@ -39,24 +38,24 @@
 
   @if (isLoading()) {
     <div class="discover__grid discover__grid--skeleton" role="status" aria-live="polite" aria-busy="true">
-      <span class="discover__visually-hidden">Loading {{ activeTab() }}…</span>
+      <span class="discover__visually-hidden">{{ 'discover.loading' | translate }} {{ activeTab() }}…</span>
       @for (row of skeletonRows; track row) {
         <div class="discover__skeleton-card"></div>
       }
     </div>
   } @else if (hasError()) {
     <div class="discover__state discover__state--error" role="alert">
-      <p>We couldn't load {{ activeTab().toLowerCase() }} right now.</p>
+      <p>{{ 'discover.loadError' | translate }} {{ activeTab().toLowerCase() }}</p>
       <p class="discover__error-detail">{{ currentError() }}</p>
-      <button type="button" class="discover__retry" (click)="load()">Retry</button>
+      <button type="button" class="discover__retry" (click)="load()">{{ 'common.retry' | translate }}</button>
     </div>
   } @else if (isEmpty()) {
     <div class="discover__empty">
       @if (query()) {
-        <p class="discover__empty-title">Nothing matches "{{ query() }}"</p>
+        <p class="discover__empty-title">{{ 'discover.noMatch' | translate }} "{{ query() }}"</p>
         <p class="discover__empty-hint">{{ emptyHint() }}</p>
       } @else {
-        <p class="discover__empty-title">No {{ activeTab().toLowerCase() }} are available right now.</p>
+        <p class="discover__empty-title">{{ 'discover.noneAvailable' | translate }} {{ activeTab().toLowerCase() }}</p>
       }
     </div>
   } @else {
@@ -89,7 +88,7 @@
             } @else {
               <span></span>
             }
-            <span class="discover-card__view">View details</span>
+            <span class="discover-card__view">{{ 'discover.viewDetails' | translate }}</span>
           </span>
         </button>
       }

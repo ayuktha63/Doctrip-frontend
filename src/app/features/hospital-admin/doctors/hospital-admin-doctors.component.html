@@ -10,7 +10,18 @@
     </button>
   </div>
 
-  <div style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; overflow: hidden">
+  @if (dataHidden()) {
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; padding: 10px 14px; border-radius: 10px; background: #F3EEFD; border: 1px solid #E4D9FA; color: #6D28D9; font-size: 12.5px; font-weight: 600; width: fit-content">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-10-8-10-8a19.65 19.65 0 015.06-6.06"></path><path d="M1 1l22 22"></path><path d="M9.9 4.24A10.94 10.94 0 0112 4c7 0 10 8 10 8a19.65 19.65 0 01-2.16 3.19"></path></svg>
+      Data hidden by DocTrip Admin
+    </div>
+  }
+
+  <div
+    style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; overflow: hidden"
+    [style.opacity]="dataHidden() ? 0.5 : 1"
+    [style.pointer-events]="dataHidden() ? 'none' : 'auto'"
+  >
     <div style="display: grid; grid-template-columns: 1.6fr 1fr 1.1fr .8fr 220px; gap: 14px; padding: 11px 20px; background: #FBFCFE; border-bottom: 1px solid #E6EBF3; font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #A7B2C2">
       <div>Doctor</div><div>Department</div><div>Specialty</div><div>Status</div><div style="text-align: right">Actions</div>
     </div>
@@ -74,6 +85,11 @@
           <label>
             <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Experience (years)</span>
             <input formControlName="experienceYears" type="number" min="0" placeholder="11" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+          </label>
+          <label>
+            <span style="display: block; font-size: 12px; font-weight: 650; margin-bottom: 6px">Email</span>
+            <input formControlName="email" type="email" placeholder="doctor@hospital.example" style="width: 100%; height: 42px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 10px; font-size: 13.5px" />
+            <span style="display: block; font-size: 11px; color: #8A93A3; margin-top: 4px">Appointment coordination requests are sent here.</span>
           </label>
           @if (formErr()) {
             <div style="font-size: 12.5px; color: #B42318; background: #FBECEA; border-radius: 8px; padding: 8px 10px">{{ formErr() }}</div>

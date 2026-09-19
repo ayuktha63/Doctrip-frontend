@@ -67,6 +67,10 @@ export class HospitalDetailComponent implements OnInit {
   protected readonly toggleFg = computed(() => (this.hospital()?.active ? '#B26A00' : '#16A34A'));
   protected readonly toggleBorder = computed(() => (this.hospital()?.active ? '#F0DFBE' : '#CFE9D8'));
 
+  protected readonly hideLabel = computed(() => (this.hospital()?.dataHidden ? 'Unhide data' : 'Hide data'));
+  protected readonly hideFg = computed(() => (this.hospital()?.dataHidden ? '#16A34A' : '#7C3AED'));
+  protected readonly hideBorder = computed(() => (this.hospital()?.dataHidden ? '#CFE9D8' : '#E4D9FA'));
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
@@ -119,6 +123,33 @@ export class HospitalDetailComponent implements OnInit {
         this.toast.show(`${h.name} is now ${next ? 'active and visible to patients' : 'inactive and hidden from patients'}.`);
       },
       error: () => this.toast.show('Could not update hospital status. Please try again.'),
+    });
+  }
+
+  askHideToggle(): void {
+    const h = this.hospital();
+    if (!h) return;
+    const hiding = !h.dataHidden;
+    this.confirmDialog.open({
+      title: hiding ? `Hide data for ${h.name}?` : `Unhide data for ${h.name}?`,
+      body: hiding
+        ? "This hospital's doctors, treatments and departments will be greyed out on its own Hospital Admin console and here in DocTrip Admin, and excluded from patient search. Nothing is deleted."
+        : "This hospital's doctors, treatments and departments become fully visible again on its own Hospital Admin console and here, and can reappear in patient search (subject to its Active status).",
+      actionLabel: hiding ? 'Hide data' : 'Unhide data',
+      accent: hiding ? '#7C3AED' : '#16A34A',
+      tint: hiding ? '#F3EEFD' : '#E7F6EC',
+      onConfirm: () => this.doHideToggle(h),
+    });
+  }
+
+  private doHideToggle(h: Hospital): void {
+    const action = h.dataHidden ? this.hospitalService.unhideData(h.id) : this.hospitalService.hideData(h.id);
+    action.subscribe({
+      next: (updated) => {
+        this.hospital.set(updated);
+        this.toast.show(`${h.name}'s data is now ${updated.dataHidden ? 'hidden from admin-facing views' : 'unhidden'}.`);
+      },
+      error: () => this.toast.show('Could not update hospital data-visibility. Please try again.'),
     });
   }
 

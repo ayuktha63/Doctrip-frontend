@@ -1,11 +1,12 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingRequestStateService, BookingSegment } from '../../../core/services/booking-request-state.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 /** Review — the reference mockup's `isReview` screen (summary of the request, submit or edit). */
 @Component({
   selector: 'app-booking-review',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './review.component.html',
 })
 export class ReviewComponent implements OnInit {
@@ -18,34 +19,36 @@ export class ReviewComponent implements OnInit {
 
   protected readonly hospitalName = computed(() => this.state.record()?.hospital ?? 'The hospital');
 
+  // `title`/`k` values below are translation keys, resolved via `| translate` in
+  // review.component.html — not the display strings themselves.
   protected readonly groups = computed(() => {
     const record = this.state.record();
     const f = this.state.form();
     const docs = this.state.docs();
     return [
       {
-        title: 'Healthcare requirement',
+        title: 'book.section.requirement.title',
         rows: [
-          { k: 'Requirement', v: f.need },
-          { k: 'Additional details', v: f.notes || '—' },
+          { k: 'review.row.requirement', v: f.need },
+          { k: 'book.field.notes', v: f.notes || '—' },
         ],
       },
       {
-        title: 'Where and who',
+        title: 'review.section.whereAndWho',
         rows: [
-          { k: 'Hospital', v: record?.hospital ?? '—' },
-          { k: 'Department', v: record?.dept ?? '—' },
-          { k: 'Doctor', v: record?.doctor ?? '—' },
-          { k: 'Documents', v: `${docs.length} attached` },
+          { k: 'review.row.hospital', v: record?.hospital ?? '—' },
+          { k: 'review.row.department', v: record?.dept ?? '—' },
+          { k: 'appointments.doctor', v: record?.doctor ?? '—' },
+          { k: 'review.row.documents', v: `${docs.length}` },
         ],
       },
       {
-        title: 'Patient and preferred slot',
+        title: 'review.section.patientAndSlot',
         rows: [
-          { k: 'Patient', v: `${f.name}, ${f.age}` },
-          { k: 'Country', v: f.country },
-          { k: 'Passport', v: f.passport || '—' },
-          { k: 'Preferred date and time', v: this.state.whenLabel() },
+          { k: 'review.row.patient', v: `${f.name}, ${f.age}` },
+          { k: 'book.field.country', v: f.country },
+          { k: 'book.field.passport', v: f.passport || '—' },
+          { k: 'review.row.preferredSlot', v: this.state.whenLabel() },
         ],
       },
     ];
@@ -61,8 +64,15 @@ export class ReviewComponent implements OnInit {
     this.router.navigate(['/booking', this.kind, this.id]);
   }
 
+  protected readonly submitError = this.state.submitError;
+  protected readonly submitting = signal(false);
+
   submitRequest(): void {
-    const id = this.state.submit();
-    this.router.navigate(['/appointments', id]);
+    this.submitting.set(true);
+    this.state
+      .submit()
+      .then((id) => this.router.navigate(['/appointments', id]))
+      .catch(() => {})
+      .finally(() => this.submitting.set(false));
   }
 }

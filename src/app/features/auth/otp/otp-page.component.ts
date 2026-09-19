@@ -6,6 +6,8 @@ import { OtpChallengeStore } from '../../../core/services/otp-challenge-store.se
 import { ToastService } from '../../../core/services/toast.service';
 import { ApiError } from '../../../core/models/auth.model';
 import { continueUrlAfterAuth } from '../../../core/auth/continue-after-auth';
+import { TranslationService } from '../../../core/services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 const RESEND_COOLDOWN_SECONDS = 30;
 
@@ -23,6 +25,7 @@ const RESEND_COOLDOWN_SECONDS = 30;
 @Component({
   selector: 'app-otp-page',
   standalone: true,
+  imports: [TranslatePipe],
   templateUrl: './otp-page.component.html',
 })
 export class OtpPageComponent implements OnInit, OnDestroy {
@@ -31,6 +34,7 @@ export class OtpPageComponent implements OnInit, OnDestroy {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly translation = inject(TranslationService);
 
   private tick: ReturnType<typeof setInterval> | null = null;
 
@@ -41,10 +45,12 @@ export class OtpPageComponent implements OnInit, OnDestroy {
   protected readonly resendSeconds = signal(RESEND_COOLDOWN_SECONDS);
 
   protected readonly title = computed(() =>
-    this.challenge()?.purpose === 'LOGIN' ? 'Enter your login code' : 'Verify your account',
+    this.translation.translate(this.challenge()?.purpose === 'LOGIN' ? 'otp.titleLogin' : 'otp.titleVerify'),
   );
   protected readonly resendLabel = computed(() =>
-    this.resendSeconds() > 0 ? `Resend code in ${this.resendSeconds()}s` : "Didn't get it? Resend code",
+    this.resendSeconds() > 0
+      ? this.translation.translate('otp.resendIn').replace('{seconds}', String(this.resendSeconds()))
+      : this.translation.translate('otp.resendNow'),
   );
   protected readonly boxes = computed(() => {
     const value = this.otp();
@@ -96,7 +102,7 @@ export class OtpPageComponent implements OnInit, OnDestroy {
     const challenge = this.challenge();
     if (!challenge) return;
     if (!/^\d{6}$/.test(this.otp())) {
-      this.otpError.set('Enter the 6-digit code we sent you.');
+      this.otpError.set(this.translation.translate('otp.errorInvalid'));
       return;
     }
     this.submitting.set(true);
@@ -105,7 +111,7 @@ export class OtpPageComponent implements OnInit, OnDestroy {
         this.submitting.set(false);
         const isSignUp = challenge.purpose === 'REGISTER';
         this.otpChallengeStore.clear();
-        this.toast.show(isSignUp ? 'Account created. Welcome to DocTrip.' : 'Signed in.');
+        this.toast.show(this.translation.translate(isSignUp ? 'otp.toastAccountCreated' : 'otp.toastSignedIn'));
         // FE-WEB-2.10/2.11: continue to the booking destination (with
         // discovery context) if this sign-in was reached via a Book
         // action redirect; otherwise the usual /home.
@@ -113,7 +119,7 @@ export class OtpPageComponent implements OnInit, OnDestroy {
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
-        this.otpError.set(this.errorMessage(err, 'Enter the 6-digit code we sent you.'));
+        this.otpError.set(this.errorMessage(err, this.translation.translate('otp.errorInvalid')));
       },
     });
   }
@@ -124,10 +130,10 @@ export class OtpPageComponent implements OnInit, OnDestroy {
     this.auth.resendOtp({ patientId: challenge.patientId, purpose: challenge.purpose }).subscribe({
       next: () => {
         this.resendSeconds.set(RESEND_COOLDOWN_SECONDS);
-        this.toast.show('A new code is on its way.');
+        this.toast.show(this.translation.translate('otp.toastResent'));
       },
       error: (err: HttpErrorResponse) => {
-        this.otpError.set(this.errorMessage(err, 'Please wait before requesting another code.'));
+        this.otpError.set(this.errorMessage(err, this.translation.translate('otp.errorWait')));
       },
     });
   }

@@ -4,27 +4,27 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { AppointmentsStateService } from '../../../core/services/appointments-state.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { ToastHostComponent } from '../toast-host/toast-host.component';
 
 /**
  * The persistent header from the reference mockup (PatientPanel.dc.html's top `<header>`), which
  * wraps every screen including sign-in/sign-up — not just the authenticated app. "Discover"
- * routes to Story 2's treatment discovery, and "My appointments" / the notification bell route to
- * the appointments management screens; "Account" still has no screen built here, so it keeps the
- * "coming soon" toast.
+ * routes to Story 2's treatment discovery, "My appointments" / the notification bell route to the
+ * appointments management screens, and both the "Account" nav item and clicking the user's own
+ * details (top-right) route to /account.
  */
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, ToastHostComponent, ConfirmDialogComponent],
+  imports: [RouterOutlet, ToastHostComponent, ConfirmDialogComponent, TranslatePipe, LanguageSwitcherComponent],
   templateUrl: './app-shell.component.html',
 })
 export class AppShellComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly toast = inject(ToastService);
   protected readonly appointmentsState = inject(AppointmentsStateService);
 
   protected readonly isAuthenticated = this.auth.isAuthenticated;
@@ -72,7 +72,7 @@ export class AppShellComponent {
     this.router.navigate(['/notifications']);
   }
 
-  comingSoon(): void {
-    this.toast.show("That's coming in a future update.");
+  goAccount(): void {
+    this.router.navigate(['/account']);
   }
 }
