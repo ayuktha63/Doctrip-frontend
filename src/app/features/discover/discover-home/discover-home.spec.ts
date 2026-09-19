@@ -122,8 +122,9 @@ describe('DiscoverHome', () => {
       fixture.componentInstance.onSearchInput('knee');
       fixture.detectChanges();
 
-      // Only one client-side filter, no second server call for treatments.
-      expect(getTreatmentPackages).toHaveBeenCalledTimes(2); // initial load + onSearchInput re-load
+      // Only the initial load — searching re-filters the already-loaded list client-side, no
+      // second server call for treatments (there's no confirmed treatment search endpoint).
+      expect(getTreatmentPackages).toHaveBeenCalledTimes(1);
       expect(fixture.componentInstance.visibleCards().length).toBe(1);
       expect(fixture.componentInstance.visibleCards()[0].name).toBe('Knee Replacement Package');
     });
@@ -161,6 +162,22 @@ describe('DiscoverHome', () => {
       fixture.detectChanges();
 
       expect(fixture.componentInstance.isEmpty()).toBe(true);
+    });
+
+    it('typing while on the Departments tab does not trigger a background fetch for the last-active kind', () => {
+      const getHospitals = vi.fn(() => of([]));
+      const searchHospitals = vi.fn(() => of([]));
+      const { fixture } = setup({ hospitals: { getHospitals, searchHospitals } }, 'Hospitals');
+      fixture.detectChanges();
+      expect(getHospitals).toHaveBeenCalledTimes(1);
+
+      fixture.componentInstance.selectTab('Departments');
+      fixture.componentInstance.onSearchInput('apollo');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.query()).toBe('apollo');
+      expect(getHospitals).toHaveBeenCalledTimes(1);
+      expect(searchHospitals).not.toHaveBeenCalled();
     });
   });
 

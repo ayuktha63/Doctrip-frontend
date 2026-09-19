@@ -2,9 +2,22 @@
   <header
     style="flex: none; height: 66px; background: #fff; border-bottom: 1px solid #E9EEF6; display: flex; align-items: center; padding: 0 40px; gap: 34px"
   >
-    <div (click)="goHome()" style="font-size: 20px; font-weight: 700; letter-spacing: -.2px; cursor: pointer">
-      Doc<span style="color: #1A6DF0">trip</span>
-    </div>
+    <button
+      type="button"
+      (click)="goHome()"
+      aria-label="DocTrip home"
+      style="display: flex; align-items: center; gap: 9px; border: 0; background: transparent; padding: 4px; cursor: pointer; border-radius: 8px; font-family: inherit"
+    >
+      <span
+        aria-hidden="true"
+        style="width: 30px; height: 30px; flex: none; border-radius: 9px; background: linear-gradient(150deg, #0F62D6 0%, #0A2540 100%); box-shadow: 0 2px 6px -1px rgba(10, 37, 64, .3); display: flex; align-items: center; justify-content: center"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M9.6 3.4h4.8a1.2 1.2 0 0 1 1.2 1.2v3.8h3.8a1.2 1.2 0 0 1 1.2 1.2v4.8a1.2 1.2 0 0 1-1.2 1.2h-3.8v3.8a1.2 1.2 0 0 1-1.2 1.2H9.6a1.2 1.2 0 0 1-1.2-1.2v-3.8H4.6a1.2 1.2 0 0 1-1.2-1.2V9.6a1.2 1.2 0 0 1 1.2-1.2h3.8V4.6a1.2 1.2 0 0 1 1.2-1.2z" fill="#fff" />
+        </svg>
+      </span>
+      <span style="font-size: 17px; font-weight: 800; letter-spacing: -.4px; color: #0A1626; line-height: 1.1">Doc<span style="color: #0F62D6">trip</span></span>
+    </button>
     <nav style="display: flex; gap: 4px">
       <button
         type="button"

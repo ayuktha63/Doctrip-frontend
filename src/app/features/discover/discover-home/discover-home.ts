@@ -4,10 +4,12 @@ import { Observable } from 'rxjs';
 import { TreatmentsService } from '../../treatments/treatments.service';
 import { HospitalsService } from '../../hospitals/hospitals.service';
 import { DoctorsService } from '../../doctors/doctors.service';
+import { DiscoverDepartments } from '../discover-departments/discover-departments';
 import {
   DiscoverKind,
   DiscoverRecord,
-  DISCOVER_KINDS,
+  DiscoverTab,
+  DISCOVER_TABS,
   KIND_CONFIG,
   initialsFromName,
   subFor,
@@ -34,7 +36,7 @@ type LoadState = 'loading' | 'loaded' | 'error';
  */
 @Component({
   selector: 'app-discover-home',
-  imports: [],
+  imports: [DiscoverDepartments],
   templateUrl: './discover-home.html',
   styleUrl: './discover-home.scss',
 })
@@ -45,15 +47,22 @@ export class DiscoverHome {
   private readonly hospitalsService = inject(HospitalsService);
   private readonly doctorsService = inject(DoctorsService);
 
-  readonly kinds = DISCOVER_KINDS;
+  readonly tabs = DISCOVER_TABS;
 
   private readonly state = signal<LoadState>('loading');
   private readonly records = signal<DiscoverRecord[]>([]);
   private readonly errorMessage = signal<string | null>(null);
-  private readonly tab = signal<DiscoverKind>(this.initialTab());
+  // The active tab button, one wider than the card-grid kind below — 'Departments' has its own
+  // browse-then-drill-in component (DiscoverDepartments) instead of the shared card grid.
+  private readonly tab = signal<DiscoverTab>(this.initialTab());
+  // The last/current bookable kind shown in the card grid — kept separate from `tab` so switching
+  // to Departments and back doesn't lose or need to reload the grid's own state.
+  private readonly kindTab = signal<DiscoverKind>(this.initialKind());
   private readonly searchQuery = signal('');
 
   readonly activeTab = this.tab.asReadonly();
+  readonly activeKind = this.kindTab.asReadonly();
+  readonly isDepartmentsTab = computed(() => this.tab() === 'Departments');
   readonly query = this.searchQuery.asReadonly();
   readonly isLoading = computed(() => this.state() === 'loading');
   readonly hasError = computed(() => this.state() === 'error');
@@ -62,7 +71,7 @@ export class DiscoverHome {
   readonly visibleCards = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
     const items = this.records();
-    if (!q || this.activeTab() !== 'Treatments') {
+    if (!q || this.activeKind() !== 'Treatments') {
       // Hospitals/Doctors already come back search-filtered from the
       // backend when a query is active (see load()); Treatments with no
       // query shows everything as loaded.
@@ -75,43 +84,65 @@ export class DiscoverHome {
 
   readonly isEmpty = computed(() => this.state() === 'loaded' && this.visibleCards().length === 0);
 
-  readonly emptyHint = computed(() => KIND_CONFIG[this.activeTab()].emptyHint);
-  readonly badgeTint = computed(() => KIND_CONFIG[this.activeTab()].tint);
-  readonly badgeAccent = computed(() => KIND_CONFIG[this.activeTab()].accent);
+  readonly emptyHint = computed(() => KIND_CONFIG[this.activeKind()].emptyHint);
+  readonly badgeTint = computed(() => KIND_CONFIG[this.activeKind()].tint);
+  readonly badgeAccent = computed(() => KIND_CONFIG[this.activeKind()].accent);
 
   // Purely structural — a fixed count of skeleton placeholder rows shown
   // while loading (visual only, not discovery data).
   readonly skeletonRows = [0, 1, 2, 3, 4, 5];
 
   constructor() {
-    this.load();
+    if (!this.isDepartmentsTab()) {
+      this.load();
+    }
   }
 
-  private initialTab(): DiscoverKind {
+  private initialTab(): DiscoverTab {
     const fromQuery = this.route.snapshot.queryParamMap.get('tab');
-    return (DISCOVER_KINDS as readonly string[]).includes(fromQuery ?? '')
-      ? (fromQuery as DiscoverKind)
+    return (DISCOVER_TABS as readonly string[]).includes(fromQuery ?? '')
+      ? (fromQuery as DiscoverTab)
       : 'Treatments';
   }
 
-  selectTab(kind: DiscoverKind): void {
-    if (kind === this.tab()) {
+  private initialKind(): DiscoverKind {
+    const initial = this.initialTab();
+    return initial === 'Departments' ? 'Treatments' : initial;
+  }
+
+  selectTab(tab: DiscoverTab): void {
+    if (tab === this.tab()) {
       return;
     }
-    this.tab.set(kind);
-    this.load();
+    this.tab.set(tab);
+    if (tab !== 'Departments') {
+      this.kindTab.set(tab);
+      this.load();
+    }
   }
 
   onSearchInput(value: string): void {
     this.searchQuery.set(value);
-    this.load();
+    // Departments has no search filtering of its own (matching the mockup — its tile grid isn't
+    // query-filtered either) — re-fetching the last-active kind's list in the background here
+    // would be wasted work and could leave stale results/errors for when the user switches back.
+    if (this.isDepartmentsTab()) {
+      return;
+    }
+    // Treatments has no confirmed backend search endpoint — visibleCards() already filters the
+    // already-loaded list client-side, so re-fetching the full list on every keystroke would only
+    // flash the loading skeleton for no reason. Hospitals/Doctors genuinely need a fresh request,
+    // since the backend does the filtering for those two.
+    if (this.activeKind() !== 'Treatments') {
+      this.load();
+    }
   }
 
   load(): void {
     this.state.set('loading');
     this.errorMessage.set(null);
 
-    this.requestFor(this.activeTab()).subscribe({
+    this.requestFor(this.activeKind()).subscribe({
       next: (records) => {
         this.records.set(records);
         this.state.set('loaded');
@@ -142,15 +173,15 @@ export class DiscoverHome {
   }
 
   subFor(record: DiscoverRecord): string | undefined {
-    return subFor(this.activeTab(), record);
+    return subFor(this.activeKind(), record);
   }
 
   metaFor(record: DiscoverRecord): string | undefined {
-    return metaFor(this.activeTab(), record);
+    return metaFor(this.activeKind(), record);
   }
 
   open(record: DiscoverRecord): void {
-    const segment = KIND_CONFIG[this.activeTab()].urlSegment;
+    const segment = KIND_CONFIG[this.activeKind()].urlSegment;
     this.router.navigate(['/discover', segment, String(record.id)]);
   }
 }

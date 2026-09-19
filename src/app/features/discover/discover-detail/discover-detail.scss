@@ -67,20 +67,58 @@
     align-items: start;
   }
 
-  &__title {
-    margin: 0;
-    font-family: 'Newsreader', Georgia, serif;
-    font-size: 34px;
-    line-height: 41px;
-    font-weight: 500;
-    letter-spacing: -0.5px;
-    color: #0b1526;
+  &__banner-card {
+    padding: 0;
+    overflow: hidden;
+    margin-top: 0;
   }
 
-  &__subtitle {
-    margin: 5px 0 0;
-    font-size: 14px;
-    color: #6b7280;
+  &__banner {
+    position: relative;
+    height: 220px;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+  }
+
+  &__banner-txt {
+    position: relative;
+    z-index: 2;
+    padding: 22px 26px;
+    color: #fff;
+  }
+
+  &__banner-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__banner-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  &__banner-title {
+    margin: 9px 0 0;
+    font-size: 27px;
+    line-height: 33px;
+    font-weight: 780;
+    letter-spacing: -0.7px;
+    color: #fff;
+  }
+
+  &__banner-sub {
+    margin: 3px 0 0;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.84);
   }
 
   &__card {
@@ -147,9 +185,55 @@
     display: flex;
     align-items: center;
     gap: 13px;
+    width: 100%;
     padding: 13px 14px;
+    border: 1px solid transparent;
     border-radius: 12px;
     background: #f9fbfd;
+    font: inherit;
+    text-align: left;
+    cursor: default;
+  }
+
+  &__team-member--clickable {
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    &:hover {
+      background: #f1f6fd;
+    }
+  }
+
+  &__team-member--selected {
+    border-color: #1a6df0;
+    background: #eaf1fe;
+  }
+
+  &__team-check {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    color: #1a6df0;
+  }
+
+  &__back-inline {
+    display: inline-flex;
+    align-items: center;
+    border: 0;
+    background: none;
+    padding: 0;
+    margin: 2px 0 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #1a6df0;
+    cursor: pointer;
+  }
+
+  &__book-hint {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #b45309;
+    text-align: center;
   }
 
   &__team-initials {
