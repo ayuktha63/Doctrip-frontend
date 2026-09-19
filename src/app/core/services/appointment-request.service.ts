@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   AppointmentRequestDetail,
@@ -17,6 +17,12 @@ export class AppointmentRequestService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiBaseUrl}/api/admin/appointment-requests`;
   private readonly doctorAckBase = `${environment.apiBaseUrl}/api/doctor/acknowledgements`;
+
+  /** Cached so the sidebar "Doctor approvals" badge can show a count without every screen making
+   *  its own call — refreshed whenever listPendingAcknowledgements() runs (the shell calls it
+   *  once on load; the approvals screen itself refreshes it after every response). */
+  private readonly _pendingAcknowledgementsCount = signal(0);
+  readonly pendingAcknowledgementsCount = this._pendingAcknowledgementsCount.asReadonly();
 
   listForHospital(hospitalId: string): Observable<AppointmentRequestSummary[]> {
     return this.http.get<AppointmentRequestSummary[]>(this.base, { params: { hospitalId } });
@@ -45,9 +51,9 @@ export class AppointmentRequestService {
   /** "Doctor approvals" sidebar screen — every acknowledgement still awaiting a response, across
    *  every in-progress request for this hospital. */
   listPendingAcknowledgements(hospitalId: string): Observable<PendingAcknowledgement[]> {
-    return this.http.get<PendingAcknowledgement[]>(`${this.base}/pending-acknowledgements`, {
-      params: { hospitalId },
-    });
+    return this.http
+      .get<PendingAcknowledgement[]>(`${this.base}/pending-acknowledgements`, { params: { hospitalId } })
+      .pipe(tap((list) => this._pendingAcknowledgementsCount.set(list.length)));
   }
 
   /**

@@ -43,14 +43,16 @@ function whenLabel(date: string, time: string): string {
 }
 
 function summaryToAppointment(r: AppointmentRequestSummary): Appointment {
+  const when =
+    r.securedDate && r.securedTime ? whenLabel(r.securedDate, r.securedTime) : whenLabel(r.requestedDate, r.requestedTime);
   return {
     id: r.id,
     code: r.requestCode,
     treatment: r.department,
     hospital: r.hospitalName ?? 'To be confirmed',
     dept: r.department,
-    doctor: r.requestedDoctorName || 'Not assigned',
-    when: whenLabel(r.requestedDate, r.requestedTime),
+    doctor: r.securedDoctorName || r.requestedDoctorName || 'Not assigned',
+    when,
     submitted: '',
     status: BACKEND_STATUS_MAP[r.status],
     log: [],

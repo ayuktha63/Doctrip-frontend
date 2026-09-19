@@ -5,6 +5,7 @@ import { ToastHostComponent } from '../toast-host/toast-host.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { HospitalAdminAuthService } from '../../../core/services/hospital-admin-auth.service';
 import { HospitalAdminDashboardService } from '../../../core/services/hospital-admin-dashboard.service';
+import { AppointmentRequestService } from '../../../core/services/appointment-request.service';
 
 /**
  * Hospital Admin console shell — ports the mockup's `.dt-side` sidebar (HospitalAdmin.dc.html,
@@ -30,6 +31,7 @@ export class HospitalAdminShellComponent {
   private readonly router = inject(Router);
   protected readonly auth = inject(HospitalAdminAuthService);
   protected readonly dashboard = inject(HospitalAdminDashboardService);
+  protected readonly appointmentRequestService = inject(AppointmentRequestService);
 
   private readonly url = signal(this.router.url);
 
@@ -38,6 +40,12 @@ export class HospitalAdminShellComponent {
     // every screen, not just after visiting Dashboard (which is the only other place this gets
     // called).
     this.dashboard.getSummary().subscribe({ error: () => {} });
+
+    // Same reasoning, for the sidebar "Doctor approvals" badge.
+    const hospitalId = this.auth.hospitalId();
+    if (hospitalId) {
+      this.appointmentRequestService.listPendingAcknowledgements(hospitalId).subscribe({ error: () => {} });
+    }
 
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e) => {
       this.url.set((e as NavigationEnd).urlAfterRedirects);

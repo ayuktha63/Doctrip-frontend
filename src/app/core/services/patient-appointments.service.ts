@@ -24,6 +24,12 @@ export interface AppointmentRequestSummary {
   status: AppointmentRequestStatus;
   adminSlaDeadline: string;
   adminSlaBreached: boolean;
+  /** Only populated once a doctor/slot is actually secured (accepted directly, or a
+   *  doctor-proposed alternative resolved by Hospital Admin) — may differ from
+   *  requestedDate/requestedTime once it is. */
+  securedDoctorName: string | null;
+  securedDate: string | null;
+  securedTime: string | null;
 }
 
 export interface DoctorAcknowledgementSummary {
