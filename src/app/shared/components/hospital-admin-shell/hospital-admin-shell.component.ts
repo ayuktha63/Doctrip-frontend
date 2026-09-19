@@ -46,6 +46,7 @@ export class HospitalAdminShellComponent {
   protected readonly onDoctors = computed(() => this.isOn('/hospital-admin/doctors'));
   protected readonly onAvailability = computed(() => this.isOn('/hospital-admin/availability'));
   protected readonly onRequests = computed(() => this.isOn('/hospital-admin/requests'));
+  protected readonly onDoctorApprovals = computed(() => this.isOn('/hospital-admin/doctor-approvals'));
 
   protected readonly crumb = computed(() => {
     if (this.onHospital()) return 'Hospital';
@@ -54,6 +55,7 @@ export class HospitalAdminShellComponent {
     if (this.onDoctors()) return 'Doctors';
     if (this.onAvailability()) return 'Availability';
     if (this.onRequests()) return 'Requests';
+    if (this.onDoctorApprovals()) return 'Doctor approvals';
     return 'Dashboard';
   });
 
@@ -85,6 +87,9 @@ export class HospitalAdminShellComponent {
   }
   goRequests(): void {
     this.router.navigate(['/hospital-admin/requests']);
+  }
+  goDoctorApprovals(): void {
+    this.router.navigate(['/hospital-admin/doctor-approvals']);
   }
 
   logout(): void {

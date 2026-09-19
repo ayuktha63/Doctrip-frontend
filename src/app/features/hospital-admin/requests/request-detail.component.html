@@ -128,25 +128,6 @@
                       <div style="font-size: 12.5px; font-weight: 600" [style.color]="c.statusColor">{{ c.statusLabel }}</div>
                     </div>
                   </div>
-                  @if (c.pending && canRespondAsDoctor()) {
-                    <div style="padding: 12px 14px; margin-top: -4px; border-radius: 0 0 12px 12px; border: 1.5px solid #E9EEF6; border-top: 0; background: #FBFCFE">
-                      <div style="font-size: 11px; color: #9AA4B2; margin-bottom: 8px">No Doctor login yet — record their response here to keep testing the flow.</div>
-                      @if (proposingAckId() === c.key) {
-                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
-                          <input type="date" [value]="proposedDate()" (input)="proposedDate.set($any($event.target).value)" style="height: 34px; padding: 0 10px; border: 1px solid #DDE4EE; border-radius: 8px; font-size: 12.5px" />
-                          <input type="time" [value]="proposedTime()" (input)="proposedTime.set($any($event.target).value)" style="height: 34px; padding: 0 10px; border: 1px solid #DDE4EE; border-radius: 8px; font-size: 12.5px" />
-                          <button type="button" [disabled]="respondingAckId() === c.key" (click)="submitPropose(c.key)" style="height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: #0F62D6; color: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Send proposal</button>
-                          <button type="button" (click)="cancelPropose()" style="height: 34px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 8px; background: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Cancel</button>
-                        </div>
-                      } @else {
-                        <div style="display: flex; gap: 8px">
-                          <button type="button" [disabled]="respondingAckId() === c.key" (click)="respondAsDoctor(c.key, 'ACCEPT')" style="height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: #0E7C4A; color: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Accept</button>
-                          <button type="button" [disabled]="respondingAckId() === c.key" (click)="respondAsDoctor(c.key, 'REJECT')" style="height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: #B42318; color: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Reject</button>
-                          <button type="button" [disabled]="respondingAckId() === c.key" (click)="openPropose(c.key)" style="height: 34px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 8px; background: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Propose alternative</button>
-                        </div>
-                      }
-                    </div>
-                  }
                 }
               </div>
             } @else {

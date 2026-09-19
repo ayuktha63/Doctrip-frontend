@@ -89,3 +89,20 @@ export interface CoordinationLogEntry {
   time: string;
   body: string;
 }
+
+/** Row shape for GET /api/admin/appointment-requests/pending-acknowledgements — flattened across
+ *  every in-progress request for the hospital, backing the "Doctor approvals" sidebar screen. */
+export interface PendingAcknowledgement {
+  ackId: string;
+  appointmentRequestId: string;
+  requestCode: string;
+  patientName: string;
+  department: string;
+  doctorName: string;
+  doctorSpecialty: string | null;
+  status: DoctorAcknowledgementStatus;
+  sentAt: string;
+  responseDeadline: string;
+  proposedDate: string | null;
+  proposedTime: string | null;
+}

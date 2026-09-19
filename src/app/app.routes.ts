@@ -198,6 +198,13 @@ export const routes: Routes = [
             (m) => m.RequestDetailComponent,
           ),
       },
+      {
+        path: 'doctor-approvals',
+        loadComponent: () =>
+          import('./features/hospital-admin/doctor-approvals/hospital-admin-doctor-approvals.component').then(
+            (m) => m.HospitalAdminDoctorApprovalsComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: 'home' },

@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppointmentRequestService, DoctorAcknowledgementAction } from '../../../core/services/appointment-request.service';
+import { AppointmentRequestService } from '../../../core/services/appointment-request.service';
 import { ToastService } from '../../../core/services/toast.service';
 import {
   AppointmentRequestDetail,
@@ -38,14 +38,6 @@ export class RequestDetailComponent implements OnInit {
   protected readonly starting = signal(false);
   protected readonly resolving = signal(false);
   protected readonly log = signal<CoordinationLogEntry[]>([]);
-
-  /** No Doctor login exists yet — these back the "Simulate doctor response" controls on each
-   *  pending acknowledgement, standing in for the real Doctor UI (see AppointmentRequestService
-   *  .respondAsDoctor's doc comment). */
-  protected readonly respondingAckId = signal<string | null>(null);
-  protected readonly proposingAckId = signal<string | null>(null);
-  protected readonly proposedDate = signal('');
-  protected readonly proposedTime = signal('');
 
   private id!: string;
 
@@ -152,47 +144,6 @@ export class RequestDetailComponent implements OnInit {
     });
   }
 
-  respondAsDoctor(ackId: string, action: DoctorAcknowledgementAction, proposedDate?: string, proposedTime?: string): void {
-    this.respondingAckId.set(ackId);
-    this.appointmentRequestService.respondAsDoctor(ackId, action, proposedDate, proposedTime).subscribe({
-      next: (detail) => {
-        this.request.set(detail);
-        this.respondingAckId.set(null);
-        this.proposingAckId.set(null);
-        this.toast.show(
-          action === 'ACCEPT'
-            ? 'Doctor accepted — securing the appointment.'
-            : action === 'REJECT'
-              ? 'Doctor rejected the request.'
-              : 'Alternative slot proposed.',
-        );
-        this.loadLog();
-      },
-      error: (err) => {
-        this.respondingAckId.set(null);
-        this.toast.show(err?.error?.message ?? 'Could not record the doctor response. Please try again.');
-      },
-    });
-  }
-
-  openPropose(ackId: string): void {
-    this.proposingAckId.set(ackId);
-    this.proposedDate.set('');
-    this.proposedTime.set('');
-  }
-
-  cancelPropose(): void {
-    this.proposingAckId.set(null);
-  }
-
-  submitPropose(ackId: string): void {
-    if (!this.proposedDate() || !this.proposedTime()) {
-      this.toast.show('Pick a date and time to propose.');
-      return;
-    }
-    this.respondAsDoctor(ackId, 'PROPOSE_ALTERNATIVE', this.proposedDate(), this.proposedTime());
-  }
-
   goBack(): void {
     this.router.navigate(['/hospital-admin/requests']);
   }
@@ -232,7 +183,6 @@ export class RequestDetailComponent implements OnInit {
         isRequested: !!r.requestedDoctorName && d.name.toLowerCase() === r.requestedDoctorName.toLowerCase(),
         statusLabel: 'Available',
         statusColor: '#16A34A',
-        pending: false,
       }));
     }
     return r.coordination.map((c) => ({
@@ -242,12 +192,8 @@ export class RequestDetailComponent implements OnInit {
       isRequested: !!r.requestedDoctorName && c.doctorName.toLowerCase() === r.requestedDoctorName.toLowerCase(),
       statusLabel: this.ackStatusLabel(c.status),
       statusColor: this.ackStatusColor(c.status),
-      pending: c.status === 'PENDING',
     }));
   });
-
-  /** Only PENDING acks in an in-progress (DOCTOR_COORDINATION) request can still be responded to. */
-  protected readonly canRespondAsDoctor = computed(() => this.request()?.status === 'DOCTOR_COORDINATION');
 
   initials(name: string): string {
     const parts = name.replace(/^Dr\.?\s*/i, '').trim().split(/\s+/);

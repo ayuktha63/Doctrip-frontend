@@ -1,0 +1,51 @@
+<div>
+  <div style="font-family: Newsreader, Georgia, serif; font-size: 29px; line-height: 35px; font-weight: 500; letter-spacing: -.4px">Doctor approvals</div>
+  <div style="font-size: 13.5px; color: #6B7280; margin-top: 4px">No Doctor login exists yet, so record each doctor's response here to keep coordination moving.</div>
+
+  @if (loading()) {
+    <div style="margin-top: 24px; font-size: 13.5px; color: #9AA4B2">Loading…</div>
+  } @else if (loadError()) {
+    <div style="margin-top: 24px; padding: 16px; border-radius: 12px; background: #FCECEC; font-size: 13px; color: #DC2626">Could not load pending approvals.</div>
+  } @else if (acknowledgements().length === 0) {
+    <div style="margin-top: 24px; padding: 16px; border-radius: 12px; background: #F7F9FC; font-size: 13.5px; color: #6B7280">Nothing waiting on a doctor right now.</div>
+  } @else {
+    <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 20px">
+      @for (ack of acknowledgements(); track ack.ackId) {
+        <div style="background: #fff; border: 1px solid #E9EEF6; border-radius: 14px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 10px 24px -18px rgba(16,42,84,.2); padding: 18px 20px">
+          <div style="display: flex; align-items: center; gap: 14px">
+            <div style="width: 38px; height: 38px; flex: none; border-radius: 19px; background: #EAF1FE; color: #1A6DF0; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700">{{ initials(ack.doctorName) }}</div>
+            <div style="flex: 1; min-width: 0">
+              <div style="font-size: 14px; font-weight: 600">{{ ack.doctorName }}</div>
+              <div style="font-size: 12px; color: #6B7280; margin-top: 2px">{{ ack.doctorSpecialty || 'Specialty n/a' }} · {{ ack.department }}</div>
+            </div>
+            <button type="button" (click)="openRequest(ack)" style="height: 32px; padding: 0 12px; border: 1px solid #DDE4EE; border-radius: 8px; background: #fff; font-size: 12px; font-weight: 650; cursor: pointer; white-space: nowrap">{{ ack.patientName }} · {{ ack.requestCode }}</button>
+          </div>
+
+          <div style="margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #F7F9FC; font-size: 12.5px; color: #1F2A37">
+            {{ statusLabel(ack.status) }}
+            @if (ack.status === 'ALTERNATIVE_PROPOSED' && ack.proposedDate) {
+              — proposed {{ ack.proposedDate }} at {{ ack.proposedTime }}
+            }
+          </div>
+
+          <div style="margin-top: 14px">
+            @if (proposingAckId() === ack.ackId) {
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+                <input type="date" [value]="proposedDate()" (input)="proposedDate.set($any($event.target).value)" style="height: 36px; padding: 0 10px; border: 1px solid #DDE4EE; border-radius: 8px; font-size: 12.5px" />
+                <input type="time" [value]="proposedTime()" (input)="proposedTime.set($any($event.target).value)" style="height: 36px; padding: 0 10px; border: 1px solid #DDE4EE; border-radius: 8px; font-size: 12.5px" />
+                <button type="button" [disabled]="respondingAckId() === ack.ackId" (click)="submitPropose(ack.ackId)" style="height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: #0F62D6; color: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Send proposal</button>
+                <button type="button" (click)="cancelPropose()" style="height: 36px; padding: 0 14px; border: 1px solid #DDE4EE; border-radius: 8px; background: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Cancel</button>
+              </div>
+            } @else {
+              <div style="display: flex; gap: 8px">
+                <button type="button" [disabled]="respondingAckId() === ack.ackId" (click)="respondAsDoctor(ack.ackId, 'ACCEPT')" style="height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: #0E7C4A; color: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Accept</button>
+                <button type="button" [disabled]="respondingAckId() === ack.ackId" (click)="respondAsDoctor(ack.ackId, 'REJECT')" style="height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: #B42318; color: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Reject</button>
+                <button type="button" [disabled]="respondingAckId() === ack.ackId" (click)="openPropose(ack.ackId)" style="height: 36px; padding: 0 14px; border: 1px solid #DDE4EE; border-radius: 8px; background: #fff; font-size: 12.5px; font-weight: 650; cursor: pointer">Propose alternative</button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

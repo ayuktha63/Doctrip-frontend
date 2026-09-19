@@ -7,6 +7,7 @@ import {
   AppointmentRequestSummary,
   CoordinationLogEntry,
   DoctorAvailability,
+  PendingAcknowledgement,
 } from '../models/appointment-request.model';
 
 export type DoctorAcknowledgementAction = 'ACCEPT' | 'REJECT' | 'PROPOSE_ALTERNATIVE';
@@ -39,6 +40,14 @@ export class AppointmentRequestService {
 
   log(id: string): Observable<CoordinationLogEntry[]> {
     return this.http.get<CoordinationLogEntry[]>(`${this.base}/${id}/log`);
+  }
+
+  /** "Doctor approvals" sidebar screen — every acknowledgement still awaiting a response, across
+   *  every in-progress request for this hospital. */
+  listPendingAcknowledgements(hospitalId: string): Observable<PendingAcknowledgement[]> {
+    return this.http.get<PendingAcknowledgement[]>(`${this.base}/pending-acknowledgements`, {
+      params: { hospitalId },
+    });
   }
 
   /**
