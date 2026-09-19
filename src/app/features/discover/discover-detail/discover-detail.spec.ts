@@ -104,7 +104,7 @@ describe('DiscoverDetail', () => {
   });
 
   describe('Book appointment (FE-WEB-2.9/2.11/2.12) — now applies to all three kinds', () => {
-    it('re-verifies and delegates to BookingHandoffService with treatmentPackageId context', () => {
+    it('does not proceed until a consultant is selected (new selection-gating alteration)', () => {
       const proceed = vi.fn();
       const fixture = setup({
         type: 'treatments',
@@ -113,12 +113,31 @@ describe('DiscoverDetail', () => {
       });
       fixture.detectChanges();
 
+      expect(fixture.componentInstance.canBook()).toBe(false);
       fixture.componentInstance.proceedToBooking();
 
-      expect(proceed).toHaveBeenCalledWith(['/booking', 'treatment', '1'], { treatmentPackageId: '1' });
+      expect(proceed).not.toHaveBeenCalled();
     });
 
-    it('delegates to BookingHandoffService with hospitalId context', () => {
+    it('re-verifies and delegates to BookingHandoffService with treatmentPackageId + doctorId context once a consultant is selected', () => {
+      const proceed = vi.fn();
+      const fixture = setup({
+        type: 'treatments',
+        treatments: { getTreatmentPackageById: () => of({ id: 1, name: 'Knee Replacement Package' }) },
+        bookingHandoff: { proceed },
+      });
+      fixture.detectChanges();
+
+      fixture.componentInstance.selectDoctor(2);
+      fixture.componentInstance.proceedToBooking();
+
+      expect(proceed).toHaveBeenCalledWith(['/booking', 'treatment', '1'], {
+        treatmentPackageId: '1',
+        doctorId: '2',
+      });
+    });
+
+    it('delegates to BookingHandoffService with hospitalId + doctorId context once a consultant is selected', () => {
       const proceed = vi.fn();
       const fixture = setup({
         type: 'hospitals',
@@ -127,9 +146,10 @@ describe('DiscoverDetail', () => {
       });
       fixture.detectChanges();
 
+      fixture.componentInstance.selectDoctor(2);
       fixture.componentInstance.proceedToBooking();
 
-      expect(proceed).toHaveBeenCalledWith(['/booking', 'hospital', '1'], { hospitalId: '1' });
+      expect(proceed).toHaveBeenCalledWith(['/booking', 'hospital', '1'], { hospitalId: '1', doctorId: '2' });
     });
 
     it('delegates to BookingHandoffService with doctorId context', () => {
@@ -157,6 +177,7 @@ describe('DiscoverDetail', () => {
       const fixture = setup({ treatments: { getTreatmentPackageById }, bookingHandoff: { proceed } });
       fixture.detectChanges();
 
+      fixture.componentInstance.selectDoctor(2);
       fixture.componentInstance.proceedToBooking();
 
       expect(proceed).not.toHaveBeenCalled();
@@ -182,10 +203,11 @@ describe('DiscoverDetail', () => {
       const fixture = TestBed.createComponent(DiscoverDetail);
       fixture.detectChanges();
 
+      fixture.componentInstance.selectDoctor(2);
       fixture.componentInstance.proceedToBooking();
 
       expect(navigate).toHaveBeenCalledWith(['/auth'], {
-        queryParams: { returnUrl: '/booking/hospital/1', hospitalId: '1' },
+        queryParams: { returnUrl: '/booking/hospital/1', hospitalId: '1', doctorId: '2' },
       });
     });
   });
@@ -223,6 +245,81 @@ describe('DiscoverDetail', () => {
       expect(fixture.componentInstance.facts()).toEqual([]);
       expect(fixture.componentInstance.team()).toEqual([]);
       expect(fixture.componentInstance.meta()).toBeUndefined();
+    });
+
+    it('alteration: a Doctor detail page never shows a team/colleagues list, even if the backend returns one', () => {
+      const fixture = setup({
+        type: 'doctors',
+        doctors: {
+          getDoctorById: () =>
+            of({
+              id: 1,
+              name: 'Dr. Asha Menon',
+              team: [{ id: 2, name: 'Dr. Someone Else', department: 'Cardiology' }],
+            }),
+        },
+      });
+      fixture.detectChanges();
+      expect(fixture.componentInstance.team()).toEqual([]);
+      expect(fixture.componentInstance.needsDoctorSelection()).toBe(false);
+      expect(fixture.componentInstance.canBook()).toBe(true);
+    });
+  });
+
+  describe('Hospital detail — department-then-doctor selection (alteration)', () => {
+    function hospitalWithTeam() {
+      return setup({
+        type: 'hospitals',
+        hospitals: {
+          getHospitalById: () =>
+            of({
+              id: 1,
+              name: 'City Care Hospital',
+              team: [
+                { id: 10, name: 'Dr. A', department: 'Cardiology' },
+                { id: 11, name: 'Dr. B', department: 'Cardiology' },
+                { id: 12, name: 'Dr. C', department: 'Orthopaedics' },
+              ],
+            }),
+        },
+      });
+    }
+
+    it('groups the team by department and shows departments before any doctor list', () => {
+      const fixture = hospitalWithTeam();
+      fixture.detectChanges();
+      const groups = fixture.componentInstance.departmentGroups();
+      expect(groups.map((g) => g.department).sort()).toEqual(['Cardiology', 'Orthopaedics']);
+      expect(fixture.componentInstance.activeDepartment()).toBeNull();
+      expect(fixture.componentInstance.doctorsForSelectedDepartment()).toEqual([]);
+    });
+
+    it('selecting a department reveals only that department\'s doctors; selecting a doctor enables booking', () => {
+      const fixture = hospitalWithTeam();
+      fixture.detectChanges();
+      const component = fixture.componentInstance;
+
+      expect(component.canBook()).toBe(false);
+      component.selectDepartment('Cardiology');
+      expect(component.doctorsForSelectedDepartment().map((d) => d.id)).toEqual([10, 11]);
+      expect(component.canBook()).toBe(false);
+
+      component.selectDoctor(10);
+      expect(component.canBook()).toBe(true);
+    });
+
+    it('switching department clears the previously selected doctor and re-disables booking', () => {
+      const fixture = hospitalWithTeam();
+      fixture.detectChanges();
+      const component = fixture.componentInstance;
+
+      component.selectDepartment('Cardiology');
+      component.selectDoctor(10);
+      expect(component.canBook()).toBe(true);
+
+      component.selectDepartment('Orthopaedics');
+      expect(component.selectedDoctor()).toBeNull();
+      expect(component.canBook()).toBe(false);
     });
   });
 

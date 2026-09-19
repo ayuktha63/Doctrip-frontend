@@ -19,10 +19,22 @@
 
     <div class="discover-detail__layout">
       <div class="discover-detail__main">
-        <h1 class="discover-detail__title">{{ record.name }}</h1>
-        @if (subtitle(); as sub) {
-          <p class="discover-detail__subtitle">{{ sub }}</p>
-        }
+        <div class="discover-detail__card discover-detail__banner-card">
+          <div class="discover-detail__banner" [style.background]="'linear-gradient(140deg, ' + bannerAccent() + ' 0%, #0A2540 100%)'">
+            <div class="discover-detail__banner-txt">
+              <div class="discover-detail__banner-badges">
+                <span class="discover-detail__banner-badge">{{ kindSingular() }}</span>
+                @if (categoryBadge(); as category) {
+                  <span class="discover-detail__banner-badge">{{ category }}</span>
+                }
+              </div>
+              <h1 class="discover-detail__banner-title">{{ record.name }}</h1>
+              @if (subtitle(); as sub) {
+                <p class="discover-detail__banner-sub">{{ sub }}</p>
+              }
+            </div>
+          </div>
+        </div>
 
         <div class="discover-detail__card">
           <h2 class="discover-detail__card-title">About</h2>
@@ -49,24 +61,62 @@
         @if (team().length > 0) {
           <div class="discover-detail__card">
             <h2 class="discover-detail__card-title">Departments and consultants</h2>
-            <div class="discover-detail__team">
-              @for (member of team(); track member.id) {
-                <div class="discover-detail__team-member">
-                  <span class="discover-detail__team-initials">{{ teamInitials(member.name) }}</span>
-                  <span class="discover-detail__team-info">
-                    <span class="discover-detail__team-name">{{ member.name }}</span>
-                    @if (member.specialty || member.experienceYears != null) {
+
+            @if (hasDepartmentStep() && !activeDepartment()) {
+              <div class="discover-detail__team">
+                @for (group of departmentGroups(); track group.department) {
+                  <button
+                    type="button"
+                    class="discover-detail__team-member discover-detail__team-member--clickable"
+                    (click)="selectDepartment(group.department)"
+                  >
+                    <span class="discover-detail__team-info">
+                      <span class="discover-detail__team-name">{{ group.department }}</span>
                       <span class="discover-detail__team-role">
-                        {{ member.specialty }}{{ member.specialty && member.experienceYears != null ? ' · ' : '' }}{{ member.experienceYears != null ? formatExperience(member.experienceYears) : '' }}
+                        {{ group.members.length }} consultant{{ group.members.length === 1 ? '' : 's' }}
                       </span>
-                    }
-                  </span>
-                  @if (member.department) {
-                    <span class="discover-detail__team-dept">{{ member.department }}</span>
-                  }
-                </div>
+                    </span>
+                  </button>
+                }
+              </div>
+            } @else {
+              @if (hasDepartmentStep()) {
+                <button type="button" class="discover-detail__back-inline" (click)="clearDepartment()">
+                  ← All departments
+                </button>
               }
-            </div>
+              <div class="discover-detail__team">
+                @for (
+                  member of hasDepartmentStep() ? doctorsForSelectedDepartment() : team();
+                  track member.id
+                ) {
+                  <button
+                    type="button"
+                    class="discover-detail__team-member discover-detail__team-member--clickable"
+                    [class.discover-detail__team-member--selected]="selectedDoctor() === member.id"
+                    (click)="selectDoctor(member.id)"
+                  >
+                    <span class="discover-detail__team-initials">{{ teamInitials(member.name) }}</span>
+                    <span class="discover-detail__team-info">
+                      <span class="discover-detail__team-name">{{ member.name }}</span>
+                      @if (member.specialty || member.experienceYears != null) {
+                        <span class="discover-detail__team-role">
+                          {{ member.specialty }}{{ member.specialty && member.experienceYears != null ? ' · ' : '' }}{{ member.experienceYears != null ? formatExperience(member.experienceYears) : '' }}
+                        </span>
+                      }
+                    </span>
+                    @if (member.department && !hasDepartmentStep()) {
+                      <span class="discover-detail__team-dept">{{ member.department }}</span>
+                    }
+                    @if (selectedDoctor() === member.id) {
+                      <svg class="discover-detail__team-check" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    }
+                  </button>
+                }
+              </div>
+            }
           </div>
         }
       </div>
@@ -81,11 +131,16 @@
           <button
             type="button"
             class="discover-detail__book"
-            [disabled]="isVerifyingBooking()"
+            [disabled]="isVerifyingBooking() || !canBook()"
             (click)="proceedToBooking()"
           >
             {{ isVerifyingBooking() ? 'Checking availability…' : 'Book appointment' }}
           </button>
+          @if (!isVerifyingBooking() && !canBook()) {
+            <p class="discover-detail__book-hint">
+              Select a {{ hasDepartmentStep() ? 'department and ' : '' }}consultant to continue.
+            </p>
+          }
           <div class="discover-detail__book-note">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />

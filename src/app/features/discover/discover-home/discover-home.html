@@ -1,11 +1,45 @@
 <section class="discover" aria-label="Healthcare discovery">
-  <h1 class="discover__heading">
-    Your journey to <span class="discover__heading-accent">world-class care</span>
-  </h1>
-  <p class="discover__subheading">
-    Browse treatment packages, hospitals and doctors, and view their details before you start
-    your booking journey.
-  </p>
+  <section class="discover__hero">
+    <div class="discover__hero-body">
+      <div class="discover__hero-eyebrow">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z" />
+          <circle cx="12" cy="10" r="2.6" />
+        </svg>
+        Kochi · Kerala, India
+      </div>
+      <h1 class="discover__hero-title">Your journey to <em>world-class care</em></h1>
+      <p class="discover__hero-sub">
+        Browse accredited hospitals in Kerala, find the right consultant, and send an appointment
+        request. Nothing is charged until a doctor confirms your slot.
+      </p>
+      <div class="discover__hero-stats">
+        <div class="discover__hero-stat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9FC8FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2.8l2.6 5.4 5.9.8-4.3 4.2 1 5.9L12 16.3l-5.2 2.8 1-5.9L3.5 9l5.9-.8z" />
+          </svg>
+          NABH &amp; JCI accredited
+        </div>
+        <div class="discover__hero-stat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9FC8FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 6.5v6l3.6 2.2" />
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+          Coordinated within hours
+        </div>
+        <div class="discover__hero-stat">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9FC8FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="6.5" width="18" height="12" rx="2.4" />
+            <path d="M3 10.5h18" />
+          </svg>
+          No payment until confirmed
+        </div>
+      </div>
+    </div>
+    <div class="discover__hero-art" aria-hidden="true">
+      <img src="/discover/hero.jpeg" alt="" />
+    </div>
+  </section>
 
   <div class="discover__search">
     <svg class="discover__search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -23,21 +57,23 @@
   </div>
 
   <div class="discover__tabs" role="tablist">
-    @for (kind of kinds; track kind) {
+    @for (t of tabs; track t) {
       <button
         type="button"
         role="tab"
-        [attr.aria-selected]="activeTab() === kind"
+        [attr.aria-selected]="activeTab() === t"
         class="discover__tab"
-        [class.discover__tab--active]="activeTab() === kind"
-        (click)="selectTab(kind)"
+        [class.discover__tab--active]="activeTab() === t"
+        (click)="selectTab(t)"
       >
-        {{ kind }}
+        {{ t }}
       </button>
     }
   </div>
 
-  @if (isLoading()) {
+  @if (isDepartmentsTab()) {
+    <app-discover-departments [query]="query()" />
+  } @else if (isLoading()) {
     <div class="discover__grid discover__grid--skeleton" role="status" aria-live="polite" aria-busy="true">
       <span class="discover__visually-hidden">Loading {{ activeTab() }}…</span>
       @for (row of skeletonRows; track row) {
@@ -95,4 +131,19 @@
       }
     </div>
   }
+
+  <section class="discover__media">
+    <img src="/discover/kerala.jpeg" alt="Tea-covered hills at sunrise near Munnar, Kerala" />
+    <div class="discover__media-txt">
+      <div class="discover__media-eyebrow">Recovery in Kerala</div>
+      <div class="discover__media-title">Heal where the air is clean</div>
+      <p class="discover__media-sub">
+        Your hospital's international desk arranges accommodation, interpreters and airport
+        pickup around your treatment dates.
+      </p>
+    </div>
+  </section>
+  <p class="discover__hint">
+    Photos: Shixart1985 (CC BY 2.0), Musheer1999 (CC BY-SA 4.0), via Wikimedia Commons.
+  </p>
 </section>

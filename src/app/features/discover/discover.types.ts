@@ -21,6 +21,16 @@ export type DiscoverRecord = TreatmentPackage | Hospital | Doctor;
 
 export const DISCOVER_KINDS: readonly DiscoverKind[] = ['Treatments', 'Hospitals', 'Doctors'];
 
+/**
+ * The Discover page's tab set, one wider than {@link DiscoverKind} — "Departments" is a
+ * browse-then-drill-in tab (real data via `/api/public/departments`), not a card grid of
+ * individually bookable records like the other three, so it isn't part of {@link DiscoverKind}
+ * (which drives the shared card grid + `discover-detail` routing). Order matches the reference
+ * mockup's tab order.
+ */
+export type DiscoverTab = 'Departments' | DiscoverKind;
+export const DISCOVER_TABS: readonly DiscoverTab[] = ['Departments', 'Treatments', 'Hospitals', 'Doctors'];
+
 export interface DiscoverKindConfig {
   label: DiscoverKind;
   urlSegment: 'treatments' | 'hospitals' | 'doctors';
@@ -193,6 +203,14 @@ export function factsFor(kind: DiscoverKind, record: DiscoverRecord): DetailFact
   return facts;
 }
 
-export function teamFor(record: DiscoverRecord): TeamMember[] {
+/**
+ * Alteration to the mockup, per explicit product direction: a Doctor's own detail page should not
+ * show a "Departments and consultants" section (it doesn't make sense to show a doctor their own
+ * colleagues there) — Hospitals/Treatments keep it.
+ */
+export function teamFor(kind: DiscoverKind, record: DiscoverRecord): TeamMember[] {
+  if (kind === 'Doctors') {
+    return [];
+  }
   return record.team ?? [];
 }

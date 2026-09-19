@@ -1,0 +1,210 @@
+<section class="dd" aria-label="Departments">
+  @if (isOpen()) {
+    <button type="button" class="dd__back" (click)="close()">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      All departments
+    </button>
+
+    @if (isDetailLoading()) {
+      <div class="dd__state" role="status" aria-live="polite">Loading…</div>
+    } @else if (hasDetailError()) {
+      <div class="dd__state dd__state--error" role="alert">
+        <p>We couldn't load this department right now.</p>
+        <p class="dd__error-detail">{{ currentDetailError() }}</p>
+      </div>
+    } @else if (openDepartment(); as dept) {
+      <div class="dd__detail-head">
+        <span
+          class="dd-card__badge dd__detail-badge"
+          [style.background]="paletteFor(dept.name).tint"
+          [style.color]="paletteFor(dept.name).accent"
+        >
+          @if (iconFor(dept.name); as path) {
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path [attr.d]="path" />
+            </svg>
+          } @else {
+            {{ dept.name.charAt(0) }}
+          }
+        </span>
+        <h2 class="dd__detail-title">{{ dept.name }}</h2>
+      </div>
+      <p class="dd__detail-sub">
+        {{ dept.doctorCount }} consultant{{ dept.doctorCount === 1 ? '' : 's' }} ·
+        {{ dept.treatmentCount }} treatment{{ dept.treatmentCount === 1 ? '' : 's' }}
+        @if (dept.hospitalNames.length) {
+          · {{ dept.hospitalNames.join(', ') }}
+        }
+      </p>
+
+      @if (dept.treatments.length) {
+        <div class="dd__group">
+          <h3 class="dd__group-title">Treatments ({{ dept.treatments.length }})</h3>
+          <div class="dd__group-list">
+            @for (t of dept.treatments; track t.id) {
+              <button type="button" class="dd-tile" (click)="viewTreatment(t.id)">
+                <span class="dd-tile__head">
+                  <span class="dd-tile__badge" [style.background]="paletteFor(dept.name).tint" [style.color]="paletteFor(dept.name).accent">
+                    {{ itemBadge(t.name) }}
+                  </span>
+                  <span class="dd-tile__head-text">
+                    <span class="dd-tile__title">{{ t.name }}</span>
+                    @if (treatmentSub(t); as sub) {
+                      <span class="dd-tile__sub">{{ sub }}</span>
+                    }
+                  </span>
+                </span>
+                @if (t.description) {
+                  <span class="dd-tile__blurb">{{ t.description }}</span>
+                }
+                <span class="dd-tile__foot">
+                  <span class="dd-tile__meta">{{ treatmentMeta(t) }}</span>
+                  <span class="dd-tile__cta">
+                    View details
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 12h13M13 6l6 6-6 6" />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (dept.doctors.length) {
+        <div class="dd__group">
+          <h3 class="dd__group-title">Consultants ({{ dept.doctors.length }})</h3>
+          <div class="dd__group-list">
+            @for (d of dept.doctors; track d.id) {
+              <button type="button" class="dd-tile" (click)="viewDoctor(d.id)">
+                <span class="dd-tile__head">
+                  <span class="dd-tile__badge" [style.background]="paletteFor(dept.name).tint" [style.color]="paletteFor(dept.name).accent">
+                    {{ itemBadge(d.name) }}
+                  </span>
+                  <span class="dd-tile__head-text">
+                    <span class="dd-tile__title">{{ d.name }}</span>
+                    @if (doctorSub(d); as sub) {
+                      <span class="dd-tile__sub">{{ sub }}</span>
+                    }
+                  </span>
+                </span>
+                @if (d.description) {
+                  <span class="dd-tile__blurb">{{ d.description }}</span>
+                }
+                <span class="dd-tile__foot">
+                  <span class="dd-tile__meta">{{ doctorMeta(d) }}</span>
+                  <span class="dd-tile__cta">
+                    View details
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 12h13M13 6l6 6-6 6" />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (dept.hospitals.length) {
+        <div class="dd__group">
+          <h3 class="dd__group-title">Hospitals ({{ dept.hospitals.length }})</h3>
+          <div class="dd__group-list">
+            @for (h of dept.hospitals; track h.id) {
+              <button type="button" class="dd-tile" (click)="viewHospital(h.id)">
+                <span class="dd-tile__head">
+                  <span class="dd-tile__badge" [style.background]="paletteFor(dept.name).tint" [style.color]="paletteFor(dept.name).accent">
+                    {{ itemBadge(h.name) }}
+                  </span>
+                  <span class="dd-tile__head-text">
+                    <span class="dd-tile__title">{{ h.name }}</span>
+                    @if (hospitalSub(h); as sub) {
+                      <span class="dd-tile__sub">{{ sub }}</span>
+                    }
+                  </span>
+                </span>
+                @if (h.description) {
+                  <span class="dd-tile__blurb">{{ h.description }}</span>
+                }
+                <span class="dd-tile__foot">
+                  <span class="dd-tile__meta">{{ hospitalMeta(h) }}</span>
+                  <span class="dd-tile__cta">
+                    View details
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 12h13M13 6l6 6-6 6" />
+                    </svg>
+                  </span>
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    }
+  } @else {
+    @if (isLoading()) {
+      <div class="dd__grid dd__grid--skeleton" role="status" aria-live="polite" aria-busy="true">
+        @for (row of [0, 1, 2, 3, 4, 5]; track row) {
+          <div class="dd__skeleton-card"></div>
+        }
+      </div>
+    } @else if (hasError()) {
+      <div class="dd__state dd__state--error" role="alert">
+        <p>We couldn't load departments right now.</p>
+        <p class="dd__error-detail">{{ currentError() }}</p>
+        <button type="button" class="dd__retry" (click)="load()">Retry</button>
+      </div>
+    } @else if (isEmpty()) {
+      <div class="dd__empty">
+        @if (isSearching()) {
+          <p>Nothing matches "{{ query() }}"</p>
+        } @else {
+          <p>No departments are available right now.</p>
+        }
+      </div>
+    } @else {
+      <div class="dd__grid">
+        @for (dept of items(); track dept.name) {
+          <button type="button" class="dd-card" (click)="open(dept.name)">
+            <span class="dd-card__head">
+              <span
+                class="dd-card__badge"
+                [style.background]="paletteFor(dept.name).tint"
+                [style.color]="paletteFor(dept.name).accent"
+              >
+                @if (iconFor(dept.name); as path) {
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path [attr.d]="path" />
+                  </svg>
+                } @else {
+                  {{ dept.name.charAt(0) }}
+                }
+              </span>
+              <span class="dd-card__head-text">
+                <span class="dd-card__name">{{ dept.name }}</span>
+                @if (dept.hospitalNames.length) {
+                  <span class="dd-card__hospitals">{{ dept.hospitalNames.join(', ') }}</span>
+                }
+              </span>
+            </span>
+            @if (blurbFor(dept.name); as blurb) {
+              <span class="dd-card__blurb">{{ blurb }}</span>
+            }
+            <span class="dd-card__foot">
+              <span class="dd-card__price">{{ priceMeta(dept) }}</span>
+              <span class="dd-card__cta">
+                Browse department
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h13M13 6l6 6-6 6" />
+                </svg>
+              </span>
+            </span>
+          </button>
+        }
+      </div>
+    }
+  }
+</section>
