@@ -18,7 +18,7 @@ describe('RequestListComponent', () => {
   ) {
     const listForHospital = overrides.listForHospital ?? vi.fn(() => of([]));
     const navigate = overrides.navigate ?? vi.fn();
-    const hospitalId = overrides.hospitalId ?? 'h1';
+    const hospitalId = overrides.hospitalId === undefined ? 'h1' : overrides.hospitalId;
 
     TestBed.configureTestingModule({
       imports: [RequestListComponent],

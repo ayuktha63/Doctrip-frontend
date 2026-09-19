@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import {
   AppointmentRequestDetail,
   AppointmentRequestSummary,
+  CoordinationLogEntry,
   DoctorAvailability,
 } from '../models/appointment-request.model';
 
@@ -31,5 +32,9 @@ export class AppointmentRequestService {
 
   resolveAlternative(id: string): Observable<AppointmentRequestDetail> {
     return this.http.post<AppointmentRequestDetail>(`${this.base}/${id}/coordination/resolve-alternative`, {});
+  }
+
+  log(id: string): Observable<CoordinationLogEntry[]> {
+    return this.http.get<CoordinationLogEntry[]>(`${this.base}/${id}/log`);
   }
 }

@@ -3,7 +3,11 @@ import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppointmentRequestService } from '../../../core/services/appointment-request.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { AppointmentRequestDetail, DoctorAvailability } from '../../../core/models/appointment-request.model';
+import {
+  AppointmentRequestDetail,
+  CoordinationLogEntry,
+  DoctorAvailability,
+} from '../../../core/models/appointment-request.model';
 
 /**
  * FR-01 — Hospital Admin reviewing a single appointment request, matching the fields laid out in
@@ -33,6 +37,7 @@ export class RequestDetailComponent implements OnInit {
   protected readonly availabilityLoading = signal(false);
   protected readonly starting = signal(false);
   protected readonly resolving = signal(false);
+  protected readonly log = signal<CoordinationLogEntry[]>([]);
 
   private id!: string;
 
@@ -76,11 +81,19 @@ export class RequestDetailComponent implements OnInit {
         this.request.set(detail);
         this.loading.set(false);
         if (detail.status === 'REQUESTED') this.loadAvailability();
+        this.loadLog();
       },
       error: () => {
         this.loadError.set(true);
         this.loading.set(false);
       },
+    });
+  }
+
+  private loadLog(): void {
+    this.appointmentRequestService.log(this.id).subscribe({
+      next: (entries) => this.log.set(entries),
+      error: () => this.log.set([]),
     });
   }
 
@@ -106,6 +119,7 @@ export class RequestDetailComponent implements OnInit {
             ? `Acknowledgement request sent to ${detail.coordination[0].doctorName}.`
             : `Acknowledgement requests sent to ${detail.coordination.length} eligible doctors.`,
         );
+        this.loadLog();
       },
       error: (err) => {
         this.starting.set(false);
@@ -121,6 +135,7 @@ export class RequestDetailComponent implements OnInit {
         this.request.set(detail);
         this.resolving.set(false);
         this.toast.show(`Secured ${detail.securedDoctorName} for ${detail.securedDate} ${detail.securedTime}.`);
+        this.loadLog();
       },
       error: (err) => {
         this.resolving.set(false);
@@ -147,4 +162,75 @@ export class RequestDetailComponent implements OnInit {
   protected readonly alternativeProposals = computed(
     () => this.request()?.coordination.filter((c) => c.status === 'ALTERNATIVE_PROPOSED') ?? [],
   );
+
+  /**
+   * "Eligible doctors" card (mockup's isCoord {@code cur.candidates}) — before coordination starts
+   * this is the availability preview, after it starts it's the doctors actually contacted. Real
+   * per-doctor experience/open-slot-count fields from the mockup aren't shown: {@code
+   * CoordinationDoctor} (see backend CLAUDE.md) is a minimal placeholder with no such data, so
+   * fabricating it here would just be decoration with no backing source.
+   */
+  protected readonly eligibleCandidates = computed(() => {
+    const r = this.request();
+    if (!r) return [];
+    if (r.status === 'REQUESTED') {
+      const a = this.availability();
+      if (!a) return [];
+      return a.eligibleDoctors.map((d) => ({
+        key: d.doctorId,
+        name: d.name,
+        specialty: d.specialty ?? 'Specialty n/a',
+        isRequested: !!r.requestedDoctorName && d.name.toLowerCase() === r.requestedDoctorName.toLowerCase(),
+        statusLabel: 'Available',
+        statusColor: '#16A34A',
+      }));
+    }
+    return r.coordination.map((c) => ({
+      key: c.id,
+      name: c.doctorName,
+      specialty: c.doctorSpecialty ?? 'Specialty n/a',
+      isRequested: !!r.requestedDoctorName && c.doctorName.toLowerCase() === r.requestedDoctorName.toLowerCase(),
+      statusLabel: this.ackStatusLabel(c.status),
+      statusColor: this.ackStatusColor(c.status),
+    }));
+  });
+
+  initials(name: string): string {
+    const parts = name.replace(/^Dr\.?\s*/i, '').trim().split(/\s+/);
+    return parts
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+
+  private ackStatusLabel(status: string): string {
+    switch (status) {
+      case 'PENDING':
+        return 'Awaiting response';
+      case 'ACCEPTED':
+        return 'Accepted';
+      case 'REJECTED':
+        return 'Declined';
+      case 'ALTERNATIVE_PROPOSED':
+        return 'Proposed alternative';
+      case 'CLOSED':
+        return 'Closed';
+      default:
+        return status;
+    }
+  }
+
+  private ackStatusColor(status: string): string {
+    switch (status) {
+      case 'ACCEPTED':
+        return '#16A34A';
+      case 'REJECTED':
+      case 'CLOSED':
+        return '#9AA4B2';
+      case 'ALTERNATIVE_PROPOSED':
+        return '#B26A00';
+      default:
+        return '#1A6DF0';
+    }
+  }
 }
