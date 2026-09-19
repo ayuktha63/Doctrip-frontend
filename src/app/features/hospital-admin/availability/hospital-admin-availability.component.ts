@@ -180,9 +180,13 @@ export class HospitalAdminAvailabilityComponent implements OnInit {
     }
     const doctorId = this.selectedDoctorId();
     if (!doctorId) return;
+    const payload = this.form.getRawValue();
+    if (payload.endTime <= payload.startTime) {
+      this.toast.show('End time must be after start time.');
+      return;
+    }
     this.conflictErr.set('');
     this.saving.set(true);
-    const payload = this.form.getRawValue();
     this.service.add(doctorId, payload).subscribe({
       next: (slot) => {
         this.saving.set(false);
