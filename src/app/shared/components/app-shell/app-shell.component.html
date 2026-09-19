@@ -25,7 +25,7 @@
       </button>
       <button
         type="button"
-        (click)="comingSoon()"
+        (click)="goAccount()"
         style="height: 36px; padding: 0 14px; border: 0; border-radius: 9px; cursor: pointer; font-size: 13.5px; background: transparent; color: #1F2A37; font-weight: 500; white-space: nowrap"
       >
         Account
@@ -46,7 +46,7 @@
       }
     </button>
     @if (isAuthenticated()) {
-      <div style="display: flex; align-items: center; gap: 10px">
+      <div (click)="goAccount()" style="display: flex; align-items: center; gap: 10px; cursor: pointer">
         <div
           style="width: 36px; height: 36px; border-radius: 18px; background: #0A2456; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600"
         >

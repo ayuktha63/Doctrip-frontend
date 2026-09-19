@@ -2,6 +2,14 @@
   <div style="font-family: Newsreader, Georgia, serif; font-size: 32px; line-height: 39px; font-weight: 500; letter-spacing: -.5px">My appointments</div>
   <div style="font-size: 14px; color: #6B7280; margin-top: 5px">{{ countLabel() }}</div>
 
+  @if (loading()) {
+    <div style="font-size: 14px; color: #6B7280; margin-top: 22px">Loading your appointments…</div>
+  } @else if (loadError()) {
+    <div style="font-size: 14px; color: #DC2626; margin-top: 22px">{{ loadError() }}</div>
+  } @else if (appointments().length === 0) {
+    <div style="font-size: 14px; color: #6B7280; margin-top: 22px">You haven't requested any appointments yet.</div>
+  }
+
   <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 22px">
     @for (a of appointments(); track a.id) {
       <div
@@ -33,7 +41,7 @@
               </div>
               <div>
                 <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Reference</div>
-                <div style="font-size: 13.5px; margin-top: 3px">{{ a.id }}</div>
+                <div style="font-size: 13.5px; margin-top: 3px">{{ a.code }}</div>
               </div>
             </div>
           </div>

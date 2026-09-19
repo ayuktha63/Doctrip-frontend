@@ -46,15 +46,15 @@ export class BookComponent implements OnInit {
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
   protected readonly dateChips = computed(() =>
-    this.state.days.map(([label, num]) => ({
-      label,
-      num,
-      selected: this.state.day() === num,
+    this.state.days.map((d) => ({
+      label: d.label,
+      num: d.num,
+      selected: this.state.day() === d.num,
     })),
   );
 
   protected readonly timeChips = computed(() =>
-    this.state.times.map((t) => ({ label: t, selected: this.state.time() === t })),
+    this.state.times.map((t) => ({ label: t.label, selected: this.state.time() === t.label })),
   );
 
   ngOnInit(): void {

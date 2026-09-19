@@ -5,6 +5,7 @@ import { map } from 'rxjs';
 import { AppointmentStatus } from '../../core/models/appointment.model';
 import { AppointmentsStateService } from '../../core/services/appointments-state.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { ToastService } from '../../core/services/toast.service';
 
 interface ActionButton {
   label: string;
@@ -15,10 +16,9 @@ interface ActionButton {
 }
 
 const PRIMARY = { bg: '#1A6DF0', fg: '#fff', border: '#1A6DF0' };
-const GHOST = { bg: '#fff', fg: '#1F2A37', border: '#E3E9F2' };
 const DANGER = { bg: '#fff', fg: '#DC2626', border: '#F1D6D6' };
 
-/** Appointment detail — the reference mockup's `isAppt` screen (fields, progress timeline, actions, payable summary). */
+/** Appointment detail — the reference mockup's `isAppt` screen (fields, progress timeline, actions). */
 @Component({
   selector: 'app-appointment-detail',
   standalone: true,
@@ -29,6 +29,7 @@ export class AppointmentDetailComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly toast = inject(ToastService);
 
   private readonly routeId = toSignal(this.route.paramMap.pipe(map((p) => p.get('id'))), { initialValue: null });
 
@@ -37,11 +38,12 @@ export class AppointmentDetailComponent {
     // component instance across param-only navigations (e.g. browser back/forward).
     effect(() => {
       const id = this.routeId();
-      if (id) this.state.currentAppointmentId.set(id);
+      if (id) this.state.loadDetail(id);
     });
   }
 
   protected readonly cur = this.state.currentAppointment;
+  protected readonly detailLoading = this.state.detailLoading;
 
   protected readonly proposalReady = computed(() => {
     const status = this.cur().status;
@@ -67,7 +69,7 @@ export class AppointmentDetailComponent {
       { k: ready ? 'Doctor' : 'Requested doctor', v: cur.doctor },
       { k: ready ? 'Date' : 'Preferred date', v: date },
       { k: ready ? 'Time' : 'Preferred time', v: time },
-      { k: 'Reference', v: cur.id },
+      { k: 'Reference', v: cur.code },
     ];
   });
 
@@ -83,25 +85,22 @@ export class AppointmentDetailComponent {
   );
 
   private static readonly STATUS_NOTE: Record<AppointmentStatus, string> = {
-    requested: 'The hospital has your request and will assign a consultant. Nothing has been charged.',
-    coordinating: 'The international desk is matching a consultant and a slot to your dates.',
-    awaitingPatient: 'A doctor has acknowledged this slot. Confirm and pay to book it.',
-    confirmed: 'Booked and paid. Your confirmation is in your email.',
-    cancelled: 'This request was cancelled. Nothing was charged.',
-    expired: 'No consultant became available inside the 7-day window, so this request closed on its own. Nothing was charged.',
+    requested: 'The hospital has your request and will assign a consultant.',
+    coordinating: 'The hospital is matching a consultant and a slot to your dates.',
+    awaitingPatient: 'A doctor has acknowledged this slot. Confirm to book it.',
+    confirmed: 'Booked. Your confirmation is in your email.',
+    cancelled: 'This request was cancelled.',
+    expired: 'No consultant became available for this request, so it closed.',
   };
 
   protected readonly statusNote = computed(() => AppointmentDetailComponent.STATUS_NOTE[this.cur().status]);
-  protected readonly showHold = computed(() => this.cur().status === 'awaitingPatient');
-  protected readonly holdNote = 'Your slot is held for 4 hours while you decide.';
 
   protected readonly actions = computed<ActionButton[]>(() => {
     const cur = this.cur();
     const status = cur.status;
     const acts: ActionButton[] = [];
     if (status === 'awaitingPatient') {
-      acts.push({ label: 'Finalise and pay', run: () => this.finalise(), ...PRIMARY });
-      acts.push({ label: 'Suggest an alternative slot', run: () => this.state.openAlt(), ...GHOST });
+      acts.push({ label: 'Confirm appointment', run: () => this.confirmAppointment(), ...PRIMARY });
       acts.push({ label: 'Cancel appointment', run: () => this.askCancel(), ...DANGER });
     } else if (status === 'requested' || status === 'coordinating') {
       acts.push({ label: 'Cancel request', run: () => this.askCancel(), ...DANGER });
@@ -111,48 +110,15 @@ export class AppointmentDetailComponent {
     return acts;
   });
 
-  protected readonly showPrice = this.proposalReady;
-  protected readonly priceRows = [
-    { k: 'Treatment package', v: '₹1,20,000' },
-    { k: 'Consultation', v: '₹1,000' },
-  ];
-  protected readonly total = '₹1,21,000';
-
-  protected readonly altDateChips = computed(() =>
-    this.state.days.map(([label, num]) => ({ label, num, selected: this.state.altDay() === num })),
-  );
-  protected readonly altTimeChips = computed(() =>
-    this.state.times.map((t) => ({ label: t, selected: this.state.altTime() === t })),
-  );
-  protected readonly altLabel = computed(() => `${this.state.altDay()} May 2024, ${this.state.altTime()}`);
-
   goAppointments(): void {
     this.router.navigate(['/appointments']);
   }
 
-  finalise(): void {
-    this.state.finalise(this.cur().id);
-    this.router.navigate(['/appointments', this.cur().id, 'payment']);
-  }
-
-  pickAltDay(num: number): void {
-    this.state.altDay.set(num);
-  }
-
-  pickAltTime(t: string): void {
-    this.state.altTime.set(t);
-  }
-
-  closeAlt(): void {
-    this.state.closeAlt();
-  }
-
-  submitAlt(): void {
-    this.state.submitAlt();
-  }
-
-  stop(event: Event): void {
-    event.stopPropagation();
+  confirmAppointment(): void {
+    this.state.confirm(this.cur().id).subscribe({
+      next: () => this.toast.show('Appointment confirmed.'),
+      error: (err) => this.toast.show(err.error?.message ?? 'Could not confirm this appointment.'),
+    });
   }
 
   askCancel(): void {
@@ -161,8 +127,8 @@ export class AppointmentDetailComponent {
     this.confirmDialog.open({
       title: confirmed ? 'Cancel this appointment?' : 'Cancel this request?',
       body: confirmed
-        ? `The hospital releases your ${cur.when} slot and ₹1,21,000 is refunded to your original payment method within 5–7 working days.`
-        : 'The hospital stops coordinating this request. Nothing has been charged, so there is nothing to refund.',
+        ? `The hospital releases your ${cur.when} slot.`
+        : 'The hospital stops coordinating this request.',
       actionLabel: confirmed ? 'Cancel appointment' : 'Cancel request',
       accent: '#DC2626',
       tint: '#FCECEC',

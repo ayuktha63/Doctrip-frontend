@@ -54,15 +54,15 @@ export const routes: Routes = [
           import('./features/appointments/appointment-detail.component').then((m) => m.AppointmentDetailComponent),
       },
       {
-        path: 'appointments/:id/payment',
-        canActivate: [authGuard],
-        loadComponent: () => import('./features/appointments/payment.component').then((m) => m.PaymentComponent),
-      },
-      {
         path: 'notifications',
         canActivate: [authGuard],
         loadComponent: () =>
           import('./features/notifications/notifications.component').then((m) => m.NotificationsComponent),
+      },
+      {
+        path: 'account',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/account/account.component').then((m) => m.AccountComponent),
       },
       {
         path: 'auth',

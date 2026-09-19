@@ -60,6 +60,7 @@ export class AuthPageComponent {
   protected readonly submitting = signal(false);
   protected readonly loginError = signal('');
   protected readonly loginShowPassword = signal(false);
+  protected readonly registerShowPassword = signal(false);
   protected readonly registerServerError = signal('');
 
   protected readonly loginForm = this.fb.nonNullable.group({
@@ -104,6 +105,10 @@ export class AuthPageComponent {
 
   toggleLoginPasswordVisibility(): void {
     this.loginShowPassword.update((v) => !v);
+  }
+
+  toggleRegisterPasswordVisibility(): void {
+    this.registerShowPassword.update((v) => !v);
   }
 
   passwordStrength(): { pct: string; color: string; label: string } {

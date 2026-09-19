@@ -1,0 +1,27 @@
+<div style="max-width: 640px">
+  <div style="background: #fff; border: 1px solid #E9EEF6; border-radius: 16px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 12px 28px -20px rgba(16,42,84,.28); padding: 24px">
+    <div style="display: flex; align-items: center; gap: 16px">
+      <div style="width: 60px; height: 60px; flex: none; border-radius: 30px; background: #0A2456; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 600">{{ initials() }}</div>
+      <div style="flex: 1">
+        <div style="font-size: 18px; font-weight: 600">{{ patient()?.fullName }}</div>
+        <div style="font-size: 13.5px; color: #6B7280; margin-top: 2px">{{ patient()?.email }}</div>
+      </div>
+      <button type="button" (click)="logout()" style="height: 40px; padding: 0 16px; border: 1px solid #F1D6D6; border-radius: 10px; background: #fff; color: #DC2626; font-size: 13.5px; font-weight: 600; cursor: pointer">Log out</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin-top: 24px; padding-top: 22px; border-top: 1px solid #EEF2F8">
+      <div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Full name</div>
+        <div style="font-size: 14px; color: #0B1526">{{ patient()?.fullName }}</div>
+      </div>
+      <div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Email</div>
+        <div style="font-size: 14px; color: #0B1526">{{ patient()?.email }}</div>
+      </div>
+      <div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Mobile</div>
+        <div style="font-size: 14px; color: #0B1526">{{ patient()?.mobile }}</div>
+      </div>
+    </div>
+  </div>
+</div>

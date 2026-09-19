@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingRequestStateService, BookingSegment } from '../../../core/services/booking-request-state.service';
 
@@ -61,8 +61,15 @@ export class ReviewComponent implements OnInit {
     this.router.navigate(['/booking', this.kind, this.id]);
   }
 
+  protected readonly submitError = this.state.submitError;
+  protected readonly submitting = signal(false);
+
   submitRequest(): void {
-    const id = this.state.submit();
-    this.router.navigate(['/appointments', id]);
+    this.submitting.set(true);
+    this.state
+      .submit()
+      .then((id) => this.router.navigate(['/appointments', id]))
+      .catch(() => {})
+      .finally(() => this.submitting.set(false));
   }
 }

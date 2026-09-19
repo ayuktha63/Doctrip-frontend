@@ -85,6 +85,46 @@
       </div>
     </div>
 
+    <div style="padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid #EEF2F8">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #3B6FD4">Hospital Admin login</div>
+      <div style="font-size: 12px; color: #6B7280; margin-top: 4px">This is how the hospital signs in at /hospital-admin to manage its own departments, doctors and appointment requests.</div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin-top: 14px">
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Admin name</div>
+          <input formControlName="adminName" placeholder="Aster Hospital Admin" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Admin email</div>
+          <input formControlName="adminEmail" placeholder="admin@hospital.example" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff" />
+          @if (form.controls.adminEmail.touched && form.controls.adminEmail.invalid) {
+            <div style="font-size: 11.5px; color: #DC2626; margin-top: 5px">Enter a valid email address.</div>
+          }
+        </label>
+        <label style="display: block">
+          <div style="font-size: 12px; font-weight: 600; color: #1F2A37; margin-bottom: 6px">Admin password{{ editing() && adminAccountId() ? ' (leave blank to keep unchanged)' : '' }}</div>
+          <div style="position: relative">
+            <input
+              formControlName="adminPassword"
+              [type]="showAdminPassword() ? 'text' : 'password'"
+              placeholder="••••••••"
+              style="width: 100%; height: 40px; padding: 0 40px 0 12px; border: 1px solid #E3E9F2; border-radius: 10px; font-size: 13.5px; color: #0B1526; background: #fff"
+            />
+            <button
+              type="button"
+              (click)="toggleAdminPasswordVisibility()"
+              style="position: absolute; right: 2px; top: 2px; width: 36px; height: 36px; border: 0; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center"
+            >
+              @if (showAdminPassword()) {
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle><path d="M4 20L20 4"></path></svg>
+              } @else {
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              }
+            </button>
+          </div>
+        </label>
+      </div>
+    </div>
+
     @if (serverError()) {
       <div style="font-size: 12.5px; color: #DC2626; margin-bottom: 14px">{{ serverError() }}</div>
     }
