@@ -48,18 +48,20 @@ describe('RequestDetailComponent', () => {
     doctorAvailability?: ReturnType<typeof vi.fn>;
     startCoordination?: ReturnType<typeof vi.fn>;
     resolveAlternative?: ReturnType<typeof vi.fn>;
+    log?: ReturnType<typeof vi.fn>;
   } = {}) {
     const get = overrides.get ?? vi.fn(() => of(baseDetail));
     const doctorAvailability = overrides.doctorAvailability ?? vi.fn(() => of(availability));
     const startCoordination = overrides.startCoordination ?? vi.fn(() => of({ ...baseDetail, status: 'DOCTOR_COORDINATION' }));
     const resolveAlternative = overrides.resolveAlternative ?? vi.fn(() => of({ ...baseDetail, status: 'DOCTOR_SELECTED' }));
+    const log = overrides.log ?? vi.fn(() => of([]));
     const navigate = vi.fn();
     const toastShow = vi.fn();
 
     TestBed.configureTestingModule({
       imports: [RequestDetailComponent],
       providers: [
-        { provide: AppointmentRequestService, useValue: { get, doctorAvailability, startCoordination, resolveAlternative } },
+        { provide: AppointmentRequestService, useValue: { get, doctorAvailability, startCoordination, resolveAlternative, log } },
         { provide: ToastService, useValue: { show: toastShow } },
         { provide: Router, useValue: { navigate } },
         {
@@ -71,7 +73,7 @@ describe('RequestDetailComponent', () => {
 
     const fixture = TestBed.createComponent(RequestDetailComponent);
     fixture.detectChanges();
-    return { fixture, get, doctorAvailability, startCoordination, resolveAlternative, navigate, toastShow };
+    return { fixture, get, doctorAvailability, startCoordination, resolveAlternative, log, navigate, toastShow };
   }
 
   it('redirects back to the list if no id is present in the route', () => {
@@ -240,6 +242,51 @@ describe('RequestDetailComponent', () => {
     expect(c.statusLabel()).toBe('Cancelled');
     (fixture.componentInstance as any).request.set({ ...baseDetail, status: 'CONFIRMED' });
     expect(c.statusLabel()).toBe('Confirmed');
+  });
+
+  it('builds eligible-doctor candidates from availability before coordination starts, flagging the requested doctor', () => {
+    const { fixture } = setup({
+      get: vi.fn(() => of({ ...baseDetail, requestedDoctorName: 'Dr. Anil Kumar' })),
+    });
+    const candidates = (fixture.componentInstance as any).eligibleCandidates();
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0].name).toBe('Dr. Anil Kumar');
+    expect(candidates[0].isRequested).toBe(true);
+    expect(fixture.componentInstance.initials('Dr. Anil Kumar')).toBe('AK');
+  });
+
+  it('builds eligible-doctor candidates from the coordination acks once coordination has started', () => {
+    const { fixture } = setup({
+      get: vi.fn(() =>
+        of({
+          ...baseDetail,
+          status: 'DOCTOR_COORDINATION',
+          coordination: [
+            {
+              id: 'a1',
+              doctorId: 'd1',
+              doctorName: 'Dr. Priya Nair',
+              doctorSpecialty: 'Cardiology',
+              status: 'ACCEPTED',
+              sentAt: '2026-10-01T09:00:00Z',
+              responseDeadline: '2026-10-01T09:15:00Z',
+              proposedDate: null,
+              proposedTime: null,
+            },
+          ],
+        }),
+      ),
+    });
+    const candidates = (fixture.componentInstance as any).eligibleCandidates();
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0].statusLabel).toBe('Accepted');
+  });
+
+  it('loads the coordination log alongside the request detail', () => {
+    const log = vi.fn(() => of([{ title: 'Coordination started', time: '1 Oct, 9:00 AM', body: 'Sent to every eligible doctor.' }]));
+    const { fixture } = setup({ log });
+    expect(log).toHaveBeenCalledWith('r1');
+    expect((fixture.componentInstance as any).log()).toHaveLength(1);
   });
 
   it('navigates back to the request list', () => {

@@ -103,6 +103,69 @@
             }
           </div>
         </div>
+
+        @if (eligibleCandidates().length || (request()!.status === 'REQUESTED' && !availabilityLoading())) {
+          <div style="background: #fff; border: 1px solid #E9EEF6; border-radius: 14px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 10px 24px -18px rgba(16,42,84,.2); padding: 20px 22px">
+            <div>
+              <div style="font-size: 14.5px; font-weight: 600">Eligible doctors</div>
+              <div style="font-size: 12.5px; color: #9AA4B2; margin-top: 2px">{{ request()!.department }} consultants{{ request()!.status === 'REQUESTED' ? ' available to contact.' : ' contacted for this request.' }}</div>
+            </div>
+            @if (eligibleCandidates().length) {
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px">
+                @for (c of eligibleCandidates(); track c.key) {
+                  <div style="display: flex; align-items: center; gap: 14px; padding: 13px 14px; border-radius: 12px; border: 1.5px solid #E9EEF6; background: #F7F9FC">
+                    <div style="width: 38px; height: 38px; flex: none; border-radius: 19px; background: #EAF1FE; color: #1A6DF0; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700">{{ initials(c.name) }}</div>
+                    <div style="flex: 1; min-width: 0">
+                      <div style="display: flex; align-items: center; gap: 8px">
+                        <div style="font-size: 13.5px; font-weight: 600">{{ c.name }}</div>
+                        @if (c.isRequested) {
+                          <span style="border-radius: 20px; padding: 3px 8px; font-size: 10.5px; font-weight: 700; color: #1A6DF0; background: #EAF1FE">Requested by patient</span>
+                        }
+                      </div>
+                      <div style="font-size: 12px; color: #6B7280; margin-top: 2px">{{ c.specialty }}</div>
+                    </div>
+                    <div style="flex: none; text-align: right; padding-right: 4px">
+                      <div style="font-size: 12.5px; font-weight: 600" [style.color]="c.statusColor">{{ c.statusLabel }}</div>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div style="margin-top: 14px; font-size: 12.5px; color: #9AA4B2">No eligible doctors found in this department.</div>
+            }
+          </div>
+        }
+
+        @if (request()!.status !== 'REQUESTED') {
+          <div style="background: #fff; border: 1px solid #E9EEF6; border-radius: 14px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 10px 24px -18px rgba(16,42,84,.2); padding: 20px 22px">
+            <div style="font-size: 14.5px; font-weight: 600">Coordination log</div>
+            @if (log().length) {
+              <div style="display: flex; flex-direction: column; margin-top: 16px">
+                @for (e of log(); track $index) {
+                  <div style="display: flex; gap: 13px">
+                    <div style="flex: none; display: flex; flex-direction: column; align-items: center">
+                      <div style="width: 28px; height: 28px; flex: none; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: #EAF1FE">
+                        <div style="width: 8px; height: 8px; border-radius: 4px; background: #1A6DF0"></div>
+                      </div>
+                      @if (!$last) {
+                        <div style="flex: 1; width: 2px; min-height: 8px; background: #E9EEF6"></div>
+                      }
+                    </div>
+                    <div style="flex: 1; min-width: 0; padding-bottom: 15px">
+                      <div style="display: flex; align-items: baseline; gap: 10px">
+                        <div style="flex: 1; font-size: 13px; font-weight: 600">{{ e.title }}</div>
+                        <div style="flex: none; font-size: 11.5px; color: #9AA4B2">{{ e.time }}</div>
+                      </div>
+                      <div style="font-size: 12.5px; line-height: 18px; color: #6B7280; margin-top: 2px">{{ e.body }}</div>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div style="margin-top: 14px; font-size: 12.5px; color: #9AA4B2">No log entries for this request yet.</div>
+            }
+          </div>
+        }
       </div>
 
       <!-- right: state (doctor coordination not built yet — FR-02 onward) -->
@@ -172,9 +235,8 @@
                     >.
                   </div>
                 } @else {
-                  <div style="font-size: 12.5px; line-height: 18px; color: #6B7280">No doctor preference — will fan out to eligible doctors.</div>
+                  <div style="font-size: 12.5px; line-height: 18px; color: #6B7280">No doctor preference — will fan out to every eligible doctor.</div>
                 }
-                <div style="font-size: 12px; color: #9AA4B2; margin-top: 6px">{{ a.eligibleDoctors.length }} eligible doctor(s) in {{ request()!.department }}.</div>
 
                 <button
                   type="button"
@@ -192,51 +254,89 @@
                 </button>
               </div>
             }
-          } @else if (request()!.coordination.length) {
+          } @else if (request()!.status === 'DOCTOR_COORDINATION' && alternativeProposals().length) {
             <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #F4F7FC">
-              <div style="font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2; margin-bottom: 10px">Acknowledgement requests sent</div>
-              <div style="display: flex; flex-direction: column; gap: 10px">
-                @for (c of request()!.coordination; track c.id) {
-                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 10px; background: #F7F9FC">
-                    <div>
-                      <div style="font-size: 13px; font-weight: 600">{{ c.doctorName }}</div>
-                      <div style="font-size: 11.5px; color: #9AA4B2">
-                        {{ c.doctorSpecialty || 'Specialty n/a' }}
-                        @if (c.proposedDate) {
-                          · proposed {{ c.proposedDate }} {{ c.proposedTime }}
-                        }
-                      </div>
-                    </div>
-                    <span
-                      style="font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase"
-                      [style.color]="
-                        c.status === 'ACCEPTED'
-                          ? '#16A34A'
-                          : c.status === 'REJECTED' || c.status === 'CLOSED'
-                            ? '#9AA4B2'
-                            : c.status === 'ALTERNATIVE_PROPOSED'
-                              ? '#B26A00'
-                              : '#1A6DF0'
-                      "
-                      >{{ c.status }}</span
-                    >
-                  </div>
-                }
-              </div>
-
-              @if (request()!.status === 'DOCTOR_COORDINATION' && alternativeProposals().length) {
-                <button
-                  type="button"
-                  (click)="resolveAlternative()"
-                  [disabled]="resolving()"
-                  style="width: 100%; height: 42px; margin-top: 14px; border: 0; border-radius: 10px; background: #B26A00; color: #fff; font-size: 13.5px; font-weight: 600; cursor: pointer"
-                >
-                  {{ resolving() ? 'Selecting…' : 'Select earliest valid alternative (' + alternativeProposals().length + ')' }}
-                </button>
-              }
+              <button
+                type="button"
+                (click)="resolveAlternative()"
+                [disabled]="resolving()"
+                style="width: 100%; height: 42px; border: 0; border-radius: 10px; background: #B26A00; color: #fff; font-size: 13.5px; font-weight: 600; cursor: pointer"
+              >
+                {{ resolving() ? 'Selecting…' : 'Select earliest valid alternative (' + alternativeProposals().length + ')' }}
+              </button>
+            </div>
+          } @else if (request()!.status === 'DOCTOR_COORDINATION') {
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #F4F7FC; font-size: 12.5px; line-height: 18px; color: #6B7280">
+              Waiting on the eligible doctors listed alongside — see "Eligible doctors" for live status.
             </div>
           }
         </div>
+
+        @if (request()!.status === 'DOCTOR_COORDINATION' && alternativeProposals().length) {
+          <div style="background: #fff; border: 1px solid #F0DFBE; border-radius: 14px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 10px 24px -18px rgba(16,42,84,.2); padding: 20px">
+            <div style="font-size: 14.5px; font-weight: 600; color: #B26A00">Consultant offered another slot</div>
+            <div style="font-size: 12.5px; line-height: 19px; color: #6B7280; margin-top: 6px">
+              {{ alternativeProposals().length === 1 ? 'A doctor' : alternativeProposals().length + ' doctors' }} could not do the requested time and proposed an alternative — review and select the earliest valid one.
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 11px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #F4F7FC">
+              @for (p of alternativeProposals(); track p.id) {
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+                  <div style="font-size: 12.5px; color: #6B7280">{{ p.doctorName }}</div>
+                  <div style="font-size: 13px; font-weight: 600; text-align: right">{{ p.proposedDate }} · {{ p.proposedTime }}</div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (request()!.status === 'CANCELLED') {
+          <div style="background: #fff; border: 1px solid #F4D6D6; border-radius: 14px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 10px 24px -18px rgba(16,42,84,.2); padding: 20px">
+            <div style="font-size: 14.5px; font-weight: 600; color: #DC2626">Cancelled by the patient</div>
+            <div style="font-size: 12.5px; line-height: 19px; color: #6B7280; margin-top: 6px">
+              The patient cancelled this request. Doctor coordination was stopped and the Booking Buffer released.
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 11px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #F4F7FC">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+                <div style="font-size: 12.5px; color: #6B7280">Cancelled by</div>
+                <div style="font-size: 13px; font-weight: 600; text-align: right">{{ request()!.patientName }}</div>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+                <div style="font-size: 12.5px; color: #6B7280">Cancelled at</div>
+                <div style="font-size: 13px; font-weight: 600; text-align: right">{{ request()!.updatedAt | date: 'medium' }}</div>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (request()!.status === 'DOCTOR_SELECTED' || request()!.status === 'CONFIRMED') {
+          <div style="background: #fff; border: 1px solid #E9EEF6; border-radius: 14px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 10px 24px -18px rgba(16,42,84,.2); padding: 20px">
+            <div style="font-size: 14.5px; font-weight: 600">Proposal to the patient</div>
+            <div style="font-size: 12.5px; color: #9AA4B2; margin-top: 2px">What the patient confirms.</div>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+                <div style="font-size: 12.5px; color: #6B7280">Doctor</div>
+                <div style="font-size: 13px; font-weight: 600; text-align: right">{{ request()!.securedDoctorName }}</div>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+                <div style="font-size: 12.5px; color: #6B7280">Date</div>
+                <div style="font-size: 13px; font-weight: 600; text-align: right">{{ request()!.securedDate }}</div>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+                <div style="font-size: 12.5px; color: #6B7280">Time</div>
+                <div style="font-size: 13px; font-weight: 600; text-align: right">{{ request()!.securedTime }}</div>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+                <div style="font-size: 12.5px; color: #6B7280">Status</div>
+                <div
+                  style="font-size: 13px; font-weight: 600; text-align: right"
+                  [style.color]="request()!.status === 'CONFIRMED' ? '#16A34A' : '#1A6DF0'"
+                >
+                  {{ request()!.status === 'CONFIRMED' ? 'Confirmed by patient' : 'Awaiting Patient Confirmation' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     </div>
   }

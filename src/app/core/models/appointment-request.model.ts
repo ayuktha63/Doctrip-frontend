@@ -83,3 +83,9 @@ export interface DoctorAvailability {
   requestedDoctorAvailable: boolean;
   eligibleDoctors: DoctorCandidate[];
 }
+
+export interface CoordinationLogEntry {
+  title: string;
+  time: string;
+  body: string;
+}
