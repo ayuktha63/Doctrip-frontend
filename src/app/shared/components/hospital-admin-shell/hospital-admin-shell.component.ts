@@ -42,9 +42,8 @@ export class HospitalAdminShellComponent {
     this.dashboard.getSummary().subscribe({ error: () => {} });
 
     // Same reasoning, for the sidebar "Doctor approvals" badge.
-    const hospitalId = this.auth.hospitalId();
-    if (hospitalId) {
-      this.appointmentRequestService.listPendingAcknowledgements(hospitalId).subscribe({ error: () => {} });
+    if (this.auth.hospitalId()) {
+      this.appointmentRequestService.listPendingAcknowledgements().subscribe({ error: () => {} });
     }
 
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e) => {

@@ -4,6 +4,8 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { AppointmentsStateService } from '../../../core/services/appointments-state.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { ToastHostComponent } from '../toast-host/toast-host.component';
 
@@ -17,7 +19,7 @@ import { ToastHostComponent } from '../toast-host/toast-host.component';
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, ToastHostComponent, ConfirmDialogComponent],
+  imports: [RouterOutlet, ToastHostComponent, ConfirmDialogComponent, TranslatePipe, LanguageSwitcherComponent],
   templateUrl: './app-shell.component.html',
 })
 export class AppShellComponent {

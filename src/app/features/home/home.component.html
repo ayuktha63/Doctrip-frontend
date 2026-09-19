@@ -1,10 +1,9 @@
 <div>
   <div style="font-family: Newsreader, Georgia, serif; font-size: 32px; line-height: 39px; font-weight: 500; letter-spacing: -.5px">
-    Welcome, {{ patient()?.fullName }}
+    {{ 'home.welcome' | translate }}, {{ patient()?.fullName }}
   </div>
   <div style="font-size: 14px; line-height: 21px; color: #6B7280; margin-top: 8px; max-width: 560px">
-    You're signed in to DocTrip. Browsing hospitals, booking appointments, and managing your account are
-    coming in the next stories.
+    {{ 'home.signedInBlurb' | translate }}
   </div>
 
   <button
@@ -12,6 +11,6 @@
     (click)="logout()"
     style="height: 44px; margin-top: 24px; padding: 0 20px; border: 1px solid #E3E9F2; border-radius: 12px; background: #fff; color: #1F2A37; font-size: 14px; font-weight: 600; cursor: pointer"
   >
-    Log out
+    {{ 'account.logOut' | translate }}
   </button>
 </div>

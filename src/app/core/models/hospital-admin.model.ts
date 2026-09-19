@@ -31,6 +31,9 @@ export interface HospitalAdminHospital {
   state: string;
   accreditation: string | null;
   beds: number;
+  /** DocTrip Admin's "Hide data" toggle — when true, this console's own doctors/treatments/
+   * departments/dashboard should render greyed out with a "Data hidden by DocTrip Admin" label. */
+  dataHidden: boolean;
 }
 
 /** Fields may be null if never set — render as empty inputs, not an error state. */

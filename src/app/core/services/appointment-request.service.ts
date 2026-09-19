@@ -15,7 +15,14 @@ export type DoctorAcknowledgementAction = 'ACCEPT' | 'REJECT' | 'PROPOSE_ALTERNA
 @Injectable({ providedIn: 'root' })
 export class AppointmentRequestService {
   private readonly http = inject(HttpClient);
-  private readonly base = `${environment.apiBaseUrl}/api/admin/appointment-requests`;
+  /**
+   * Moved from `/api/admin/appointment-requests` — that path sat under Story 3's blanket-open
+   * `/api/admin/**` prefix with a client-supplied `hospitalId`, letting any caller read or mutate
+   * any hospital's coordination queue by guessing/iterating ids. Now under the real Hospital Admin
+   * JWT session (`hospitalAdminAuthInterceptor` attaches the bearer token for any `/api/hospital-admin`
+   * URL); the backend derives `hospitalId` from that token, never a query param.
+   */
+  private readonly base = `${environment.apiBaseUrl}/api/hospital-admin/appointment-requests`;
   private readonly doctorAckBase = `${environment.apiBaseUrl}/api/doctor/acknowledgements`;
 
   /** Cached so the sidebar "Doctor approvals" badge can show a count without every screen making
@@ -24,8 +31,8 @@ export class AppointmentRequestService {
   private readonly _pendingAcknowledgementsCount = signal(0);
   readonly pendingAcknowledgementsCount = this._pendingAcknowledgementsCount.asReadonly();
 
-  listForHospital(hospitalId: string): Observable<AppointmentRequestSummary[]> {
-    return this.http.get<AppointmentRequestSummary[]>(this.base, { params: { hospitalId } });
+  listForHospital(): Observable<AppointmentRequestSummary[]> {
+    return this.http.get<AppointmentRequestSummary[]>(this.base);
   }
 
   get(id: string): Observable<AppointmentRequestDetail> {
@@ -50,9 +57,9 @@ export class AppointmentRequestService {
 
   /** "Doctor approvals" sidebar screen — every acknowledgement still awaiting a response, across
    *  every in-progress request for this hospital. */
-  listPendingAcknowledgements(hospitalId: string): Observable<PendingAcknowledgement[]> {
+  listPendingAcknowledgements(): Observable<PendingAcknowledgement[]> {
     return this.http
-      .get<PendingAcknowledgement[]>(`${this.base}/pending-acknowledgements`, { params: { hospitalId } })
+      .get<PendingAcknowledgement[]>(`${this.base}/pending-acknowledgements`)
       .pipe(tap((list) => this._pendingAcknowledgementsCount.set(list.length)));
   }
 

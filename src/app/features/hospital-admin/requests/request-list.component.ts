@@ -31,17 +31,16 @@ export class RequestListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const hospitalId = this.auth.hospitalId();
-    if (hospitalId) this.load(hospitalId);
+    if (this.auth.hospitalId()) this.load();
     else {
       this.loadError.set(true);
       this.loading.set(false);
     }
   }
 
-  private load(hospitalId: string): void {
+  private load(): void {
     this.loading.set(true);
-    this.appointmentRequestService.listForHospital(hospitalId).subscribe({
+    this.appointmentRequestService.listForHospital().subscribe({
       next: (list) => {
         this.requests.set(list);
         this.loading.set(false);

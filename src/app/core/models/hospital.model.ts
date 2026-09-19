@@ -19,6 +19,13 @@ export interface Hospital {
   contactEmail: string | null;
   contactPhone: string | null;
   active: boolean;
+  /**
+   * DocTrip Admin's "Hide data" toggle — distinct from `active`/Deactivate. Never removes the
+   * hospital from the database; it only greys out this hospital's own treatments/doctors/
+   * departments on admin-facing screens (this DocTrip Admin console and that hospital's own
+   * Hospital Admin console) while still excluding it from public patient-facing discovery.
+   */
+  dataHidden: boolean;
   createdAt: string;
   updatedAt: string;
 }

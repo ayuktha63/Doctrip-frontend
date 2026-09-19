@@ -8,6 +8,8 @@ import { OtpChallengeStore } from '../../core/services/otp-challenge-store.servi
 import { ApiError } from '../../core/models/auth.model';
 import { mobileNumberValidator, passwordStrengthScore, strongPasswordValidator } from '../../shared/validators';
 import { continueUrlAfterAuth } from '../../core/auth/continue-after-auth';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 type AuthTab = 'signin' | 'signup';
 
@@ -46,7 +48,7 @@ export const COUNTRY_CODES: CountryCode[] = [
 @Component({
   selector: 'app-auth-page',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TranslatePipe],
   templateUrl: './auth-page.component.html',
 })
 export class AuthPageComponent {
@@ -55,6 +57,7 @@ export class AuthPageComponent {
   private readonly otpChallengeStore = inject(OtpChallengeStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly translation = inject(TranslationService);
 
   protected readonly tab = signal<AuthTab>('signin');
   protected readonly submitting = signal(false);
@@ -114,13 +117,13 @@ export class AuthPageComponent {
   passwordStrength(): { pct: string; color: string; label: string } {
     const score = passwordStrengthScore(this.registerForm.controls.password.value);
     const colors = ['#E3E9F2', '#DC2626', '#FFB020', '#16A34A'];
-    const labels = [
-      'Use 8+ characters with upper/lowercase, a number and a symbol',
-      'Weak',
-      'Fair',
-      'Strong',
+    const labelKeys = [
+      'auth.password.strengthHint',
+      'auth.password.strengthWeak',
+      'auth.password.strengthFair',
+      'auth.password.strengthStrong',
     ];
-    return { pct: `${score * 33.4}%`, color: colors[score], label: labels[score] };
+    return { pct: `${score * 33.4}%`, color: colors[score], label: this.translation.translate(labelKeys[score]) };
   }
 
   toggleAgree(): void {
@@ -131,7 +134,7 @@ export class AuthPageComponent {
   submitLogin(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
-      this.loginError.set('Email or password is incorrect.');
+      this.loginError.set(this.translation.translate('auth.error.loginInvalid'));
       return;
     }
     this.loginError.set('');
@@ -146,7 +149,7 @@ export class AuthPageComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
-        this.loginError.set(this.errorMessage(err, 'Email or password is incorrect.'));
+        this.loginError.set(this.errorMessage(err, this.translation.translate('auth.error.loginInvalid')));
       },
     });
   }
@@ -154,7 +157,7 @@ export class AuthPageComponent {
   goOtpLogin(): void {
     const loginId = this.loginForm.controls.loginId.value.trim();
     if (!loginId) {
-      this.loginError.set('Enter your email or mobile to get a code.');
+      this.loginError.set(this.translation.translate('auth.error.otpNeedLoginId'));
       return;
     }
     this.loginError.set('');
@@ -167,7 +170,7 @@ export class AuthPageComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
-        this.loginError.set(this.errorMessage(err, 'We could not find an account for that email or mobile.'));
+        this.loginError.set(this.errorMessage(err, this.translation.translate('auth.error.otpAccountNotFound')));
       },
     });
   }
@@ -188,7 +191,7 @@ export class AuthPageComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
-        this.registerServerError.set(this.errorMessage(err, 'Registration failed. Please try again.'));
+        this.registerServerError.set(this.errorMessage(err, this.translation.translate('auth.error.registerFailed')));
       },
     });
   }

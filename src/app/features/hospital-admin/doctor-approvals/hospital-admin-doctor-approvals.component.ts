@@ -37,14 +37,13 @@ export class HospitalAdminDoctorApprovalsComponent implements OnInit {
   protected readonly proposedTime = signal('');
 
   ngOnInit(): void {
-    const hospitalId = this.auth.hospitalId();
-    if (hospitalId) this.load(hospitalId);
+    if (this.auth.hospitalId()) this.load();
     else this.loading.set(false);
   }
 
-  private load(hospitalId: string): void {
+  private load(): void {
     this.loading.set(true);
-    this.appointmentRequestService.listPendingAcknowledgements(hospitalId).subscribe({
+    this.appointmentRequestService.listPendingAcknowledgements().subscribe({
       next: (list) => {
         this.acknowledgements.set(list);
         this.loading.set(false);
@@ -57,8 +56,7 @@ export class HospitalAdminDoctorApprovalsComponent implements OnInit {
   }
 
   private reload(): void {
-    const hospitalId = this.auth.hospitalId();
-    if (hospitalId) this.load(hospitalId);
+    if (this.auth.hospitalId()) this.load();
   }
 
   initials(name: string): string {

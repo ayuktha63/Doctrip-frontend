@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HospitalAdminDepartmentService } from '../../../core/services/hospital-admin-department.service';
+import { HospitalAdminHospitalService } from '../../../core/services/hospital-admin.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Department } from '../../../core/models/hospital-admin.model';
@@ -22,8 +23,11 @@ import { deptArtFor } from '../../../shared/dept-art';
 export class HospitalAdminDepartmentsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(HospitalAdminDepartmentService);
+  private readonly hospitalService = inject(HospitalAdminHospitalService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly toast = inject(ToastService);
+
+  protected readonly dataHidden = this.hospitalService.dataHidden;
 
   protected readonly departments = signal<Department[]>([]);
   protected readonly loading = signal(true);
@@ -40,6 +44,7 @@ export class HospitalAdminDepartmentsComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.hospitalService.refreshDataHidden();
     this.load();
   }
 

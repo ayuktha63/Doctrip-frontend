@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HospitalAdminTreatmentService } from '../../../core/services/hospital-admin-treatment.service';
 import { HospitalAdminDepartmentService } from '../../../core/services/hospital-admin-department.service';
+import { HospitalAdminHospitalService } from '../../../core/services/hospital-admin.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Department, Treatment } from '../../../core/models/hospital-admin.model';
 import { ApiError } from '../../../core/models/auth.model';
@@ -17,7 +18,10 @@ export class HospitalAdminTreatmentsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(HospitalAdminTreatmentService);
   private readonly departmentService = inject(HospitalAdminDepartmentService);
+  private readonly hospitalService = inject(HospitalAdminHospitalService);
   private readonly toast = inject(ToastService);
+
+  protected readonly dataHidden = this.hospitalService.dataHidden;
 
   protected readonly treatments = signal<Treatment[]>([]);
   protected readonly departments = signal<Department[]>([]);
@@ -40,6 +44,7 @@ export class HospitalAdminTreatmentsComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.hospitalService.refreshDataHidden();
     this.departmentService.list().subscribe((list) => this.departments.set(list));
     this.load();
   }

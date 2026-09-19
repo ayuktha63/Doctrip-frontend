@@ -54,6 +54,14 @@ export class HospitalService {
     return this.http.post<Hospital>(`${this.base}/${id}/status`, payload);
   }
 
+  hideData(id: string): Observable<Hospital> {
+    return this.http.patch<Hospital>(`${this.base}/${id}/hide-data`, {});
+  }
+
+  unhideData(id: string): Observable<Hospital> {
+    return this.http.patch<Hospital>(`${this.base}/${id}/unhide-data`, {});
+  }
+
   /** Provisions the login this hospital's Hospital Admin console (/hospital-admin) uses. */
   createAdminAccount(payload: HospitalAdminAccountRequest): Observable<HospitalAdminAccount> {
     return this.http.post<HospitalAdminAccount>(this.hospitalAdminsBase, payload);

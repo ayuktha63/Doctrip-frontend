@@ -13,6 +13,7 @@ import {
   subFor,
   metaFor,
 } from '../discover.types';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -34,7 +35,7 @@ type LoadState = 'loading' | 'loaded' | 'error';
  */
 @Component({
   selector: 'app-discover-home',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './discover-home.html',
   styleUrl: './discover-home.scss',
 })

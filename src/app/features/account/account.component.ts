@@ -1,6 +1,8 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
 
 /**
  * Account — the reference mockup's `isAccount` screen, reached by clicking the header's user
@@ -15,6 +17,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-account',
   standalone: true,
+  imports: [TranslatePipe, LanguageSwitcherComponent],
   templateUrl: './account.component.html',
 })
 export class AccountComponent {

@@ -15,7 +15,18 @@
     <div>A listed treatment is exactly what Treatment Discovery shows patients. Unlist one to pull it from Discovery without deleting the record.</div>
   </div>
 
-  <div style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; overflow: hidden">
+  @if (dataHidden()) {
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; padding: 10px 14px; border-radius: 10px; background: #F3EEFD; border: 1px solid #E4D9FA; color: #6D28D9; font-size: 12.5px; font-weight: 600; width: fit-content">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-10-8-10-8a19.65 19.65 0 015.06-6.06"></path><path d="M1 1l22 22"></path><path d="M9.9 4.24A10.94 10.94 0 0112 4c7 0 10 8 10 8a19.65 19.65 0 01-2.16 3.19"></path></svg>
+      Data hidden by DocTrip Admin
+    </div>
+  }
+
+  <div
+    style="background: #fff; border: 1px solid #E6EBF3; border-radius: 14px; overflow: hidden"
+    [style.opacity]="dataHidden() ? 0.5 : 1"
+    [style.pointer-events]="dataHidden() ? 'none' : 'auto'"
+  >
     <div style="display: grid; grid-template-columns: 2fr 1fr 1.1fr .8fr .8fr 150px; gap: 14px; padding: 11px 20px; background: #FBFCFE; border-bottom: 1px solid #E6EBF3; font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #A7B2C2">
       <div>Treatment</div><div>Department</div><div>Package price</div><div>Typical stay</div><div>Discovery</div><div style="text-align: right">Actions</div>
     </div>

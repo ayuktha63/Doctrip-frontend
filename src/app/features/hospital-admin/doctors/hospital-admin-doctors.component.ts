@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HospitalAdminDoctorService } from '../../../core/services/hospital-admin-doctor.service';
 import { HospitalAdminDepartmentService } from '../../../core/services/hospital-admin-department.service';
+import { HospitalAdminHospitalService } from '../../../core/services/hospital-admin.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Department, Doctor } from '../../../core/models/hospital-admin.model';
@@ -18,9 +19,14 @@ export class HospitalAdminDoctorsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(HospitalAdminDoctorService);
   private readonly departmentService = inject(HospitalAdminDepartmentService);
+  private readonly hospitalService = inject(HospitalAdminHospitalService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+
+  /** DocTrip Admin's "Hide data" toggle — greys out this whole screen when true (see this
+   * hospital's own hospital-detail component in the DocTrip Admin console for where it's set). */
+  protected readonly dataHidden = this.hospitalService.dataHidden;
 
   protected readonly doctors = signal<Doctor[]>([]);
   protected readonly departments = signal<Department[]>([]);
@@ -40,6 +46,7 @@ export class HospitalAdminDoctorsComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.hospitalService.refreshDataHidden();
     this.departmentService.list().subscribe((list) => this.departments.set(list));
     this.load();
   }

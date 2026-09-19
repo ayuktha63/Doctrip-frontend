@@ -1,13 +1,13 @@
 <div>
-  <div style="font-family: Newsreader, Georgia, serif; font-size: 32px; line-height: 39px; font-weight: 500; letter-spacing: -.5px">My appointments</div>
+  <div style="font-family: Newsreader, Georgia, serif; font-size: 32px; line-height: 39px; font-weight: 500; letter-spacing: -.5px">{{ 'appointments.title' | translate }}</div>
   <div style="font-size: 14px; color: #6B7280; margin-top: 5px">{{ countLabel() }}</div>
 
   @if (loading()) {
-    <div style="font-size: 14px; color: #6B7280; margin-top: 22px">Loading your appointments…</div>
+    <div style="font-size: 14px; color: #6B7280; margin-top: 22px">{{ 'appointments.loading' | translate }}</div>
   } @else if (loadError()) {
     <div style="font-size: 14px; color: #DC2626; margin-top: 22px">{{ loadError() }}</div>
   } @else if (appointments().length === 0) {
-    <div style="font-size: 14px; color: #6B7280; margin-top: 22px">You haven't requested any appointments yet.</div>
+    <div style="font-size: 14px; color: #6B7280; margin-top: 22px">{{ 'appointments.empty' | translate }}</div>
   }
 
   <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 22px">
@@ -32,7 +32,7 @@
             <div style="font-size: 13.5px; color: #6B7280; margin-top: 5px">{{ a.hospital }} · {{ a.dept }}</div>
             <div style="display: flex; gap: 22px; margin-top: 12px">
               <div>
-                <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Doctor</div>
+                <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">{{ 'appointments.doctor' | translate }}</div>
                 <div style="font-size: 13.5px; margin-top: 3px">{{ a.doctor }}</div>
               </div>
               <div>
@@ -40,7 +40,7 @@
                 <div style="font-size: 13.5px; margin-top: 3px">{{ a.when }}</div>
               </div>
               <div>
-                <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Reference</div>
+                <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">{{ 'appointments.reference' | translate }}</div>
                 <div style="font-size: 13.5px; margin-top: 3px">{{ a.code }}</div>
               </div>
             </div>
@@ -48,7 +48,7 @@
           <div style="flex: none; text-align: right">
             <div style="font-size: 12.5px; color: #9AA4B2">{{ a.nudge }}</div>
             @if (a.needsYou) {
-              <div style="display: inline-block; margin-top: 10px; height: 36px; line-height: 36px; padding: 0 15px; border-radius: 10px; background: #1A6DF0; color: #fff; font-size: 13px; font-weight: 600">Review proposal</div>
+              <div style="display: inline-block; margin-top: 10px; height: 36px; line-height: 36px; padding: 0 15px; border-radius: 10px; background: #1A6DF0; color: #fff; font-size: 13px; font-weight: 600">{{ 'appointments.reviewProposal' | translate }}</div>
             }
           </div>
         </div>

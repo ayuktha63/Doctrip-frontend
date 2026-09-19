@@ -1,7 +1,7 @@
 <div>
   <div (click)="goAppointments()" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: #6B7280; cursor: pointer">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"></path></svg>
-    My appointments
+    {{ 'shell.nav.appointments' | translate }}
   </div>
 
   <div style="display: flex; align-items: center; gap: 12px; margin-top: 14px">
@@ -33,7 +33,7 @@
       </div>
 
       <div style="background: #fff; border: 1px solid #E9EEF6; border-radius: 16px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 12px 28px -20px rgba(16,42,84,.28); padding: 22px">
-        <div style="font-size: 15px; font-weight: 600">Progress</div>
+        <div style="font-size: 15px; font-weight: 600">{{ 'appointmentDetail.progress' | translate }}</div>
         <div style="display: flex; flex-direction: column; margin-top: 16px">
           @for (e of timeline(); track e.time) {
             <div style="display: flex; gap: 14px">
@@ -58,7 +58,7 @@
 
     <div style="display: flex; flex-direction: column; gap: 18px">
       <div style="background: #fff; border: 1px solid #E9EEF6; border-radius: 16px; box-shadow: 0 1px 2px rgba(13,27,42,.04), 0 12px 28px -20px rgba(16,42,84,.28); padding: 22px">
-        <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">Where this stands</div>
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #9AA4B2">{{ 'appointmentDetail.whereThisStands' | translate }}</div>
         <div style="font-size: 17px; font-weight: 600; margin-top: 7px" [style.color]="cur().accent">{{ cur().statusLabel }}</div>
         <div style="font-size: 13px; line-height: 19px; color: #6B7280; margin-top: 5px">{{ statusNote() }}</div>
 

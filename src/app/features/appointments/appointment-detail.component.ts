@@ -6,6 +6,7 @@ import { AppointmentStatus } from '../../core/models/appointment.model';
 import { AppointmentsStateService } from '../../core/services/appointments-state.service';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
 import { ToastService } from '../../core/services/toast.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 interface ActionButton {
   label: string;
@@ -22,6 +23,7 @@ const DANGER = { bg: '#fff', fg: '#DC2626', border: '#F1D6D6' };
 @Component({
   selector: 'app-appointment-detail',
   standalone: true,
+  imports: [TranslatePipe],
   templateUrl: './appointment-detail.component.html',
 })
 export class AppointmentDetailComponent {

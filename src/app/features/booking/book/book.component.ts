@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingRequestForm } from '../../../core/models/booking-request.model';
 import { BookingRequestStateService, BookingSegment } from '../../../core/services/booking-request-state.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 interface BookField {
   key: keyof BookingRequestForm;
@@ -10,22 +11,25 @@ interface BookField {
   required?: boolean;
 }
 
+// `title`/`label` are translation keys, resolved via `| translate` at the point of use in
+// book.component.html — not the strings themselves — so this data stays static while the display
+// text follows the active language signal.
 const SECTIONS: { title: string; fields: BookField[] }[] = [
   {
-    title: 'Healthcare requirement',
+    title: 'book.section.requirement.title',
     fields: [
-      { key: 'need', label: 'What do you need?', ph: 'Right knee replacement', required: true },
-      { key: 'notes', label: 'Additional details', ph: 'Anything the hospital should know' },
+      { key: 'need', label: 'book.field.need', ph: 'Right knee replacement', required: true },
+      { key: 'notes', label: 'book.field.notes', ph: 'Anything the hospital should know' },
     ],
   },
   {
-    title: 'Patient and traveller',
+    title: 'book.section.patient.title',
     fields: [
-      { key: 'name', label: 'Patient name', ph: 'John Mathew', required: true },
-      { key: 'age', label: 'Age', ph: '54', required: true },
-      { key: 'country', label: 'Country of residence', ph: 'United Kingdom', required: true },
-      { key: 'passport', label: 'Passport number', ph: 'GBR 5512847' },
-      { key: 'companion', label: 'Travelling with', ph: '1 companion' },
+      { key: 'name', label: 'book.field.patientName', ph: 'John Mathew', required: true },
+      { key: 'age', label: 'book.field.age', ph: '54', required: true },
+      { key: 'country', label: 'book.field.country', ph: 'United Kingdom', required: true },
+      { key: 'passport', label: 'book.field.passport', ph: 'GBR 5512847' },
+      { key: 'companion', label: 'book.field.companion', ph: '1 companion' },
     ],
   },
 ];
@@ -33,7 +37,7 @@ const SECTIONS: { title: string; fields: BookField[] }[] = [
 /** Book appointment — the reference mockup's `isBook` screen (request form, date/time chips, documents). */
 @Component({
   selector: 'app-booking-book',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './book.component.html',
 })
 export class BookComponent implements OnInit {
