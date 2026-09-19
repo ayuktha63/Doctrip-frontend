@@ -34,6 +34,11 @@ export class HospitalAdminShellComponent {
   private readonly url = signal(this.router.url);
 
   constructor() {
+    // Populates the sidebar "Requests" open-count badge and the top-bar SLA breach badge on
+    // every screen, not just after visiting Dashboard (which is the only other place this gets
+    // called).
+    this.dashboard.getSummary().subscribe({ error: () => {} });
+
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e) => {
       this.url.set((e as NavigationEnd).urlAfterRedirects);
     });
