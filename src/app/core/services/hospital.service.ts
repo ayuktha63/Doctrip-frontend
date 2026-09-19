@@ -14,7 +14,6 @@ export interface HospitalAdminAccountRequest {
 export interface HospitalAdminAccountUpdateRequest {
   name: string;
   email: string;
-  /** Blank leaves the current password unchanged. */
   password: string;
 }
 
@@ -23,6 +22,8 @@ export interface HospitalAdminAccount {
   hospitalId: string;
   email: string;
   name: string;
+  /** The account's actual current password, decrypted server-side for DocTrip Admin to view. */
+  password: string | null;
   active: boolean;
   createdAt: string;
 }

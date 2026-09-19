@@ -83,7 +83,7 @@ export class HospitalFormComponent implements OnInit {
         const account = accounts[0];
         if (account) {
           this.adminAccountId.set(account.id);
-          this.form.patchValue({ adminName: account.name, adminEmail: account.email });
+          this.form.patchValue({ adminName: account.name, adminEmail: account.email, adminPassword: account.password ?? '' });
         }
       },
       error: () => {}, // Non-fatal — the hospital details themselves still loaded.

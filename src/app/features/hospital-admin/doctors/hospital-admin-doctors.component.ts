@@ -36,6 +36,7 @@ export class HospitalAdminDoctorsComponent implements OnInit {
     departmentId: ['', Validators.required],
     specialty: ['', Validators.required],
     experienceYears: this.fb.control<number | null>(null, Validators.required),
+    email: ['', [Validators.required, Validators.email]],
   });
 
   ngOnInit(): void {
@@ -57,14 +58,20 @@ export class HospitalAdminDoctorsComponent implements OnInit {
   openAdd(): void {
     this.editing.set(null);
     this.formErr.set('');
-    this.form.reset({ name: '', departmentId: '', specialty: '', experienceYears: null });
+    this.form.reset({ name: '', departmentId: '', specialty: '', experienceYears: null, email: '' });
     this.showForm.set(true);
   }
 
   openEdit(d: Doctor): void {
     this.editing.set(d);
     this.formErr.set('');
-    this.form.reset({ name: d.name, departmentId: d.departmentId, specialty: d.specialty, experienceYears: d.experienceYears });
+    this.form.reset({
+      name: d.name,
+      departmentId: d.departmentId,
+      specialty: d.specialty,
+      experienceYears: d.experienceYears,
+      email: d.email ?? '',
+    });
     this.showForm.set(true);
   }
 

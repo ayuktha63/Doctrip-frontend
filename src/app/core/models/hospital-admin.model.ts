@@ -74,6 +74,8 @@ export interface Doctor {
   departmentName: string;
   specialty: string;
   experienceYears: number;
+  /** Where an appointment-coordination request is actually emailed to this doctor. */
+  email: string | null;
   active: boolean;
 }
 
@@ -82,6 +84,7 @@ export interface DoctorRequest {
   departmentId: string;
   specialty: string;
   experienceYears: number | null;
+  email: string;
 }
 
 export type AvailabilityKind = 'REGULAR' | 'EXTRA' | 'BLOCKED' | string;
