@@ -28,6 +28,17 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onHospitals() ? '#1A6DF0' : '#6B7280'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14"></path><path d="M2 21h20"></path><path d="M12 8v6M9 11h6"></path></svg>
         Hospitals
       </button>
+      <button
+        type="button"
+        (click)="goUsers()"
+        style="display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 10px; border: 0; border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px"
+        [style.background]="onUsers() ? '#EAF1FE' : 'transparent'"
+        [style.color]="onUsers() ? '#1A6DF0' : '#1F2A37'"
+        [style.font-weight]="onUsers() ? 600 : 500"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" [attr.stroke]="onUsers() ? '#1A6DF0' : '#6B7280'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Users
+      </button>
     </div>
 
     <div style="flex: 1"></div>
@@ -40,6 +51,9 @@
         <div style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ adminName() }}</div>
         <div style="font-size: 11.5px; color: #9AA4B2">Platform admin</div>
       </div>
+      <button type="button" (click)="logout()" aria-label="Sign out" style="width: 34px; height: 34px; flex: none; display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #334155; cursor: pointer">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"></path><path d="M15.4 16.2l4.2-4.2-4.2-4.2M19.6 12H9.4"></path></svg>
+      </button>
     </div>
   </aside>
 

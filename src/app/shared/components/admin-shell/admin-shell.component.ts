@@ -31,8 +31,13 @@ export class AdminShellComponent {
 
   protected readonly onDashboard = computed(() => this.url() === '/admin' || this.url() === '/admin/');
   protected readonly onHospitals = computed(() => this.url().startsWith('/admin/hospitals'));
+  protected readonly onUsers = computed(() => this.url().startsWith('/admin/users'));
 
-  protected readonly crumb = computed(() => (this.onDashboard() ? 'Dashboard' : 'Hospitals'));
+  protected readonly crumb = computed(() => {
+    if (this.onUsers()) return 'Users';
+    if (this.onHospitals()) return 'Hospitals';
+    return 'Dashboard';
+  });
 
   protected readonly adminName = computed(() => 'DocTrip Admin');
   protected readonly adminInitials = computed(() => 'DA');
@@ -43,5 +48,15 @@ export class AdminShellComponent {
 
   goHospitals(): void {
     this.router.navigate(['/admin/hospitals']);
+  }
+
+  goUsers(): void {
+    this.router.navigate(['/admin/users']);
+  }
+
+  /** No real admin session exists yet (see class doc comment) — "logging out" just exits the
+   *  console back to the patient app, same as there being nothing to actually clear. */
+  logout(): void {
+    this.router.navigate(['/']);
   }
 }

@@ -117,6 +117,10 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/hospitals/hospital-form.component').then((m) => m.HospitalFormComponent),
       },
+      {
+        path: 'users',
+        loadComponent: () => import('./features/admin/users/user-list.component').then((m) => m.UserListComponent),
+      },
     ],
   },
   {
